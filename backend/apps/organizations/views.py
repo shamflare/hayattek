@@ -4,14 +4,19 @@ from datetime import timedelta
 
 from django.db.models import Count, Q
 from django.utils import timezone
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.access.context import (
-    HasPracticeContext,
     IsOrgAdmin,
     IsPlatformAdmin,
     require_practice_context,
@@ -63,6 +68,8 @@ def _member_create_response(result) -> Response:
 # ============================================================ platform admin
 
 
+@extend_schema_view(list=extend_schema(parameters=[
+    OpenApiParameter(n, str) for n in ("q", "kind", "status")]))
 class AdminOrganizationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsPlatformAdmin]
     serializer_class = OrganizationSerializer
@@ -106,8 +113,9 @@ class AdminOrganizationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def members(self, request, pk=None):
         qs = Membership.objects.filter(organization=self.get_object()).select_related(
-            "user", "user__practitioner")
-        return Response(MembershipSerializer(qs, many=True).data)
+            "user", "user__practitioner").order_by("user__full_name")
+        page = self.paginate_queryset(qs)
+        return self.get_paginated_response(MembershipSerializer(page, many=True).data)
 
     @extend_schema(request=MemberCreateSerializer, responses={201: MemberCreateResponseSerializer})
     @members.mapping.post
@@ -119,6 +127,8 @@ class AdminOrganizationViewSet(viewsets.ModelViewSet):
         return _member_create_response(result)
 
 
+@extend_schema_view(list=extend_schema(parameters=[
+    OpenApiParameter(n, str) for n in ("q", "verification_status")]))
 class AdminPractitionerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                                viewsets.GenericViewSet):
     permission_classes = [IsPlatformAdmin]
@@ -145,6 +155,7 @@ class AdminPractitionerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         return Response(PractitionerSerializer(practitioner).data)
 
 
+@extend_schema_view(list=extend_schema(parameters=[OpenApiParameter("q", str)]))
 class AdminUserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsPlatformAdmin]
     serializer_class = UserSummarySerializer
@@ -177,6 +188,7 @@ class AdminPlanViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "head", "options"]
 
 
+@extend_schema_view(list=extend_schema(parameters=[OpenApiParameter("organization", str)]))
 class AdminSubscriptionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsPlatformAdmin]
     serializer_class = SubscriptionSerializer
@@ -195,6 +207,9 @@ class AuditEventSerializer(serializers.ModelSerializer):
                   "target_type", "target_id", "patient_id", "ip_address")
 
 
+@extend_schema_view(list=extend_schema(parameters=[
+    OpenApiParameter(n, str) for n in ("action", "outcome", "organization_id", "actor_id",
+                                       "patient_id")]))
 class AdminAuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Security log for platform operators. Contains identifiers only, no clinical content."""
 
@@ -326,7 +341,9 @@ class OrgDepartmentViewSet(viewsets.ModelViewSet):
 
 
 class DirectoryOrganizationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [HasPracticeContext]
+    # Organization names/kinds/cities are public information; patients need the
+    # directory to share their file with a facility (no practice context).
+    permission_classes = [IsAuthenticated]
     serializer_class = PublicOrganizationSerializer
 
     def get_queryset(self):
@@ -340,7 +357,8 @@ class DirectoryOrganizationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
 
 class DirectoryPractitionerViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [HasPracticeContext]
+    # Verified practitioners' public names and specialties only.
+    permission_classes = [IsAuthenticated]
     serializer_class = PublicPractitionerSerializer
 
     def get_queryset(self):

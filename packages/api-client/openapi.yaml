@@ -165,6 +165,54 @@ paths:
       description: Security log for platform operators. Contains identifiers only,
         no clinical content.
       parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+      - in: query
+        name: actor_id
+        schema:
+          type: string
+      - in: query
+        name: organization_id
+        schema:
+          type: string
+      - in: query
+        name: outcome
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      - in: query
+        name: patient_id
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditEventList'
+          description: ''
+  /api/v1/admin/join-requests:
+    get:
+      operationId: admin_join_requests_list
+      parameters:
       - name: page
         required: false
         in: query
@@ -187,12 +235,50 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedAuditEventList'
+                $ref: '#/components/schemas/PaginatedJoinRequestList'
+          description: ''
+  /api/v1/admin/join-requests/{id}:
+    patch:
+      operationId: admin_join_requests_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا join request.
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedJoinRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedJoinRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedJoinRequestRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinRequest'
           description: ''
   /api/v1/admin/organizations:
     get:
       operationId: admin_organizations_list
       parameters:
+      - in: query
+        name: kind
+        schema:
+          type: string
       - name: page
         required: false
         in: query
@@ -205,6 +291,14 @@ paths:
         description: عدد النتائج التي يجب إرجاعها في كل صفحة.
         schema:
           type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
       tags:
       - admin
       security:
@@ -529,6 +623,14 @@ paths:
         description: عدد النتائج التي يجب إرجاعها في كل صفحة.
         schema:
           type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: verification_status
+        schema:
+          type: string
       tags:
       - admin
       security:
@@ -619,6 +721,10 @@ paths:
     get:
       operationId: admin_subscriptions_list
       parameters:
+      - in: query
+        name: organization
+        schema:
+          type: string
       - name: page
         required: false
         in: query
@@ -741,6 +847,10 @@ paths:
         description: عدد النتائج التي يجب إرجاعها في كل صفحة.
         schema:
           type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
       tags:
       - admin
       security:
@@ -1099,7 +1209,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllergyWrite'
+                $ref: '#/components/schemas/Allergy'
           description: ''
   /api/v1/clinical/allergies/{id}:
     get:
@@ -1155,7 +1265,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllergyWrite'
+                $ref: '#/components/schemas/Allergy'
           description: ''
   /api/v1/clinical/allergies/{id}/amend:
     post:
@@ -1190,7 +1300,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllergyWrite'
+                $ref: '#/components/schemas/Allergy'
           description: ''
   /api/v1/clinical/allergies/{id}/entered-in-error:
     post:
@@ -1344,7 +1454,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConditionWrite'
+                $ref: '#/components/schemas/Condition'
           description: ''
   /api/v1/clinical/conditions/{id}:
     get:
@@ -1400,7 +1510,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConditionWrite'
+                $ref: '#/components/schemas/Condition'
           description: ''
   /api/v1/clinical/conditions/{id}/amend:
     post:
@@ -1435,7 +1545,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConditionWrite'
+                $ref: '#/components/schemas/Condition'
           description: ''
   /api/v1/clinical/conditions/{id}/entered-in-error:
     post:
@@ -1589,7 +1699,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterWrite'
+                $ref: '#/components/schemas/Encounter'
           description: ''
   /api/v1/clinical/encounters/{id}:
     get:
@@ -1645,7 +1755,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterWrite'
+                $ref: '#/components/schemas/Encounter'
           description: ''
   /api/v1/clinical/encounters/{id}/amend:
     post:
@@ -1680,7 +1790,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterWrite'
+                $ref: '#/components/schemas/Encounter'
           description: ''
   /api/v1/clinical/encounters/{id}/entered-in-error:
     post:
@@ -1886,7 +1996,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ImagingReportWrite'
+                $ref: '#/components/schemas/ImagingReport'
           description: ''
   /api/v1/diagnostics/imaging-reports/{id}:
     get:
@@ -1942,7 +2052,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ImagingReportWrite'
+                $ref: '#/components/schemas/ImagingReport'
           description: ''
   /api/v1/diagnostics/imaging-reports/{id}/amend:
     post:
@@ -1977,7 +2087,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ImagingReportWrite'
+                $ref: '#/components/schemas/ImagingReport'
           description: ''
   /api/v1/diagnostics/imaging-reports/{id}/entered-in-error:
     post:
@@ -2131,7 +2241,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabReportWrite'
+                $ref: '#/components/schemas/LabReport'
           description: ''
   /api/v1/diagnostics/lab-reports/{id}:
     get:
@@ -2187,7 +2297,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabReportWrite'
+                $ref: '#/components/schemas/LabReport'
           description: ''
   /api/v1/diagnostics/lab-reports/{id}/amend:
     post:
@@ -2222,7 +2332,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabReportWrite'
+                $ref: '#/components/schemas/LabReport'
           description: ''
   /api/v1/diagnostics/lab-reports/{id}/entered-in-error:
     post:
@@ -2427,7 +2537,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceRequestWrite'
+                $ref: '#/components/schemas/ServiceRequest'
           description: ''
   /api/v1/diagnostics/requests/{id}:
     get:
@@ -2483,7 +2593,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceRequestWrite'
+                $ref: '#/components/schemas/ServiceRequest'
           description: ''
   /api/v1/diagnostics/requests/{id}/amend:
     post:
@@ -2518,7 +2628,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceRequestWrite'
+                $ref: '#/components/schemas/ServiceRequest'
           description: ''
   /api/v1/diagnostics/requests/{id}/entered-in-error:
     post:
@@ -2843,7 +2953,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentUpload'
+                $ref: '#/components/schemas/Document'
           description: ''
   /api/v1/documents/{id}/amend:
     post:
@@ -2875,7 +2985,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentUpload'
+                $ref: '#/components/schemas/Document'
           description: ''
   /api/v1/documents/{id}/download:
     get:
@@ -4431,7 +4541,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionWrite'
+                $ref: '#/components/schemas/Prescription'
           description: ''
   /api/v1/prescriptions/{id}:
     get:
@@ -4487,7 +4597,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionWrite'
+                $ref: '#/components/schemas/Prescription'
           description: ''
   /api/v1/prescriptions/{id}/amend:
     post:
@@ -4522,7 +4632,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionWrite'
+                $ref: '#/components/schemas/Prescription'
           description: ''
   /api/v1/prescriptions/{id}/entered-in-error:
     post:
@@ -4663,6 +4773,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicCard'
           description: ''
+  /api/v1/public/join-requests:
+    post:
+      operationId: public_join_requests_create
+      tags:
+      - public
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JoinRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JoinRequestRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinOk'
+          description: ''
   /api/v1/public/prescriptions/{code}:
     get:
       operationId: public_prescriptions_retrieve
@@ -4744,7 +4880,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReferralWrite'
+                $ref: '#/components/schemas/Referral'
           description: ''
   /api/v1/referrals/{id}:
     get:
@@ -4800,7 +4936,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReferralWrite'
+                $ref: '#/components/schemas/Referral'
           description: ''
   /api/v1/referrals/{id}/amend:
     post:
@@ -4835,7 +4971,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReferralWrite'
+                $ref: '#/components/schemas/Referral'
           description: ''
   /api/v1/referrals/{id}/entered-in-error:
     post:
@@ -5292,27 +5428,6 @@ components:
       - status_reason
       - substance
       - version
-    AllergyWrite:
-      type: object
-      properties:
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        substance:
-          type: string
-          maxLength: 200
-        category:
-          $ref: '#/components/schemas/CategoryCefEnum'
-        reaction:
-          type: string
-          maxLength: 300
-        severity:
-          $ref: '#/components/schemas/SeverityEnum'
-        is_active:
-          type: boolean
-      required:
-      - substance
     AllergyWriteRequest:
       type: object
       properties:
@@ -5581,35 +5696,6 @@ components:
       - status
       - status_reason
       - version
-    ConditionWrite:
-      type: object
-      properties:
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        code:
-          type: string
-          maxLength: 20
-        display:
-          type: string
-          maxLength: 300
-        category:
-          $ref: '#/components/schemas/CategoryE8eEnum'
-        clinical_status:
-          $ref: '#/components/schemas/ClinicalStatusEnum'
-        onset_date:
-          type: string
-          format: date
-          nullable: true
-        note:
-          type: string
-          maxLength: 500
-        occurred_at:
-          type: string
-          format: date-time
-      required:
-      - display
     ConditionWriteRequest:
       type: object
       properties:
@@ -5916,47 +6002,6 @@ components:
       required:
       - id
       - mime_type
-      - title
-    DocumentUpload:
-      type: object
-      properties:
-        patient:
-          type: string
-          format: uuid
-        file:
-          type: string
-          format: uri
-        category:
-          $ref: '#/components/schemas/Category91cEnum'
-        title:
-          type: string
-          maxLength: 200
-        description:
-          type: string
-          maxLength: 500
-        document_date:
-          type: string
-          format: date
-          nullable: true
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        lab_report:
-          type: string
-          format: uuid
-          nullable: true
-        imaging_report:
-          type: string
-          format: uuid
-          nullable: true
-        run_ocr:
-          type: boolean
-          default: false
-      required:
-      - category
-      - file
-      - patient
       - title
     DocumentUploadRequest:
       type: object
@@ -6268,37 +6313,6 @@ components:
         * `emergency` - إسعافية
         * `procedure` - إجراء طبي
         * `home_visit` - زيارة منزلية
-    EncounterWrite:
-      type: object
-      properties:
-        encounter_type:
-          $ref: '#/components/schemas/EncounterTypeEnum'
-        occurred_at:
-          type: string
-          format: date-time
-        reason:
-          type: string
-          maxLength: 300
-        complaint:
-          type: string
-        history:
-          type: string
-        examination:
-          type: string
-        vitals: {}
-        assessment:
-          type: string
-        plan:
-          type: string
-        notes:
-          type: string
-        follow_up_date:
-          type: string
-          format: date
-          nullable: true
-        follow_up_note:
-          type: string
-          maxLength: 300
     EncounterWriteRequest:
       type: object
       properties:
@@ -6651,31 +6665,6 @@ components:
       - status_reason
       - title
       - version
-    ImagingReportWrite:
-      type: object
-      properties:
-        service_request:
-          type: string
-          format: uuid
-          nullable: true
-        modality:
-          $ref: '#/components/schemas/ModalityEnum'
-        body_site:
-          type: string
-          maxLength: 120
-        title:
-          type: string
-          maxLength: 200
-        findings:
-          type: string
-        impression:
-          type: string
-        occurred_at:
-          type: string
-          format: date-time
-      required:
-      - modality
-      - title
     ImagingReportWriteRequest:
       type: object
       properties:
@@ -6751,6 +6740,93 @@ components:
         * `critical_low` - منخفض جداً
         * `critical_high` - مرتفع جداً
         * `abnormal` - غير طبيعي
+    JoinOk:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required:
+      - ok
+    JoinRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        facility_name:
+          type: string
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/Kind09cEnum'
+        governorate:
+          $ref: '#/components/schemas/GovernorateEnum'
+        contact_name:
+          type: string
+          maxLength: 120
+        phone:
+          type: string
+          maxLength: 30
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        message:
+          type: string
+          maxLength: 1000
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusB9aEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contact_name
+      - created_at
+      - facility_name
+      - id
+      - kind
+      - phone
+      - status
+    JoinRequestRequest:
+      type: object
+      properties:
+        facility_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/Kind09cEnum'
+        governorate:
+          $ref: '#/components/schemas/GovernorateEnum'
+        contact_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 30
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        message:
+          type: string
+          maxLength: 1000
+      required:
+      - contact_name
+      - facility_name
+      - kind
+      - phone
     Kind09cEnum:
       enum:
       - clinic
@@ -7015,35 +7091,6 @@ components:
       - occurred_at
       - organization_name
       - status
-      - title
-    LabReportWrite:
-      type: object
-      properties:
-        service_request:
-          type: string
-          format: uuid
-          nullable: true
-        title:
-          type: string
-          maxLength: 200
-        occurred_at:
-          type: string
-          format: date-time
-        specimen_collected_at:
-          type: string
-          format: date-time
-          nullable: true
-        conclusion:
-          type: string
-        external_lab_name:
-          type: string
-          description: For imported paper results from non-member labs.
-          maxLength: 200
-        observations:
-          type: array
-          items:
-            $ref: '#/components/schemas/LabObservation'
-      required:
       - title
     LabReportWriteRequest:
       type: object
@@ -8014,6 +8061,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImagingReport'
+    PaginatedJoinRequestList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/JoinRequest'
     PaginatedLabReportList:
       type: object
       required:
@@ -8647,6 +8717,37 @@ components:
         occurred_at:
           type: string
           format: date-time
+    PatchedJoinRequestRequest:
+      type: object
+      properties:
+        facility_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/Kind09cEnum'
+        governorate:
+          $ref: '#/components/schemas/GovernorateEnum'
+        contact_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 30
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        message:
+          type: string
+          maxLength: 1000
+        status:
+          $ref: '#/components/schemas/StatusB9aEnum'
     PatchedLabReportWriteRequest:
       type: object
       properties:
@@ -9846,24 +9947,6 @@ components:
       - practitioner_name
       - status
       - valid
-    PrescriptionWrite:
-      type: object
-      properties:
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        diagnosis_text:
-          type: string
-          maxLength: 300
-        notes:
-          type: string
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PrescriptionItem'
-      required:
-      - items
     PrescriptionWriteRequest:
       type: object
       properties:
@@ -10173,36 +10256,6 @@ components:
           type: string
       required:
       - accept
-    ReferralWrite:
-      type: object
-      properties:
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        target_organization:
-          type: string
-          format: uuid
-          nullable: true
-        target_practitioner:
-          type: string
-          format: uuid
-          nullable: true
-        target_specialty:
-          type: string
-          maxLength: 40
-        reason:
-          type: string
-        priority:
-          $ref: '#/components/schemas/Priority32fEnum'
-        shared_scopes:
-          type: array
-          items:
-            $ref: '#/components/schemas/SharedScopesEnum'
-        patient_consented:
-          type: boolean
-      required:
-      - reason
     ReferralWriteRequest:
       type: object
       properties:
@@ -10592,31 +10645,6 @@ components:
       - kind
       - number
       - status
-    ServiceRequestWrite:
-      type: object
-      properties:
-        kind:
-          $ref: '#/components/schemas/Kind373Enum'
-        encounter:
-          type: string
-          format: uuid
-          nullable: true
-        priority:
-          $ref: '#/components/schemas/Priority0fbEnum'
-        performer_organization:
-          type: string
-          format: uuid
-          nullable: true
-        clinical_notes:
-          type: string
-          maxLength: 500
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceRequestItem'
-      required:
-      - items
-      - kind
     ServiceRequestWriteRequest:
       type: object
       properties:
@@ -10806,6 +10834,16 @@ components:
         * `active` - فعالة
         * `suspended` - معلقة
         * `ended` - منتهية
+    StatusB9aEnum:
+      enum:
+      - new
+      - contacted
+      - closed
+      type: string
+      description: |-
+        * `new` - جديد
+        * `contacted` - تم التواصل
+        * `closed` - مغلق
     StatusChangeRequest:
       type: object
       properties:

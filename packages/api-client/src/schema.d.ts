@@ -106,6 +106,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/join-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_join_requests_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/join-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_join_requests_partial_update"];
+        trace?: never;
+    };
     "/api/v1/admin/organizations": {
         parameters: {
             query?: never;
@@ -2071,6 +2103,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/join-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["public_join_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/prescriptions/{code}": {
         parameters: {
             query?: never;
@@ -2346,15 +2394,6 @@ export interface components {
             readonly severity: components["schemas"]["SeverityEnum"];
             readonly is_active: boolean;
         };
-        AllergyWrite: {
-            /** Format: uuid */
-            encounter?: string | null;
-            substance: string;
-            category?: components["schemas"]["CategoryCefEnum"];
-            reaction?: string;
-            severity?: components["schemas"]["SeverityEnum"];
-            is_active?: boolean;
-        };
         AllergyWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -2472,19 +2511,6 @@ export interface components {
             readonly onset_date: string | null;
             readonly note: string;
         };
-        ConditionWrite: {
-            /** Format: uuid */
-            encounter?: string | null;
-            code?: string;
-            display: string;
-            category?: components["schemas"]["CategoryE8eEnum"];
-            clinical_status?: components["schemas"]["ClinicalStatusEnum"];
-            /** Format: date */
-            onset_date?: string | null;
-            note?: string;
-            /** Format: date-time */
-            occurred_at?: string;
-        };
         ConditionWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -2599,25 +2625,6 @@ export interface components {
             id: string;
             title: string;
             mime_type: string;
-        };
-        DocumentUpload: {
-            /** Format: uuid */
-            patient: string;
-            /** Format: uri */
-            file: string;
-            category: components["schemas"]["Category91cEnum"];
-            title: string;
-            description?: string;
-            /** Format: date */
-            document_date?: string | null;
-            /** Format: uuid */
-            encounter?: string | null;
-            /** Format: uuid */
-            lab_report?: string | null;
-            /** Format: uuid */
-            imaging_report?: string | null;
-            /** @default false */
-            run_ocr: boolean;
         };
         DocumentUploadRequest: {
             /** Format: uuid */
@@ -2738,22 +2745,6 @@ export interface components {
          * @enum {string}
          */
         EncounterTypeEnum: "consultation" | "follow_up" | "emergency" | "procedure" | "home_visit";
-        EncounterWrite: {
-            encounter_type?: components["schemas"]["EncounterTypeEnum"];
-            /** Format: date-time */
-            occurred_at?: string;
-            reason?: string;
-            complaint?: string;
-            history?: string;
-            examination?: string;
-            vitals?: unknown;
-            assessment?: string;
-            plan?: string;
-            notes?: string;
-            /** Format: date */
-            follow_up_date?: string | null;
-            follow_up_note?: string;
-        };
         EncounterWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -2900,17 +2891,6 @@ export interface components {
             readonly impression: string;
             readonly documents: components["schemas"]["DocumentBrief"][];
         };
-        ImagingReportWrite: {
-            /** Format: uuid */
-            service_request?: string | null;
-            modality: components["schemas"]["ModalityEnum"];
-            body_site?: string;
-            title: string;
-            findings?: string;
-            impression?: string;
-            /** Format: date-time */
-            occurred_at?: string;
-        };
         ImagingReportWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -2943,6 +2923,32 @@ export interface components {
          * @enum {string}
          */
         InterpretationEnum: "normal" | "low" | "high" | "critical_low" | "critical_high" | "abnormal";
+        JoinOk: {
+            ok: boolean;
+        };
+        JoinRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            facility_name: string;
+            kind: components["schemas"]["Kind09cEnum"];
+            governorate?: components["schemas"]["GovernorateEnum"];
+            contact_name: string;
+            phone: string;
+            email?: string;
+            message?: string;
+            readonly status: components["schemas"]["StatusB9aEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        JoinRequestRequest: {
+            facility_name: string;
+            kind: components["schemas"]["Kind09cEnum"];
+            governorate?: components["schemas"]["GovernorateEnum"];
+            contact_name: string;
+            phone: string;
+            email?: string;
+            message?: string;
+        };
         /**
          * @description * `clinic` - عيادة خاصة
          *     * `medical_center` - مجمع طبي
@@ -3039,19 +3045,6 @@ export interface components {
             status: string;
             abnormal_count: number;
             organization_name: string | null;
-        };
-        LabReportWrite: {
-            /** Format: uuid */
-            service_request?: string | null;
-            title: string;
-            /** Format: date-time */
-            occurred_at?: string;
-            /** Format: date-time */
-            specimen_collected_at?: string | null;
-            conclusion?: string;
-            /** @description For imported paper results from non-member labs. */
-            external_lab_name?: string;
-            observations?: components["schemas"]["LabObservation"][];
         };
         LabReportWriteRequest: {
             /** Format: uuid */
@@ -3485,6 +3478,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["ImagingReport"][];
         };
+        PaginatedJoinRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["JoinRequest"][];
+        };
         PaginatedLabReportList: {
             /** @example 123 */
             count: number;
@@ -3855,6 +3863,16 @@ export interface components {
             impression?: string;
             /** Format: date-time */
             occurred_at?: string;
+        };
+        PatchedJoinRequestRequest: {
+            facility_name?: string;
+            kind?: components["schemas"]["Kind09cEnum"];
+            governorate?: components["schemas"]["GovernorateEnum"];
+            contact_name?: string;
+            phone?: string;
+            email?: string;
+            message?: string;
+            status?: components["schemas"]["StatusB9aEnum"];
         };
         PatchedLabReportWriteRequest: {
             /** Format: uuid */
@@ -4295,13 +4313,6 @@ export interface components {
             organization_name: string | null;
             practitioner_name: string | null;
         };
-        PrescriptionWrite: {
-            /** Format: uuid */
-            encounter?: string | null;
-            diagnosis_text?: string;
-            notes?: string;
-            items: components["schemas"]["PrescriptionItem"][];
-        };
         PrescriptionWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -4419,19 +4430,6 @@ export interface components {
         ReferralResponseRequest: {
             accept: boolean;
             note?: string;
-        };
-        ReferralWrite: {
-            /** Format: uuid */
-            encounter?: string | null;
-            /** Format: uuid */
-            target_organization?: string | null;
-            /** Format: uuid */
-            target_practitioner?: string | null;
-            target_specialty?: string;
-            reason: string;
-            priority?: components["schemas"]["Priority32fEnum"];
-            shared_scopes?: components["schemas"]["SharedScopesEnum"][];
-            patient_consented?: boolean;
         };
         ReferralWriteRequest: {
             /** Format: uuid */
@@ -4595,16 +4593,6 @@ export interface components {
             status: string;
             fulfillment_status: string;
         };
-        ServiceRequestWrite: {
-            kind: components["schemas"]["Kind373Enum"];
-            /** Format: uuid */
-            encounter?: string | null;
-            priority?: components["schemas"]["Priority0fbEnum"];
-            /** Format: uuid */
-            performer_organization?: string | null;
-            clinical_notes?: string;
-            items: components["schemas"]["ServiceRequestItem"][];
-        };
         ServiceRequestWriteRequest: {
             /** Format: uuid */
             patient: string;
@@ -4714,6 +4702,13 @@ export interface components {
          * @enum {string}
          */
         Status90dEnum: "active" | "suspended" | "ended";
+        /**
+         * @description * `new` - جديد
+         *     * `contacted` - تم التواصل
+         *     * `closed` - مغلق
+         * @enum {string}
+         */
+        StatusB9aEnum: "new" | "contacted" | "closed";
         StatusChangeRequest: {
             status: string;
             notes?: string;
@@ -5013,10 +5008,15 @@ export interface operations {
     admin_audit_list: {
         parameters: {
             query?: {
+                action?: string;
+                actor_id?: string;
+                organization_id?: string;
+                outcome?: string;
                 /** @description رقم الصفحة ضمن النتائج المقسمة. */
                 page?: number;
                 /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
                 page_size?: number;
+                patient_id?: string;
             };
             header?: never;
             path?: never;
@@ -5034,13 +5034,68 @@ export interface operations {
             };
         };
     };
-    admin_organizations_list: {
+    admin_join_requests_list: {
         parameters: {
             query?: {
                 /** @description رقم الصفحة ضمن النتائج المقسمة. */
                 page?: number;
                 /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
                 page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedJoinRequestList"];
+                };
+            };
+        };
+    };
+    admin_join_requests_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا join request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedJoinRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJoinRequestRequest"];
+                "multipart/form-data": components["schemas"]["PatchedJoinRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinRequest"];
+                };
+            };
+        };
+    };
+    admin_organizations_list: {
+        parameters: {
+            query?: {
+                kind?: string;
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+                q?: string;
+                status?: string;
             };
             header?: never;
             path?: never;
@@ -5322,6 +5377,8 @@ export interface operations {
                 page?: number;
                 /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
                 page_size?: number;
+                q?: string;
+                verification_status?: string;
             };
             header?: never;
             path?: never;
@@ -5411,6 +5468,7 @@ export interface operations {
     admin_subscriptions_list: {
         parameters: {
             query?: {
+                organization?: string;
                 /** @description رقم الصفحة ضمن النتائج المقسمة. */
                 page?: number;
                 /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
@@ -5514,6 +5572,7 @@ export interface operations {
                 page?: number;
                 /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
                 page_size?: number;
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -5855,7 +5914,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AllergyWrite"];
+                    "application/json": components["schemas"]["Allergy"];
                 };
             };
         };
@@ -5903,7 +5962,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AllergyWrite"];
+                    "application/json": components["schemas"]["Allergy"];
                 };
             };
         };
@@ -5930,7 +5989,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AllergyWrite"];
+                    "application/json": components["schemas"]["Allergy"];
                 };
             };
         };
@@ -6054,7 +6113,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ConditionWrite"];
+                    "application/json": components["schemas"]["Condition"];
                 };
             };
         };
@@ -6102,7 +6161,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ConditionWrite"];
+                    "application/json": components["schemas"]["Condition"];
                 };
             };
         };
@@ -6129,7 +6188,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ConditionWrite"];
+                    "application/json": components["schemas"]["Condition"];
                 };
             };
         };
@@ -6253,7 +6312,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EncounterWrite"];
+                    "application/json": components["schemas"]["Encounter"];
                 };
             };
         };
@@ -6301,7 +6360,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EncounterWrite"];
+                    "application/json": components["schemas"]["Encounter"];
                 };
             };
         };
@@ -6328,7 +6387,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EncounterWrite"];
+                    "application/json": components["schemas"]["Encounter"];
                 };
             };
         };
@@ -6496,7 +6555,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImagingReportWrite"];
+                    "application/json": components["schemas"]["ImagingReport"];
                 };
             };
         };
@@ -6544,7 +6603,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImagingReportWrite"];
+                    "application/json": components["schemas"]["ImagingReport"];
                 };
             };
         };
@@ -6571,7 +6630,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImagingReportWrite"];
+                    "application/json": components["schemas"]["ImagingReport"];
                 };
             };
         };
@@ -6695,7 +6754,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LabReportWrite"];
+                    "application/json": components["schemas"]["LabReport"];
                 };
             };
         };
@@ -6743,7 +6802,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LabReportWrite"];
+                    "application/json": components["schemas"]["LabReport"];
                 };
             };
         };
@@ -6770,7 +6829,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LabReportWrite"];
+                    "application/json": components["schemas"]["LabReport"];
                 };
             };
         };
@@ -6937,7 +6996,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ServiceRequestWrite"];
+                    "application/json": components["schemas"]["ServiceRequest"];
                 };
             };
         };
@@ -6985,7 +7044,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ServiceRequestWrite"];
+                    "application/json": components["schemas"]["ServiceRequest"];
                 };
             };
         };
@@ -7012,7 +7071,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ServiceRequestWrite"];
+                    "application/json": components["schemas"]["ServiceRequest"];
                 };
             };
         };
@@ -7281,7 +7340,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DocumentUpload"];
+                    "application/json": components["schemas"]["Document"];
                 };
             };
         };
@@ -7307,7 +7366,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DocumentUpload"];
+                    "application/json": components["schemas"]["Document"];
                 };
             };
         };
@@ -8672,7 +8731,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PrescriptionWrite"];
+                    "application/json": components["schemas"]["Prescription"];
                 };
             };
         };
@@ -8720,7 +8779,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PrescriptionWrite"];
+                    "application/json": components["schemas"]["Prescription"];
                 };
             };
         };
@@ -8747,7 +8806,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PrescriptionWrite"];
+                    "application/json": components["schemas"]["Prescription"];
                 };
             };
         };
@@ -8868,6 +8927,31 @@ export interface operations {
             };
         };
     };
+    public_join_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["JoinRequestRequest"];
+                "multipart/form-data": components["schemas"]["JoinRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinOk"];
+                };
+            };
+        };
+    };
     public_prescriptions_retrieve: {
         parameters: {
             query?: never;
@@ -8934,7 +9018,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReferralWrite"];
+                    "application/json": components["schemas"]["Referral"];
                 };
             };
         };
@@ -8982,7 +9066,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReferralWrite"];
+                    "application/json": components["schemas"]["Referral"];
                 };
             };
         };
@@ -9009,7 +9093,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReferralWrite"];
+                    "application/json": components["schemas"]["Referral"];
                 };
             };
         };

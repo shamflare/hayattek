@@ -234,3 +234,20 @@ def test_prescription_validation_rejects_incomplete_schedule(doctor, reception, 
     r = doctor.post("/api/v1/prescriptions", {"patient": patient["id"], "items": [
         {"medication_name": "دواء", "schedule_type": "times_of_day", "times_of_day": []}]})
     assert r.status_code == 400
+
+
+def test_public_join_request_and_admin_listing(platform_admin, doctor):
+    r = APIClient().post("/api/v1/public/join-requests", {
+        "facility_name": "عيادة تجريبية", "kind": "clinic", "contact_name": "طبيب تجريبي",
+        "phone": "0933000000"}, format="json")
+    assert r.status_code == 201
+    assert platform_admin.get("/api/v1/admin/join-requests").data["count"] == 1
+    assert doctor.get("/api/v1/admin/join-requests").status_code == 403
+
+
+def test_search_by_name_number_and_phone(reception, make_patient):
+    patient = make_patient(reception, first_name="ريم", father_name="اختبار42", phone="0944123456")
+    p = Patient.objects.get(pk=patient["id"])
+    for q in ("ريم", "اختبار42", p.health_number[:6], "0944123456", "٠٩٤٤١٢٣٤٥٦"):
+        ids = [r["id"] for r in reception.get("/api/v1/patients", data={"q": q}).data["results"]]
+        assert str(p.pk) in [str(i) for i in ids], q

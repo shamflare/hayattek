@@ -9,6 +9,7 @@ from __future__ import annotations
 import uuid
 
 from django.utils.translation import gettext as _
+from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
@@ -70,8 +71,19 @@ def _parse_uuid(value) -> uuid.UUID | None:
         return None
 
 
+class RecordSchema(AutoSchema):
+    """Write actions accept the write serializer but respond with the read serializer."""
+
+    def get_response_serializers(self):
+        if self.method.lower() != "get" and getattr(self.view, "read_serializer_class", None)                 and self.view.action not in ("versions",):
+            return self.view.read_serializer_class
+        return super().get_response_serializers()
+
+
 class ClinicalRecordViewSet(viewsets.GenericViewSet):
     """Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void."""
+
+    schema = RecordSchema()
 
     model = None
     read_serializer_class = None

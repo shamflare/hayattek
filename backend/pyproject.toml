@@ -19,6 +19,7 @@ dependencies = [
     "pyotp>=2.9",
     "pillow>=11.0",
     "gunicorn>=23.0",
+    "django-cors-headers>=4.9.0",
 ]
 
 [dependency-groups]

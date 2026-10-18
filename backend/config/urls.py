@@ -31,6 +31,7 @@ from apps.medications.views import (
 )
 from apps.notifications.views import NotificationViewSet
 from apps.organizations import views as orgs
+from apps.organizations.join import AdminJoinRequestViewSet, PublicJoinRequestView
 from apps.patients.me_views import MyPatientViewSet
 from apps.patients.views import PatientViewSet, PublicCardView
 from apps.referrals.views import ReferralViewSet
@@ -43,6 +44,7 @@ router.register("admin/users", orgs.AdminUserViewSet, basename="admin-user")
 router.register("admin/plans", orgs.AdminPlanViewSet, basename="admin-plan")
 router.register("admin/subscriptions", orgs.AdminSubscriptionViewSet, basename="admin-sub")
 router.register("admin/audit", orgs.AdminAuditViewSet, basename="admin-audit")
+router.register("admin/join-requests", AdminJoinRequestViewSet, basename="admin-join")
 # organization self-management
 router.register("org/members", orgs.OrgMemberViewSet, basename="org-member")
 router.register("org/departments", orgs.OrgDepartmentViewSet, basename="org-dept")
@@ -97,6 +99,7 @@ api_v1 = [
     path("medications/sig-preview", SigPreviewView.as_view()),
     path("public/cards/<str:token>", PublicCardView.as_view()),
     path("public/prescriptions/<str:code>", PublicPrescriptionVerifyView.as_view()),
+    path("public/join-requests", PublicJoinRequestView.as_view()),
     path("", include(router.urls)),
 ]
 

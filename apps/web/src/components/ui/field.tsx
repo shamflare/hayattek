@@ -52,10 +52,18 @@ interface FieldProps {
 }
 
 export function Field({ label, hint, error, optional, htmlFor, className, children }: FieldProps) {
+  // Link the label to a single native control automatically (accessibility + tests).
+  const autoId = React.useId();
+  let id = htmlFor;
+  if (!id && React.isValidElement(children) && isNativeControl(children)) {
+    const element = children as React.ReactElement<{ id?: string }>;
+    id = element.props.id ?? autoId;
+    if (!element.props.id) children = React.cloneElement(element, { id });
+  }
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       {label && (
-        <Label htmlFor={htmlFor} className="flex items-center gap-1.5">
+        <Label htmlFor={id} className="flex items-center gap-1.5">
           {label}
           {optional && <span className="text-xs font-normal text-subtle">(اختياري)</span>}
         </Label>
@@ -68,6 +76,13 @@ export function Field({ label, hint, error, optional, htmlFor, className, childr
       ) : null}
     </div>
   );
+}
+
+const NATIVE = new Set<unknown>(["input", "textarea", "select"]);
+
+function isNativeControl(el: React.ReactElement): boolean {
+  const type = el.type as unknown;
+  return NATIVE.has(type) || type === Input || type === Textarea || type === Select;
 }
 
 /** Pill-style multi/single choice used for quick clinical inputs (times of day, scopes…). */

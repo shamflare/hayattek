@@ -87,7 +87,8 @@ class PatientViewSet(viewsets.GenericViewSet):
         q = (request.query_params.get("q") or "").strip()
         if q:
             digits = services.clean_health_number(q)
-            if digits and len(digits) >= 6:
+            has_letters = any(ch.isalpha() for ch in q)
+            if digits and len(digits) >= 6 and not has_letters:
                 phone = normalize_syrian_phone(q)
                 qs = qs.filter(Q(health_number__startswith=digits) | Q(phone=phone)
                                | Q(phone__endswith=digits[-9:]))

@@ -90,6 +90,8 @@ class Command(BaseCommand):
             self._practitioner(doctor, "د. أحمد التجريبي", "internal_medicine", admin)
             self._member(doctor, center, [Role.PHYSICIAN], admin, "طبيب داخلية")
 
+            self._favorites(doctor)
+
             doctor2 = self._user("doctor2@hayattek.test", "سلمى التجريبية")
             self._practitioner(doctor2, "د. سلمى التجريبية", "cardiology", admin)
             self._member(doctor2, clinic, [Role.PHYSICIAN, Role.ORG_ADMIN], admin, "طبيبة قلبية")
@@ -142,6 +144,15 @@ class Command(BaseCommand):
             "display_name": display, "specialty": specialty, "license_number": "DEMO-0001",
             "license_authority": "جهة تجريبية", "verification_status": "verified",
             "verified_by": admin, "verified_at": timezone.now()})
+
+    def _favorites(self, user):
+        from apps.medications.models import MedicationFavorite
+
+        practitioner = user.practitioner
+        for position, med in enumerate(Medication.objects.filter(
+                source=CatalogSource.SYNTHETIC_TEST).order_by("name")[:6]):
+            MedicationFavorite.objects.get_or_create(practitioner=practitioner, medication=med,
+                                                     defaults={"position": position})
 
     def _member(self, user, org, roles, admin, title=""):
         Membership.objects.get_or_create(user=user, organization=org,

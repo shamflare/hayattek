@@ -162,3 +162,30 @@ class Subscription(BaseModel):
 
     class Meta:
         ordering = ("-starts_on",)
+
+
+class JoinRequestStatus(models.TextChoices):
+    NEW = "new", "جديد"
+    CONTACTED = "contacted", "تم التواصل"
+    CLOSED = "closed", "مغلق"
+
+
+class JoinRequest(BaseModel):
+    """Public 'join the network' request from a facility (no patient data)."""
+
+    facility_name = models.CharField(max_length=200)
+    kind = models.CharField(max_length=32, choices=OrganizationKind.choices)
+    governorate = models.CharField(max_length=32, choices=Governorate.choices,
+                                   default=Governorate.RAQQA)
+    contact_name = models.CharField(max_length=120)
+    phone = models.CharField(max_length=30)
+    email = models.EmailField(blank=True)
+    message = models.CharField(max_length=1000, blank=True)
+    status = models.CharField(max_length=12, choices=JoinRequestStatus.choices,
+                              default=JoinRequestStatus.NEW)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return self.facility_name
