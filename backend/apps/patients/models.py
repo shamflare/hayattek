@@ -251,3 +251,93 @@ class CorrectionRequest(BaseModel):
         settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+"
     )
     response = models.CharField(max_length=1000, blank=True)
+
+
+# ---------------------------------------------------------------- duplicate merge (§8)
+
+
+class MergeCaseStatus(models.TextChoices):
+    OPEN = "open", "قيد المراجعة"
+    MERGED = "merged", "تم الدمج"
+    REJECTED = "rejected", "ليسا الشخص نفسه"
+    REVERTED = "reverted", "تم التراجع عن الدمج"
+
+
+class MergeEvidence(models.TextChoices):
+    """What the reviewer physically checked. At least one identity document is required."""
+
+    HEALTH_CARD = "health_card", "البطاقة الصحية لأحد الملفين"
+    NATIONAL_ID_DOCUMENT = "national_id_document", "الهوية الشخصية أو جواز السفر"
+    FAMILY_BOOKLET = "family_booklet", "دفتر العائلة أو بيان القيد"
+    PATIENT_CONFIRMED = "patient_confirmed", "أكد المريض أو وليه أن الملفين له"
+    PHONE_VERIFIED = "phone_verified", "تحقق من رقم الهاتف"
+    CLINICAL_HISTORY_MATCH = "clinical_history_match", "تطابق التاريخ المرضي"
+
+
+STRONG_MERGE_EVIDENCE = (MergeEvidence.HEALTH_CARD, MergeEvidence.NATIONAL_ID_DOCUMENT,
+                         MergeEvidence.FAMILY_BOOKLET)
+
+
+class PatientMergeCase(BaseModel):
+    """A reviewed pair of suspected duplicate files. Never created by an automatic merge:
+    a human decides (merge or "not the same person") with documented evidence (ADR-027)."""
+
+    organization = models.ForeignKey(
+        "organizations.Organization", on_delete=models.PROTECT, related_name="+",
+        help_text="Facility where the review took place (both files registered there).",
+    )
+    # `source` is folded into `target` (the surviving file).
+    source = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="+")
+    target = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="+")
+    reasons = models.JSONField(default=list, blank=True,
+                               help_text="Detection reasons, e.g. same_phone_birth_year.")
+    status = models.CharField(max_length=10, choices=MergeCaseStatus.choices,
+                              default=MergeCaseStatus.OPEN, db_index=True)
+    evidence_checks = models.JSONField(default=list, blank=True)
+    evidence_notes = models.CharField(max_length=1000, blank=True)
+    decision_reason = models.CharField(max_length=500, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                                    on_delete=models.PROTECT, related_name="+")
+    reviewer_role = models.CharField(max_length=32, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reverted_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                    on_delete=models.PROTECT, related_name="+")
+    reverted_at = models.DateTimeField(null=True, blank=True)
+    revert_reason = models.CharField(max_length=500, blank=True)
+    revert_report = models.JSONField(default=dict, blank=True,
+                                     help_text="Rows that could not move back / created after "
+                                               "the merge (manual review list).")
+
+    class Meta:
+        ordering = ("-created_at",)
+        indexes = [models.Index(fields=["organization", "status"], name="merge_case_org_status")]
+        constraints = [
+            models.CheckConstraint(condition=~models.Q(source=models.F("target")),
+                                   name="merge_case_distinct_patients"),
+        ]
+
+
+class PatientMergeRecord(BaseModel):
+    """Everything needed to undo a merge exactly: which rows of which tables were re-pointed
+    from source to target, rows left on the source (unique conflicts), the identity snapshot
+    of both files and whether the app account moved. Immutable after creation, except for
+    `reverted_at`."""
+
+    case = models.OneToOneField(PatientMergeCase, on_delete=models.PROTECT,
+                                related_name="record")
+    source = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="+")
+    target = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="+")
+    # [{"model": "clinical.encounter", "field": "patient", "ids": ["…"]}, …]
+    moved = models.JSONField(default=list)
+    # Rows that stayed on the source because the target already had the same unique row
+    # (e.g. a registration at the same facility, the same guardian).
+    kept_on_source = models.JSONField(default=list)
+    moved_user_id = models.UUIDField(null=True, blank=True)
+    source_status_before = models.CharField(max_length=12)
+    source_snapshot = models.JSONField(default=dict)
+    target_snapshot = models.JSONField(default=dict)
+    merged_at = models.DateTimeField(default=timezone.now)
+    reverted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-merged_at",)

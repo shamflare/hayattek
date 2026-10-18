@@ -108,7 +108,8 @@ class LabReportSerializer(RecordMetaSerializer):
 
     @extend_schema_field(DocumentBrief)
     def get_documents(self, obj) -> list[dict]:
-        return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type}
+        return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type,
+                 "scan_status": d.scan_status}
                 for d in obj.documents.exclude(status="entered_in_error")]
 
 
@@ -134,7 +135,8 @@ class ImagingReportSerializer(RecordMetaSerializer):
 
     @extend_schema_field(DocumentBrief)
     def get_documents(self, obj) -> list[dict]:
-        return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type}
+        return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type,
+                 "scan_status": d.scan_status}
                 for d in obj.documents.exclude(status="entered_in_error")]
 
 

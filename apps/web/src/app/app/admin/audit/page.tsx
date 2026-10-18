@@ -24,6 +24,7 @@ const ACTIONS = [
   "card.resolve", "card.issue", "card.revoke",
   "record.view", "record.create", "record.update_draft", "record.finalize", "record.amend",
   "record.entered_in_error", "record.print", "document.upload", "document.download",
+  "document.scan_rejected",
   "grant.create", "grant.revoke", "access.request", "access.decision", "access.denied",
   "membership.change", "organization.change", "practitioner.verify", "export",
 ];
@@ -42,6 +43,7 @@ const PENDING_LABELS: Record<string, string> = {
   "organization.change": "تعديل منشأة",
   "practitioner.verify": "قرار اعتماد طبيب",
   export: "تصدير",
+  "document.scan_rejected": "ملف مرفوض في الفحص الأمني",
 };
 const actionLabel = (a: string) => m.auditActions[a] ?? PENDING_LABELS[a] ?? a;
 

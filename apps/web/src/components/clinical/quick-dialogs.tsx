@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FileUp, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -220,6 +221,9 @@ export function UploadDialog({ open, onOpenChange, patientId, encounterId }: Dia
   const [category, setCategory] = React.useState("medical_report");
   const [title, setTitle] = React.useState("");
   const [date, setDate] = React.useState("");
+  const [ocr, setOcr] = React.useState(false);
+  const router = useRouter();
+  const ocrPossible = Boolean(file && /^(application\/pdf|image\/(jpeg|png|tiff|webp))$/.test(file.type));
   const save = useMutation({
     mutationFn: () => {
       const form = new FormData();
@@ -229,9 +233,17 @@ export function UploadDialog({ open, onOpenChange, patientId, encounterId }: Dia
       form.append("title", title || (file?.name ?? "مستند"));
       if (date) form.append("document_date", date);
       if (encounterId) form.append("encounter", encounterId);
+      if (ocr && ocrPossible) form.append("run_ocr", "true");
       return uploadDocument(form);
     },
-    onSuccess: () => { toast.success("تم رفع المستند"); refresh(); onOpenChange(false); setFile(null); setTitle(""); },
+    onSuccess: (doc: { id: string }) => {
+      if (ocr && ocrPossible) {
+        toast.success("تم رفع المستند وبدأت قراءته آلياً", {
+          action: { label: "مراجعة القراءة", onClick: () => router.push(`/app/documents/${doc.id}/review`) },
+        });
+      } else toast.success("تم رفع المستند");
+      refresh(); onOpenChange(false); setFile(null); setTitle(""); setOcr(false);
+    },
     onError: (e) => toast.error(errorMessage(e)),
   });
   return (
@@ -256,6 +268,13 @@ export function UploadDialog({ open, onOpenChange, patientId, encounterId }: Dia
             <Field label="العنوان" optional><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
             <Field label="تاريخ المستند" optional><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
           </div>
+          <label className={`flex items-start gap-2 text-sm ${ocrPossible || !file ? "" : "opacity-50"}`}>
+            <input type="checkbox" className="mt-1 size-4" checked={ocr} disabled={Boolean(file) && !ocrPossible}
+              onChange={(e) => setOcr(e.target.checked)} />
+            <span>قراءة المستند آلياً (OCR)
+              <span className="block text-xs text-muted">يقترح القيم من صورة التحليل أو PDF لتراجعها قبل إنشاء أي سجل. لا يدعم DICOM أو HEIC.</span>
+            </span>
+          </label>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import AccessGrant, AccessRequest, Purpose, Scope
@@ -22,12 +23,25 @@ class AccessRequestSerializer(serializers.ModelSerializer):
     practitioner_name = serializers.CharField(source="practitioner.display_name", read_only=True,
                                               default=None)
     patient_name = serializers.CharField(source="patient.full_name", read_only=True)
+    delivery = serializers.SerializerMethodField()
 
     class Meta:
         model = AccessRequest
         fields = ("id", "patient", "patient_name", "organization", "organization_name",
                   "practitioner", "practitioner_name", "scopes", "purpose", "duration_hours",
-                  "note", "status", "expires_at", "decided_at", "created_at")
+                  "note", "status", "expires_at", "decided_at", "created_at", "delivery")
+
+    @extend_schema_field(serializers.ChoiceField(
+        choices=["queued", "sent", "not_configured", "failed", "suppressed"], allow_null=True))
+    def get_delivery(self, obj) -> str | None:
+        """OTP SMS delivery state (null for in-app requests). Never contains the code."""
+        if getattr(obj, "delivery", None):
+            return obj.delivery
+        from apps.notifications.messaging import delivery_state
+        from apps.notifications.models import OutboundMessage
+
+        message = OutboundMessage.objects.filter(idempotency_key=f"otp:{obj.pk}").first()
+        return delivery_state(message) if message is not None else None
 
 
 class PresentedIdentitySerializer(serializers.Serializer):

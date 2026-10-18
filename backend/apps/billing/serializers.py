@@ -121,7 +121,7 @@ class AdjustmentInputSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=300)
 
 
-class ReasonSerializer(serializers.Serializer):
+class ReversalReasonSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=300)
 
 

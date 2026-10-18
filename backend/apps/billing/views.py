@@ -31,8 +31,8 @@ from .serializers import (
     PaymentResultSerializer,
     PriceInputSerializer,
     PricingPlanSerializer,
-    ReasonSerializer,
     ReceiptSerializer,
+    ReversalReasonSerializer,
     TransactionSerializer,
     WalletRowSerializer,
     WalletSummarySerializer,
@@ -160,10 +160,10 @@ class AdminTransactionViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet
     serializer_class = TransactionSerializer
     queryset = LedgerTransaction.objects.select_related("wallet", "created_by", "organization")
 
-    @extend_schema(request=ReasonSerializer, responses={201: TransactionSerializer})
+    @extend_schema(request=ReversalReasonSerializer, responses={201: TransactionSerializer})
     @action(detail=True, methods=["post"])
     def reverse(self, request, pk=None):
-        data = ReasonSerializer(data=request.data)
+        data = ReversalReasonSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         tx = services.reverse_transaction(self.get_object(), reason=data.validated_data["reason"],
                                           actor=request.user, request=request)

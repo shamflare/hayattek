@@ -27,6 +27,8 @@ PostgreSQL 16. كل الجداول تستخدم مفتاحاً أساسياً `U
 | `patients_patientguardian` | guardian (user)، patient، relationship، can_view_records، can_manage_sharing، valid_until، revoked_at | فريد (guardian, patient) | RelatedPerson |
 | `patients_patientreportedinfo` | patient، kind، text، reported_by | يُعرض دائماً كـ"صرّح به المريض" | Observation (patient-reported) |
 | `patients_correctionrequest` | patient، target_type/id، message، status | — | Task |
+| `patients_patientmergecase` | organization (منشأة المراجعة)، source (المدمج)، target (الباقي)، reasons، status (open/merged/rejected/reverted)، evidence_checks، evidence_notes، decision_reason، reviewed_by/role/at، reverted_by/at، revert_reason، revert_report | source ≠ target؛ فهرس (organization, status) — ADR-027 | — |
+| `patients_patientmergerecord` | case (1:1)، source، target، moved (لكل جدول: الحقل ومعرفات الصفوف المنقولة)، kept_on_source، moved_user_id، source_status_before، source_snapshot/target_snapshot (الهوية والبطاقات)، merged_at، reverted_at | أساس التراجع الدقيق | Provenance |
 
 ## الموافقات
 
@@ -54,6 +56,9 @@ PostgreSQL 16. كل الجداول تستخدم مفتاحاً أساسياً `U
 | `diagnostics_imagingreport` | service_request، modality، body_site، title، findings، impression | DiagnosticReport (imaging) |
 | `documents_clinicaldocument` | category، title، file (مفتاح تخزين خاص)، original_filename، mime_type (من magic bytes)، size_bytes، sha256، scan_status، روابط (encounter/lab_report/imaging_report) | DocumentReference |
 | `documents_ocrresult` | document، provider، status، text، extracted (JSON)، mean_confidence، reviewed_at | — (اقتراح للمراجعة فقط) |
+| `dicom_dicomstudy` | document (OneToOne → ClinicalDocument؛ المريض/المنشأة/الزيارة/تقرير الأشعة عبره فقط)، status (pending/stored/failed)، error_code، attempts، pseudonym (PatientID المكتوب في نسخة Orthanc)، orthanc_study_id، study_instance_uid، modalities، study_date، study_description، series_count، instance_count، stored_at | ImagingStudy (ADR-030) |
+| `dicom_dicomseries` | study، orthanc_id، series_instance_uid، modality، number، description، instance_count — فريد (study, orthanc_id) | ImagingStudy.series |
+| `dicom_dicominstance` | series، orthanc_id، instance_number، frames — فريد (series, orthanc_id)، فهرس (series, instance_number) | ImagingStudy.series.instance |
 | `referrals_referral` | encounter، target_organization/practitioner/specialty، reason، priority، shared_scopes[]، patient_consented، state، response_note | ServiceRequest (referral) |
 
 فهارس مركبة `(patient_id, occurred_at DESC)` على الزيارات والوصفات والتقارير والمستندات لفتح الملف بسرعة.
@@ -62,7 +67,8 @@ PostgreSQL 16. كل الجداول تستخدم مفتاحاً أساسياً `U
 
 | الجدول | ملاحظات |
 |---|---|
-| `medications_medication` | name، brand_name، active_ingredient (فارغ ما لم يكن موثقاً)، strength، dosage_form، unit، default_route، source (synthetic_test/imported/practitioner)، search_text (GIN trigram) |
+| `medications_medication` | name، brand_name، active_ingredient (فارغ ما لم يكن موثقاً)، strength، dosage_form، unit، default_route، source (synthetic_test/imported/practitioner)، search_text (GIN trigram)، manufacturer، country_of_registration، registration_number، source_name/version/date، imported_at، external_id، is_synthetic، dedupe_key (الاسم المطبّع+التركيز+الشكل+الشركة)، catalog_import، review_status (لأدوية الأطباء)، merged_into، reviewed_by/at — ADR-028 |
+| `medications_catalogimport` | file (CSV/JSON خاص)، sha256، source_name/version/date/url، license_text + license_confirmed، is_synthetic، status (previewed/committed/discarded/failed)، عدادات (created/updated/unchanged/duplicate/error)، error_report، preview، imported_by، committed_at |
 | `medications_medicationfavorite` | practitioner + medication (فريد)، position، preset (إعدادات الطبيب نفسه)، use_count |
 | `medications_prescriptiontemplate` | practitioner، name، items (JSON — تُنسخ إلى الوصفة ولا تُربط بها) |
 | `diagnostics_labtesttype` | code (فريد)، name_ar/en، category، specimen — **بلا مجالات مرجعية** (تأتي من المختبر) |
@@ -79,3 +85,23 @@ PostgreSQL 16. كل الجداول تستخدم مفتاحاً أساسياً `U
 - الزيارة تجمع Encounter مع الملاحظة السريرية في جدول واحد للبساطة؛ التصدير إلى FHIR سيولد `Encounter` + `ClinicalImpression`.
 - جرعات الوصفة منظمة بحقول خاصة بالواقع المحلي (صباحاً/ظهراً/مساءً/قبل النوم) تُحوّل إلى `Timing` عند التصدير.
 - لا يوجد FHIR Server في الإصدار الأول.
+
+## المحفظة الآجلة (`billing`) — المرحلة الثانية
+
+| الجدول | الحقول | قيود |
+|---|---|---|
+| `billing_walletaccount` | owner_type (practitioner/organization)، practitioner أو organization، currency، balance (cache) | مالك واحد بالضبط (CHECK)؛ محفظة واحدة لكل مالك وعملة |
+| `billing_ledgertransaction` | wallet، kind (ai_usage/payment/reversal/manual_debit/credit_grant/charge_correction/settlement/refund)، amount (موقّع، Decimal(14,2))، currency، balance_after، occurred_at، created_by، organization، description، payment_method، reference، receipt_number (فريد)، reverses (OneToOne: يُعكس مرة واحدة)، idempotency_key (فريد) | **Trigger يمنع UPDATE/DELETE/TRUNCATE**؛ amount ≠ 0 |
+| `billing_pricingplan` | code، name، currency، price_per_minute (Decimal(12,4))، rounding_mode، minimum_billable_seconds، is_default، is_active | خطة افتراضية واحدة؛ سعر ≥ 0 |
+| `billing_priceassignment` | practitioner، plan، effective_from، assigned_by | الأحدث نافذ |
+| `billing_aiusagerecord` | **session_id فريد**، practitioner، organization، wallet، status (charged/not_billable)، audio_seconds، billable_seconds، لقطة السعر (plan، plan_name، price_per_minute، rounding_mode)، billed_amount، provider_cost (+ is_actual)، transaction | فوترة واحدة لكل جلسة |
+| `billing_aiscribeaccess` / `billing_aiaccessevent` | المفتاح اليدوي وسجله (من/متى/لماذا) | |
+| `billing_organizationpayerrule` | منشأة تدفع عن أطبائها (غير مفعّل افتراضياً) | |
+| `billing_billingsettings` | حدود التنبيهات (singleton) | |
+
+## المساعد الذكي (`scribe`)
+
+| الجدول | الحقول | قيود |
+|---|---|---|
+| `scribe_scribesession` | encounter، patient، organization، practitioner، author، mode (conversation/dictation)، status، client_key، consent_method/note/at، audio_file (مشفّر)، audio_sha256، audio_seconds (من الخادم)، audio_is_sample، retention_until، audio_deleted_at، transcript (JSON مقاطع بمتحدث وتوقيت)، draft (حقول منظمة بمصادر وثقة)، stt/extraction_provider، is_mock، attempts، error_code، ready_at، approved_at/by، applied | فريد (practitioner, client_key)؛ **CHECK: الحوار يتطلب موافقة المريض** |
+

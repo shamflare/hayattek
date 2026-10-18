@@ -393,7 +393,7 @@ function ObservationRow({
   );
 }
 
-function TestPicker({ onPick }: { onPick: (t: Schemas["LabTestType"]) => void }) {
+export function TestPicker({ onPick }: { onPick: (t: Schemas["LabTestType"]) => void }) {
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const query = useDebounced(q.trim(), 250);

@@ -14,6 +14,7 @@ DocumentBrief = inline_serializer("DocumentBrief", {
     "id": serializers.UUIDField(),
     "title": serializers.CharField(),
     "mime_type": serializers.CharField(),
+    "scan_status": serializers.CharField(),
 }, many=True)
 
 RecordRef = inline_serializer("RecordRef", {

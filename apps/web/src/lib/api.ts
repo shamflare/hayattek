@@ -105,3 +105,20 @@ export function errorMessage(e: unknown, fallback = "حدث خطأ غير متو
   if (e instanceof TypeError) return "تعذر الاتصال بالخادم. تحقق من الإنترنت.";
   return fallback;
 }
+
+/** Generic authenticated multipart POST (practice-context aware). */
+export async function postMultipart<T = unknown>(url: string, form: FormData): Promise<T> {
+  const headers: Record<string, string> = {};
+  const csrf = readCookie("hayat_csrftoken");
+  if (csrf) headers["X-CSRFToken"] = csrf;
+  const membership = memoryMembership ?? getActiveMembership();
+  if (membership) headers["X-Hayat-Membership"] = membership;
+  const response = await fetch(url, { method: "POST", body: form, headers, credentials: "same-origin" });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw Object.assign(new Error(body.message || "request failed"), {
+      status: response.status, code: body.code ?? "error", body,
+    });
+  }
+  return body as T;
+}

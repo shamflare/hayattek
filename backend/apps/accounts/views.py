@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_str
@@ -158,16 +157,26 @@ def build_reset_link(user: User) -> str:
     return f"{base}/reset-password?uid={uid}&token={token}"
 
 
-def send_reset_link(user: User) -> None:
+def send_reset_link(user: User, *, purpose: str = "password_reset"):
+    """Email a one-time set/reset-password link through the outbox (PHASE2 §5). Returns the
+    ``OutboundMessage`` so callers can report the real delivery state."""
+    import time
+
+    from apps.notifications.messaging import send_message
+    from apps.notifications.models import MessageChannel
+
     brand = settings.HAYAT["BRAND_NAME"]
-    send_mail(
-        subject=f"{brand} — إعادة تعيين كلمة المرور",
-        message=(
-            "لإعادة تعيين كلمة المرور افتح الرابط التالي (صالح لمرة واحدة):\n"
+    activation = purpose == "account_activation"
+    return send_message(
+        channel=MessageChannel.EMAIL, to=user.email, purpose=purpose,
+        subject=f"{brand} — " + ("تفعيل الحساب" if activation else "إعادة تعيين كلمة المرور"),
+        body=(
+            ("لتفعيل حسابك وتعيين كلمة المرور" if activation else "لإعادة تعيين كلمة المرور")
+            + " افتح الرابط التالي (صالح لمرة واحدة):\n"
             f"{build_reset_link(user)}\n\nإن لم تطلب ذلك فتجاهل هذه الرسالة."
         ),
-        from_email=None,
-        recipient_list=[user.email],
+        # Double clicks within the same minute do not send twice.
+        idempotency_key=f"{purpose}:{user.pk}:{int(time.time() // 60)}",
     )
 
 

@@ -29,3 +29,8 @@ REST_FRAMEWORK = {
 from .base import env  # noqa: E402
 
 DATABASES["default"]["TEST"] = {"NAME": f"test_hayat_{env('HAYAT_TEST_DB', default='main')}"}  # noqa: F405
+# Lets transactional tests flush append-only tables (see audit migration 0003). Tests only.
+DATABASES["default"]["OPTIONS"] = {"options": "-c hayat.allow_truncate=on"}  # noqa: F405
+# Deterministic OCR engine in tests (never the real sidecar).
+HAYAT["OCR_PROVIDER"] = "apps.documents.ocr.FakeOcrProvider"  # noqa: F405
+TESTING = True

@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django.db import transaction
@@ -7,7 +8,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework import serializers, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.access import policy
@@ -20,8 +21,11 @@ from apps.organizations.models import Role
 from apps.patients.models import Patient
 
 from .models import ClinicalDocument, DocumentCategory, ScanStatus
-from .scanning import INLINE_TYPES, get_scanner, inspect_upload
-from .tasks import run_ocr
+from .ocr_service import schedule_ocr
+from .scanning import INLINE_TYPES, apply_verdict, inspect_upload, run_scan
+from .tasks import scan_document_task
+
+logger = logging.getLogger("hayat.scan")
 
 
 class DocumentSerializer(RecordMetaSerializer):
@@ -59,7 +63,7 @@ class DocumentViewSet(ClinicalRecordViewSet):
     model = ClinicalDocument
     read_serializer_class = DocumentSerializer
     write_serializer_class = DocumentUploadSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def filter_list(self, qs):
         category = self.request.query_params.get("category")
@@ -73,8 +77,6 @@ class DocumentViewSet(ClinicalRecordViewSet):
         v = dict(data.validated_data)
         uploaded = v.pop("file")
         meta = inspect_upload(uploaded)
-        if not get_scanner().scan(uploaded):
-            raise DomainError(_("تم رفض الملف لأسباب أمنية."), code="malware_detected")
 
         ctx = self.ctx
         links = {}
@@ -100,22 +102,38 @@ class DocumentViewSet(ClinicalRecordViewSet):
         # (including the patient) sees a result file before the result itself.
         parent = links.get("lab_report") or links.get("imaging_report")
         is_draft = parent is not None and parent.status == RecordStatus.DRAFT
+        # Malware scan (SECURITY_MODEL §7) before anything is stored: infected bytes never
+        # reach storage. No verdict (scanner down) -> stored quarantined, retried later.
+        verdict = run_scan(uploaded)
+        infected = verdict is not None and not verdict.clean
         with transaction.atomic():
             document = ClinicalDocument(
                 patient=patient, category=v["category"], title=v["title"],
                 description=v.get("description", ""), document_date=v.get("document_date"),
                 original_filename=_safe_filename(uploaded.name),
-                scan_status=ScanStatus.CLEAN,
+                scan_status=ScanStatus.PENDING,  # quarantined until the scanner says clean
                 status=RecordStatus.DRAFT if is_draft else RecordStatus.FINAL,
                 finalized_at=None if is_draft else timezone.now(), **meta, **provenance, **links,
             )
-            document.file.save("upload", uploaded, save=False)
+            if not infected:
+                document.file.save("upload", uploaded, save=False)
             document.save()
             audit.record(audit.Action.DOCUMENT_UPLOAD, request=request, ctx=ctx,
                          target=document, metadata={"mime": meta["mime_type"],
                                                     "size": meta["size_bytes"]})
-        if v.get("run_ocr") and meta["mime_type"] != "application/dicom":
-            transaction.on_commit(lambda: run_ocr.delay(str(document.pk)))
+            scan_status = (apply_verdict(document, verdict, request=request, ctx=ctx)
+                           if verdict is not None else ScanStatus.PENDING)
+        if scan_status == ScanStatus.REJECTED:
+            raise DomainError(_("تم رفض الملف لأسباب أمنية."), code="malware_detected",
+                              status_code=422)
+        want_ocr = bool(v.get("run_ocr")) and meta["mime_type"] != "application/dicom"
+        try:
+            if scan_status == ScanStatus.PENDING:
+                scan_document_task.apply_async((str(document.pk), 0, want_ocr), countdown=30)
+            elif want_ocr:
+                transaction.on_commit(lambda: schedule_ocr(document.pk, user=request.user))
+        except Exception:  # broker down: the periodic sweeper rescans pending files
+            logger.exception("could not enqueue post-upload task document=%s", document.pk)
         return Response(DocumentSerializer(document, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED)
 
@@ -141,7 +159,10 @@ class DocumentViewSet(ClinicalRecordViewSet):
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):
         document = self.get_record(pk)
-        if document.scan_status != ScanStatus.CLEAN:
+        if document.scan_status == ScanStatus.REJECTED:
+            raise DomainError(_("رُفض هذا الملف في الفحص الأمني ولا يمكن فتحه."),
+                              code="file_rejected", status_code=409)
+        if document.scan_status != ScanStatus.CLEAN or not document.file:
             raise DomainError(_("الملف قيد الفحص الأمني."), code="not_ready", status_code=409)
         audit.record(audit.Action.DOCUMENT_DOWNLOAD, request=request, ctx=self.ctx,
                      target=document)

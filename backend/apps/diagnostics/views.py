@@ -303,3 +303,49 @@ class ImagingReportViewSet(_ResultViewSet):
     def perform_update_draft(self, ctx, record, data):
         data.pop("service_request", None)
         return records.update_draft(ctx, record, data, request=self.request)
+
+    @action(detail=True, methods=["get"], url_path="print")
+    def print_data(self, request, pk=None):
+        """Data for the A4 imaging report print page (ADR-009). Finalized reports only;
+        same visibility as reading the report (policy engine), audited as a print."""
+        from django.conf import settings
+
+        record = self.get_record(pk)
+        if record.status == RecordStatus.DRAFT:
+            raise DomainError(_("اعتمد التقرير قبل طباعته."), code="not_final", status_code=409)
+        audit.record(audit.Action.RECORD_PRINT, request=request, ctx=self.ctx, target=record)
+        org, practitioner, patient = record.organization, record.practitioner, record.patient
+        order = record.service_request
+        return Response({
+            "brand": settings.HAYAT["BRAND_NAME"],
+            "organization": {
+                "name": org.name, "name_en": org.name_en, "address": org.address,
+                "city": org.city, "phone": org.phone, "print_footer": org.print_footer,
+            } if org else None,
+            "author": {
+                "name": practitioner.display_name if practitioner else record.author.full_name,
+                "role": record.author_role,
+                "specialty": practitioner.get_specialty_display() if practitioner else "",
+                "license_number": practitioner.license_number if practitioner else "",
+            },
+            "patient": {
+                "full_name": patient.full_name, "age_years": patient.age_years,
+                "sex": patient.sex, "health_number": patient.formatted_health_number,
+            },
+            "order": {
+                "number": order.number,
+                "ordered_by": (order.practitioner.display_name if order.practitioner_id
+                               else order.author.full_name),
+                "organization_name": order.organization.name if order.organization_id else "",
+                "occurred_at": order.occurred_at,
+            } if order else None,
+            "report": {
+                "id": str(record.pk), "title": record.title, "modality": record.modality,
+                "body_site": record.body_site, "findings": record.findings,
+                "impression": record.impression, "status": record.status,
+                "status_reason": record.status_reason, "version": record.version,
+                "occurred_at": record.occurred_at, "finalized_at": record.finalized_at,
+                "amended_at": record.amended_at,
+                "attachments": record.documents.exclude(status="entered_in_error").count(),
+            },
+        })

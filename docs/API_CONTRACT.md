@@ -48,3 +48,20 @@ POST /api/v1/access/requests/{id}/verify-otp
 {"otp": "482913"}
 → 200 {"scopes": ["encounters","summary"], "expires_at": "...", "method": "otp", ...}
 ```
+
+## إضافات المرحلة الثانية
+
+| المجموعة | المسارات | من يستخدمها |
+|---|---|---|
+| المحفظة (إدارة) | `billing/admin/{overview, alerts, settings, export.csv, plans}`، `billing/admin/practitioners[/{id}[/transactions, payments, adjustments, price, ai-access, ai-access-events]]`، `billing/admin/transactions/{id}[/reverse, receipt]` | Super Admin فقط |
+| المحفظة (الطبيب) | `billing/me`، `billing/me/transactions[/{id}/receipt]` | الطبيب لمحفظته فقط (دون تكلفتنا أو الهامش) |
+| المساعد الذكي | `scribe/status`، `scribe/sessions[/{id}[/audio (POST/GET/DELETE), sample, retry, approve, discard]]` | الطبيب المعتمد مؤلف الجلسة فقط |
+| OCR | `documents/{id}/ocr`، `documents/{id}/ocr/run`، `documents/{id}/ocr/convert-to-lab-report` | الطبيب/المختبر المخوّل |
+| DICOM | `dicom/studies` (ZIP)، `dicom/documents/{id}/...` (معلومات الدراسة، السلاسل، الشرائح، الإطارات المرسومة) | حسب صلاحيات المستندات |
+| دمج المكررات | `patients/duplicates/...` (الاقتراحات، المقارنة، الدمج، رفض الاقتراح، التراجع) | استقبال/طبيب في منشأة يُسجَّل فيها الملفان |
+| الكتالوج | `admin/catalog/...` (رفع، معاينة، اعتماد، مراجعة الأدوية غير المعروفة) | Super Admin |
+| الرسائل | `admin/messages` (حالة الإرسال بمستلم مُقنَّع) | Super Admin |
+| الصحة | `/api/health` (حي)، `/api/health/ready` (قاعدة البيانات + الكاش) | المراقبة |
+
+قواعد خاصة: الدفعات تقبل `idempotency_key` من العميل؛ بدء جلسة AI يقبل `client_key`؛ عند `HAYAT_ENFORCE_MFA` تُرجع حسابات الطاقم دون MFA الرمز `403 mfa_setup_required`.
+

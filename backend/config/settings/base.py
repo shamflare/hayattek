@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     "apps.referrals",
     "apps.notifications",
     "apps.audit",
+    "apps.billing",
+    "apps.scribe",
+    "apps.dicom",
 ]
 
 MIDDLEWARE = [
@@ -156,6 +159,14 @@ CELERY_RESULT_BACKEND = None
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TIMEZONE = "UTC"
+CELERY_BEAT_SCHEDULE = {
+    "rescan-pending-documents": {"task": "apps.documents.tasks.rescan_pending_documents",
+                                 "schedule": 300.0},
+    "dispatch-due-messages": {"task": "apps.notifications.tasks.dispatch_due_messages",
+                              "schedule": 60.0},
+    "purge-expired-scribe-audio": {"task": "apps.scribe.tasks.purge_expired_audio",
+                                   "schedule": 3600.0},
+}
 
 # ---- DRF ----
 REST_FRAMEWORK = {
@@ -231,11 +242,55 @@ HAYAT = {
     "IN_PERSON_GRANT_MAX_HOURS": env.int("HAYAT_IN_PERSON_GRANT_MAX_HOURS", default=72),
     "IN_PERSON_GRANT_DEFAULT_HOURS": 24,
     "PATIENT_GRANT_MAX_DAYS": 365,
+    # Duplicate-file merges can be undone by the facility within this window (ADR-027).
+    "PATIENT_MERGE_UNDO_DAYS": env.int("HAYAT_PATIENT_MERGE_UNDO_DAYS", default=30),
+    # Synthetic test medicines appear in catalog search (dev). Production sets false (ADR-028).
+    "CATALOG_INCLUDE_SYNTHETIC": env.bool("HAYAT_CATALOG_INCLUDE_SYNTHETIC", default=True),
     "OTP_TTL_MINUTES": 10,
     "UPLOAD_MAX_BYTES": env.int("HAYAT_UPLOAD_MAX_BYTES", default=25 * 1024 * 1024),
     "SMS_PROVIDER": env("HAYAT_SMS_PROVIDER", default="apps.notifications.sms.ConsoleSmsProvider"),
+    # Outbound messages (SECURITY_MODEL "الرسائل"): outbox + Celery, retries, rate limits.
+    "EMAIL_PROVIDER": env("HAYAT_EMAIL_PROVIDER",
+                          default="apps.notifications.providers.DjangoEmailProvider"),
+    "MESSAGE_DISPATCH": env("HAYAT_MESSAGE_DISPATCH", default="sync"),  # sync | celery
+    "MESSAGE_MAX_ATTEMPTS": env.int("HAYAT_MESSAGE_MAX_ATTEMPTS", default=5),
+    "MESSAGE_RATE_WINDOW_MINUTES": env.int("HAYAT_MESSAGE_RATE_WINDOW_MINUTES", default=10),
+    "MESSAGE_RATE_LIMIT": env.int("HAYAT_MESSAGE_RATE_LIMIT", default=5),  # per recipient
+    "OTP_RATE_LIMIT": env.int("HAYAT_OTP_RATE_LIMIT", default=3),  # OTPs per recipient/window
     "MALWARE_SCANNER": env(
         "HAYAT_MALWARE_SCANNER", default="apps.documents.scanning.NoopMalwareScanner"
     ),
+    # Set HAYAT_MALWARE_SCANNER=apps.documents.scanning.ClamAVScanner to use docker clamd.
+    "CLAMAV_HOST": env("HAYAT_CLAMAV_HOST", default="127.0.0.1"),
+    "CLAMAV_PORT": env.int("HAYAT_CLAMAV_PORT", default=53310),
+    "CLAMAV_TIMEOUT": env.float("HAYAT_CLAMAV_TIMEOUT", default=30.0),
+    # closed: keep files quarantined while the scanner is down. open: DEBUG only.
+    "SCAN_FAIL_MODE": env("HAYAT_SCAN_FAIL_MODE", default="closed"),
+    # HayatTek AI (docs/AI_SCRIBE.md). Real providers require explicit legal approval.
+    "AI_STT_PROVIDER": env("HAYAT_AI_STT_PROVIDER",
+                           default="apps.scribe.providers.MockSpeechToText"),
+    "AI_EXTRACTION_PROVIDER": env("HAYAT_AI_EXTRACTION_PROVIDER",
+                                  default="apps.scribe.providers.RuleBasedClinicalExtractor"),
+    "AI_REAL_PROVIDERS_APPROVED": env.bool("HAYAT_AI_REAL_PROVIDERS_APPROVED", default=False),
+    "AI_AUDIO_KEY": env("HAYAT_AI_AUDIO_KEY", default=""),
+    "AI_AUDIO_RETENTION_DAYS": env.int("HAYAT_AI_AUDIO_RETENTION_DAYS", default=30),
+    "AI_MAX_AUDIO_SECONDS": env.int("HAYAT_AI_MAX_AUDIO_SECONDS", default=60 * 60),
     "OCR_PROVIDER": env("HAYAT_OCR_PROVIDER", default="apps.documents.ocr.NullOcrProvider"),
+    # Private Tesseract sidecar (docker compose service `ocr`, infra/ocr). Local only.
+    "OCR_URL": env("HAYAT_OCR_URL", default="http://127.0.0.1:58884"),
+    "OCR_TIMEOUT": env.int("HAYAT_OCR_TIMEOUT", default=120),
+    "OCR_LANG": env("HAYAT_OCR_LANG", default="ara+eng"),
+    "OCR_PSM": env("HAYAT_OCR_PSM", default="4"),
+    # Run OCR inside the request instead of Celery (dev without a worker).
+    "OCR_INLINE": env.bool("HAYAT_OCR_INLINE", default=False),
+    # Private DICOM store (Orthanc) — reached only by Django (apps.dicom, ADR-030).
+    # Empty URL = DICOM viewing disabled (studies stay pending).
+    "ORTHANC_URL": env("ORTHANC_URL", default=""),
+    "ORTHANC_USERNAME": env("ORTHANC_USERNAME", default=""),
+    "ORTHANC_PASSWORD": env("ORTHANC_PASSWORD", default=""),
+    "ORTHANC_TIMEOUT": env.int("ORTHANC_TIMEOUT", default=30),
+    "DICOM_ZIP_MAX_BYTES": env.int("HAYAT_DICOM_ZIP_MAX_BYTES", default=200 * 1024 * 1024),
+    "DICOM_ZIP_MAX_FILES": env.int("HAYAT_DICOM_ZIP_MAX_FILES", default=2000),
+    "DICOM_MAX_FILE_BYTES": 64 * 1024 * 1024,
+    "DICOM_ZIP_MAX_TOTAL_BYTES": 1024 * 1024 * 1024,
 }

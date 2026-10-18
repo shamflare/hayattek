@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, History, PenLine } from "lucide-react";
+import { CheckCircle2, History, PenLine, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { InterpretationBadge, RecordStatusBadge } from "@/components/ui/status";
@@ -12,7 +12,7 @@ import { label } from "@/lib/i18n";
 import { trimDecimal } from "./lab-result-editor";
 import { DocumentList, type ImagingReport, type LabReport } from "./shared";
 
-function Provenance({ report, onAmend }: { report: LabReport | ImagingReport; onAmend?: () => void }) {
+function Provenance({ report, onAmend, printHref }: { report: LabReport | ImagingReport; onAmend?: () => void; printHref?: string }) {
   return (
     <div className="flex flex-col gap-3 rounded-card border border-success/25 bg-success-soft/60 p-4 sm:flex-row sm:items-center">
       <CheckCircle2 className="hidden size-6 shrink-0 text-success sm:block" />
@@ -34,6 +34,11 @@ function Provenance({ report, onAmend }: { report: LabReport | ImagingReport; on
           <div className="mt-1 text-danger">أُلغي: {report.status_reason}</div>
         )}
       </div>
+      {printHref && report.status !== "draft" && (
+        <Button variant="outline" size="sm" asChild>
+          <a href={printHref} target="_blank" rel="noopener"><Printer className="size-4" /> طباعة</a>
+        </Button>
+      )}
       {onAmend && report.can_amend && (
         <Button variant="outline" size="sm" onClick={onAmend}><PenLine className="size-4" /> تصحيح موثق</Button>
       )}
@@ -97,7 +102,7 @@ export function LabReportView({ report, onAmend }: { report: LabReport; onAmend?
 export function ImagingReportView({ report, onAmend }: { report: ImagingReport; onAmend?: () => void }) {
   return (
     <div className="space-y-5">
-      <Provenance report={report} onAmend={onAmend} />
+      <Provenance report={report} onAmend={onAmend} printHref={`/print/imaging/${report.id}`} />
       <Card>
         <CardHeader title={label("modalities", report.modality)} description={report.body_site || undefined} />
         <CardBody className="space-y-4 text-sm leading-7">

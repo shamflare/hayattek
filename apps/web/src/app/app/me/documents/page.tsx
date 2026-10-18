@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Download, Eye, FileImage, FileText, Upload, UploadCloud } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -88,6 +89,11 @@ export default function DocumentsPage() {
                     {previewable && (
                       <Button variant="secondary" className="flex-1 sm:flex-none" onClick={() => setViewing(d)}>
                         <Eye className="size-4" /> عرض
+                      </Button>
+                    )}
+                    {(d.mime_type === "application/dicom" || d.mime_type === "application/zip") && (
+                      <Button variant="secondary" className="flex-1 sm:flex-none" asChild>
+                        <Link href={`/app/me/imaging/${d.id}`}><Eye className="size-4" /> عرض الصور</Link>
                       </Button>
                     )}
                     <Button variant="outline" className="flex-1 sm:flex-none" asChild>

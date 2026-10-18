@@ -17,8 +17,9 @@ class MedicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medication
         fields = ("id", "name", "brand_name", "active_ingredient", "strength", "dosage_form",
-                  "unit", "default_route", "is_active", "source")
-        read_only_fields = ("is_active", "source")
+                  "unit", "default_route", "is_active", "source", "manufacturer",
+                  "is_synthetic")
+        read_only_fields = ("is_active", "source", "is_synthetic")
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

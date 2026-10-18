@@ -93,7 +93,7 @@ def add_member(
 
         setup_link = build_reset_link(user)
         if user.email:
-            send_reset_link(user)
+            send_reset_link(user, purpose="account_activation")
     return MemberAddResult(membership=membership, user_created=created, setup_link=setup_link)
 
 

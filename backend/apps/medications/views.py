@@ -25,6 +25,7 @@ from .models import (
     MedicationFavorite,
     Prescription,
     PrescriptionTemplate,
+    ReviewStatus,
 )
 from .serializers import (
     FavoriteSerializer,
@@ -50,6 +51,8 @@ class MedicationViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
 
     def get_queryset(self):
         qs = Medication.objects.filter(is_active=True)
+        if not settings.HAYAT.get("CATALOG_INCLUDE_SYNTHETIC", True):
+            qs = qs.filter(is_synthetic=False)  # production: never offer test medicines
         q = normalize_arabic(self.request.query_params.get("q", ""))
         if q:
             qs = (qs.annotate(sim=TrigramSimilarity("search_text", q))
@@ -59,8 +62,12 @@ class MedicationViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
 
     def perform_create(self, serializer):
         ctx = require_practice_context(self.request)
-        serializer.save(source=CatalogSource.PRACTITIONER,
-                        added_by_practitioner=ctx.practitioner)
+        # "Unknown medication": usable at once, queued for platform review (§11).
+        from .catalog import normalize_strength
+
+        serializer.save(source=CatalogSource.PRACTITIONER, review_status=ReviewStatus.PENDING,
+                        added_by_practitioner=ctx.practitioner,
+                        strength=normalize_strength(serializer.validated_data.get("strength")))
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

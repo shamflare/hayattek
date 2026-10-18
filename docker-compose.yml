@@ -40,6 +40,60 @@ services:
       - s3data:/data
       - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
 
+  # Malware scanner for uploads (SECURITY_MODEL §7). clamd speaks INSTREAM on TCP 3310,
+  # published on loopback only. The first start downloads signatures (freshclam) and can
+  # take several minutes before clamd answers PING; until then uploads stay `pending`
+  # (fail-closed) when HAYAT_MALWARE_SCANNER=apps.documents.scanning.ClamAVScanner.
+  clamav:
+    image: clamav/clamav:1.4
+    ports:
+      - "127.0.0.1:53310:3310"
+    volumes:
+      - clamdb:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 300s
+
+  # Private OCR sidecar (Tesseract ara+eng, poppler for PDFs). Loopback only, no runtime
+  # internet needed; Django is the only client (HAYAT_OCR_URL). See docs/OCR_EVALUATION.md.
+  ocr:
+    build: ./infra/ocr
+    image: hayat-ocr:local
+    ports:
+      - "127.0.0.1:58884:8884"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 2
+
+  # Private DICOM image store (ADR-027). Only Django talks to it
+  # (server-side proxy with HAYAT permission checks); never exposed to browsers or the LAN.
+  # Credentials are DEV-ONLY defaults; set ORTHANC_USERNAME / ORTHANC_PASSWORD in .env.
+  orthanc:
+    image: orthancteam/orthanc:25.9.0
+    environment:
+      ORTHANC__NAME: hayat-dev
+      ORTHANC__AUTHENTICATION_ENABLED: "true"
+      ORTHANC__REGISTERED_USERS: '{"${ORTHANC_USERNAME:-hayat}": "${ORTHANC_PASSWORD:-hayat_orthanc_dev_password}"}'
+      ORTHANC__DICOM_SERVER_ENABLED: "false"
+      ORTHANC__REMOTE_ACCESS_ALLOWED: "true"
+      ORTHANC__OVERWRITE_INSTANCES: "true"
+      ORTHANC__STABLE_AGE: "5"
+      DICOM_WEB_PLUGIN_ENABLED: "true"
+      VERBOSE_STARTUP: "false"
+    ports:
+      - "127.0.0.1:58042:8042"
+    volumes:
+      - orthancdata:/var/lib/orthanc/db
+
 volumes:
   pgdata:
   s3data:
+  orthancdata:
+  clamdb:

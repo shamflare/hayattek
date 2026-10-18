@@ -175,12 +175,16 @@ def duplicate_candidates(*, ctx, first_name: str, family_name: str = "", father_
 
 @transaction.atomic
 def activate_account(*, ctx, patient: Patient, email: str = "", phone: str = "",
-                     request=None) -> tuple[object, str]:
+                     request=None) -> tuple[object, str, str]:
     """Create (or link) the patient's login. The patient sets their own password through a
-    one-time link sent by email/SMS; staff never choose or see a password."""
+    one-time link sent by email/SMS; staff never choose or see a password.
+
+    Returns ``(user, link, delivery)``; ``delivery`` is the honest outbox state
+    (queued/sent/not_configured/failed/suppressed)."""
     from apps.accounts.models import User
     from apps.accounts.views import build_reset_link, send_reset_link
-    from apps.notifications.sms import get_sms_provider
+    from apps.notifications.messaging import delivery_state, send_message
+    from apps.notifications.models import MessageChannel, MessagePurpose
 
     if patient.user_id:
         raise DomainError(_("للمريض حساب مفعل مسبقاً."), code="already_active", status_code=409)
@@ -202,14 +206,17 @@ def activate_account(*, ctx, patient: Patient, email: str = "", phone: str = "",
     patient.user = user
     patient.save(update_fields=["user", "updated_at"])
     link = build_reset_link(user)
+    message = None
     if user.email:
-        send_reset_link(user)
+        message = send_reset_link(user, purpose=MessagePurpose.ACCOUNT_ACTIVATION)
     elif user.phone:
-        get_sms_provider().send(user.phone, _("حياة: لتفعيل حسابك وتعيين كلمة المرور افتح: %(l)s")
-                                % {"l": link})
+        message = send_message(
+            channel=MessageChannel.SMS, to=user.phone, purpose=MessagePurpose.ACCOUNT_ACTIVATION,
+            body=_("حياة: لتفعيل حسابك وتعيين كلمة المرور افتح: %(l)s") % {"l": link},
+            idempotency_key=f"account_activation:{user.pk}:{patient.pk}")
     audit.record(audit.Action.PATIENT_UPDATE, request=request, ctx=ctx, target=patient,
                  metadata={"op": "account_activated"})
-    return user, link
+    return user, link, delivery_state(message)
 
 
 @transaction.atomic

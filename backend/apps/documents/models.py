@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from apps.clinical.base import ClinicalRecord
@@ -79,16 +80,38 @@ class OcrStatus(models.TextChoices):
     DONE = "done", "اكتمل"
     FAILED = "failed", "فشل"
     UNAVAILABLE = "unavailable", "غير متاح"
+    REVIEWED = "reviewed", "رُوجع وحُوّل إلى مسودة"
 
 
 class OcrResult(BaseModel):
-    """Machine extraction awaiting human review. Never a clinical record by itself (§11)."""
+    """Machine extraction awaiting human review. Never a clinical record by itself (§11).
+
+    The original document is never modified. `extracted` is a *suggestion* (see
+    apps.documents.ocr_parsing); only the values a reviewer submits become a draft LabReport.
+    """
 
     document = models.OneToOneField(ClinicalDocument, on_delete=models.CASCADE, related_name="ocr")
     provider = models.CharField(max_length=60)
+    engine = models.CharField(max_length=60, blank=True)
+    engine_version = models.CharField(max_length=40, blank=True)
     status = models.CharField(max_length=12, choices=OcrStatus.choices, default=OcrStatus.QUEUED)
+    error_code = models.CharField(max_length=40, blank=True)
     text = models.TextField(blank=True)
+    # Engine lines with per-line/per-word confidences, kept so the parser can be re-run.
+    lines = models.JSONField(default=list, blank=True)
+    pages = models.PositiveSmallIntegerField(default=0)
     suggested_category = models.CharField(max_length=20, blank=True)
     extracted = models.JSONField(default=dict, blank=True)
     mean_confidence = models.FloatField(null=True, blank=True)
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                     on_delete=models.SET_NULL, related_name="+")
+    processed_at = models.DateTimeField(null=True, blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                    on_delete=models.PROTECT, related_name="+")
+    # Summary of what the reviewer changed versus the suggestion (accuracy tracking).
+    review = models.JSONField(default=dict, blank=True)
+    lab_report = models.ForeignKey(
+        "diagnostics.LabReport", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="ocr_sources",
+    )

@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, Printer, ScanLine, ScanText } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { Badge, ErrorState, Skeleton } from "@/components/ui/surface";
 import { api, errorMessage, fetchDocumentBlob, type Schemas, unwrap } from "@/lib/api";
 import { bytesLabel, formatDateTime } from "@/lib/format";
 import { label } from "@/lib/i18n";
+
+const OCR_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/webp"];
 
 type Item = Pick<Schemas["TimelineItem"], "type" | "id" | "title">;
 
@@ -57,6 +60,11 @@ export function RecordViewer({ item, onClose }: { item: Item | null; onClose: ()
                   {r.findings && <Block title="الموجودات" text={r.findings} />}
                   {r.impression && <Block title="الانطباع" text={r.impression} />}
                   <Attachments docs={r.documents} />
+                  {r.status !== "draft" && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`/print/imaging/${r.id}`} target="_blank" rel="noopener"><Printer className="size-4" /> طباعة التقرير</a>
+                    </Button>
+                  )}
                 </div>
               )}
               {item?.type === "document" && <DocumentBody doc={r} />}
@@ -149,6 +157,7 @@ function DocumentBody({ doc }: { doc: Schemas["Document"] }) {
   const [url, setUrl] = React.useState<string | null>(null);
   const [failed, setFailed] = React.useState(false);
   const viewable = ["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(doc.mime_type);
+  const isDicom = doc.mime_type === "application/dicom" || doc.mime_type === "application/zip";
   React.useEffect(() => {
     if (!viewable) return;
     let objectUrl: string | null = null;
@@ -168,10 +177,25 @@ function DocumentBody({ doc }: { doc: Schemas["Document"] }) {
           // eslint-disable-next-line @next/next/no-img-element
           : <img src={url} alt={doc.title} className="max-h-[60vh] w-full rounded-2xl border border-line object-contain" />
       ) : <Skeleton className="h-64" />)}
-      {!viewable && <p className="text-sm text-muted">لا يمكن معاينة هذا النوع داخل المتصفح (مثل DICOM). نزّله وافتحه بالعارض المناسب.</p>}
-      <Button variant="outline" onClick={() => openDocument(doc.id, doc.title, true)}>
-        <Download className="size-4" /> تنزيل
-      </Button>
+      {isDicom && <p className="text-sm text-muted">دراسة DICOM: تُعرض في عارض المراجعة (غير معتمد للتشخيص السريري).</p>}
+      {!viewable && !isDicom && <p className="text-sm text-muted">لا يمكن معاينة هذا النوع داخل المتصفح. نزّله وافتحه بالعارض المناسب.</p>}
+      <div className="flex flex-wrap gap-2">
+        {isDicom && doc.scan_status === "clean" && (
+          <Button asChild><Link href={`/app/imaging/${doc.id}`}><ScanLine className="size-4" /> عرض الصور</Link></Button>
+        )}
+        <Button variant="outline" onClick={() => openDocument(doc.id, doc.title, true)}>
+          <Download className="size-4" /> تنزيل
+        </Button>
+        {doc.ocr_status ? (
+          <Button asChild variant="secondary">
+            <Link href={`/app/documents/${doc.id}/review`}><ScanText className="size-4" /> مراجعة القراءة الآلية</Link>
+          </Button>
+        ) : doc.category === "lab_result" && OCR_TYPES.includes(doc.mime_type) && (
+          <Button asChild variant="ghost">
+            <Link href={`/app/documents/${doc.id}/review`}><ScanText className="size-4" /> قراءة آلية (OCR)</Link>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

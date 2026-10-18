@@ -6,6 +6,7 @@ import json
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
+from django.db.models.fields.files import FieldFile
 from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -51,6 +52,9 @@ def ensure_is_author(ctx: PracticeContext, record: ClinicalRecord) -> None:
 
 def snapshot(record: ClinicalRecord, children: dict | None = None) -> dict:
     data = model_to_dict(record)
+    for key, value in list(data.items()):
+        if isinstance(value, FieldFile):  # e.g. ClinicalDocument.file → keep the storage key only
+            data[key] = value.name or ""
     data.update(children or {})
     return json.loads(json.dumps(data, cls=DjangoJSONEncoder))
 

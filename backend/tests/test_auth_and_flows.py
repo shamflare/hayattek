@@ -307,3 +307,49 @@ def test_attachment_of_draft_lab_report_hidden_until_report_is_final(
     assert lab_tech.post(f"/api/v1/diagnostics/lab-reports/{report['id']}/finalize"
                          ).status_code == 200
     assert me.get(f"/api/v1/documents/{doc['id']}").status_code == 200
+
+
+def test_document_can_be_marked_entered_in_error(doctor, reception, make_patient):
+    patient = make_patient(reception)
+    pdf = SimpleUploadedFile("r.pdf", PDF_BYTES, content_type="application/pdf")
+    doc = doctor.client.post("/api/v1/documents", {"patient": patient["id"], "file": pdf,
+                                                   "category": "medical_report", "title": "x"},
+                             format="multipart").data
+    r = doctor.post(f"/api/v1/documents/{doc['id']}/entered-in-error", {"reason": "ملف خاطئ"})
+    assert r.status_code == 200, r.data
+    assert r.data["status"] == "entered_in_error"
+    versions = doctor.get(f"/api/v1/documents/{doc['id']}/versions").data
+    assert versions[0]["snapshot"]["file"].startswith("documents/")
+
+
+def test_disable_demo_accounts_locks_users_and_tokens(make_user):
+    from django.core.management import call_command
+
+    demo = make_user(email="someone@hayattek.test")
+    real = make_user(email="real.doctor@clinic.example")
+    _token, raw = DeviceToken.issue(demo, "phone")
+    call_command("disable_demo_accounts")
+    demo.refresh_from_db()
+    real.refresh_from_db()
+    assert not demo.is_active and not demo.has_usable_password()
+    assert real.is_active
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION=f"Token {raw}")
+    assert client.get("/api/v1/auth/me").status_code == 401
+
+
+def test_readiness_endpoint(client):
+    r = client.get("/api/health/ready")
+    assert r.status_code == 200 and r.json()["checks"]["database"] == "ok"
+
+
+def test_mfa_enforcement_blocks_staff_until_enrolled(doctor, settings):
+    import pyotp
+
+    settings.HAYAT = {**settings.HAYAT, "ENFORCE_MFA": True}
+    r = doctor.get("/api/v1/patients")
+    assert r.status_code == 403 and r.data["code"] == "mfa_setup_required"
+    assert doctor.get("/api/v1/auth/me").data["mfa_setup_required"] is True
+    secret = doctor.post("/api/v1/auth/mfa/setup").data["secret"]
+    assert doctor.post("/api/v1/auth/mfa/enable", {"otp": pyotp.TOTP(secret).now()}).status_code == 200
+    assert doctor.get("/api/v1/patients").status_code == 200

@@ -105,3 +105,21 @@ hayattek/
 | prod | `config.settings.prod` | PostgreSQL مُدار، أسرار من متغيرات البيئة |
 
 SQLite غير مدعوم (تُستخدم ميزات خاصة بـPostgreSQL مثل ArrayField وTriggers).
+
+## إضافات المرحلة الثانية
+
+```
+                 ┌──────────── Django (backend/) ────────────┐
+                 │ billing/  دفتر قيود + أسعار + مفتاح AI      │
+                 │ scribe/   جلسات صوت → مزود STT → استخراج    │──▶ (مزود AI حقيقي: غير مفعّل حتى الموافقة)
+                 │ documents/ فحص ClamAV + OCR                 │──▶ clamav (Docker, داخلي)
+                 │                                              │──▶ ocr: Tesseract (Docker, داخلي)
+                 │ dicom/    وكيل مصرّح                         │──▶ orthanc (Docker, داخلي، هوية مستعارة)
+                 │ notifications/ Outbox → SMS/Email providers  │──▶ (مزود SMS: غير مختار)
+                 └──────────────────────────────────────────────┘
+```
+- **وحدات جديدة:** `billing` (ADR-025)، `scribe` (ADR-026)، `dicom` (ADR-030/031)؛ وتوسعة `documents` (ADR-023, ADR-029)، `notifications` (ADR-024)، `patients` (دمج، ADR-027)، `medications` (كتالوج، ADR-028).
+- **حاويات داخلية جديدة** (127.0.0.1 في التطوير، شبكة داخلية في الإنتاج): `clamav`، `ocr`، `orthanc`. المتصفح لا يتصل بأي منها مباشرة.
+- **العمليات الخلفية (Celery):** فحص الملفات المعلقة، إرسال الرسائل، OCR، رفع DICOM، معالجة جلسات AI، حذف التسجيلات المنتهية. في التطوير تعمل مباشرة (`HAYAT_CELERY_EAGER`)، وفي الإنتاج worker + beat.
+- **المنطق المالي في الخادم فقط:** الواجهات تعرض مبالغ نصية من الـAPI ولا تحسب أي مبلغ.
+

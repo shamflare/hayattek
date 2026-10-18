@@ -106,6 +106,123 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_catalog_imports_list"];
+        put?: never;
+        /** @description Upload + dry run. Nothing is written to the catalog until `commit`. */
+        post: operations["admin_catalog_imports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_catalog_imports_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/imports/{id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_catalog_imports_commit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/imports/{id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_catalog_imports_discard_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/medications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Browse/search the whole catalog; mark entries inactive; review unknown medicines. */
+        get: operations["admin_catalog_medications_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/medications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Browse/search the whole catalog; mark entries inactive; review unknown medicines. */
+        get: operations["admin_catalog_medications_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Browse/search the whole catalog; mark entries inactive; review unknown medicines. */
+        patch: operations["admin_catalog_medications_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/medications/{id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Decide on a medicine a practitioner typed: keep it, or merge into a catalog entry. */
+        post: operations["admin_catalog_medications_review_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/join-requests": {
         parameters: {
             query?: never;
@@ -136,6 +253,40 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["admin_join_requests_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only delivery log for platform operators (PHASE2 §5 "متابعة حالة الإرسال"). */
+        get: operations["admin_messages_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/messages/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only delivery log for platform operators (PHASE2 §5 "متابعة حالة الإرسال"). */
+        get: operations["admin_messages_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/organizations": {
@@ -521,6 +672,338 @@ export interface paths {
         put?: never;
         /** @description Mobile login: returns an opaque device token (shown once). */
         post: operations["auth_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_admin_alerts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/export.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CSV of doctors' balances (no patient or clinical data). PDF = printable web page. */
+        get: operations["billing_admin_export.csv_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_admin_overview_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Plans can be created and edited (editing never changes past usage) but not deleted. */
+        get: operations["billing_admin_plans_list"];
+        put?: never;
+        /** @description Plans can be created and edited (editing never changes past usage) but not deleted. */
+        post: operations["billing_admin_plans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Plans can be created and edited (editing never changes past usage) but not deleted. */
+        patch: operations["billing_admin_plans_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        get: operations["billing_admin_practitioners_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        get: operations["billing_admin_practitioners_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        post: operations["billing_admin_practitioners_adjustments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/ai-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        post: operations["billing_admin_practitioners_ai_access_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/ai-access-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        get: operations["billing_admin_practitioners_ai_access_events_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        post: operations["billing_admin_practitioners_payments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        post: operations["billing_admin_practitioners_price_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/practitioners/{id}/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description `/billing/admin/practitioners/{practitioner_id}/…` — one doctor's wallet. */
+        get: operations["billing_admin_practitioners_transactions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_admin_settings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["billing_admin_settings_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/billing/admin/transactions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_admin_transactions_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/transactions/{id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_admin_transactions_receipt_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/transactions/{id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing_admin_transactions_reverse_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_me_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/me/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_me_transactions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/me/transactions/{id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing_me_transactions_receipt_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -960,6 +1443,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/diagnostics/imaging-reports/{id}/print": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Data for the A4 imaging report print page (ADR-009). Finalized reports only;
+         *     same visibility as reading the report (policy engine), audited as a print.
+         */
+        get: operations["diagnostics_imaging_reports_print_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/diagnostics/imaging-reports/{id}/versions": {
         parameters: {
             query?: never;
@@ -1255,6 +1758,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dicom/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Study information. Audited once per study open (`document.view_dicom`). */
+        get: operations["dicom_documents_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dicom/documents/{id}/instances/{instance_id}/rendered": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One rendered frame (8-bit display image), streamed from the private store. */
+        get: operations["dicom_documents_instances_rendered_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dicom/documents/{id}/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only viewer API, addressed by the ClinicalDocument id. */
+        get: operations["dicom_documents_series_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dicom/documents/{id}/series/{series_id}/instances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only viewer API, addressed by the ClinicalDocument id. */
+        get: operations["dicom_documents_series_instances_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dicom/studies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Upload a DICOM study. Single `.dcm` files go through the regular documents pipeline;
+         *     a ZIP of one study is validated here (limits, zip-slip, one StudyInstanceUID).
+         */
+        post: operations["dicom_studies_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/directory/organizations": {
         parameters: {
             query?: never;
@@ -1385,6 +1976,54 @@ export interface paths {
         put?: never;
         /** @description Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void. */
         post: operations["documents_finalize_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/ocr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["documents_ocr_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/ocr/convert-to-lab-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["documents_ocr_convert_to_lab_report_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/ocr/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["documents_ocr_run_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1857,6 +2496,112 @@ export interface paths {
         patch: operations["org_profile_partial_update"];
         trace?: never;
     };
+    "/api/v1/patient-merges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description History of decisions taken at this facility (merges, rejections, undos). */
+        get: operations["patient_merges_list"];
+        put?: never;
+        /** @description Merge `source` into `target`. Explicit confirmation and identity evidence required. */
+        post: operations["patient_merges_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patient-merges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Duplicate files of the acting facility. Receptionists and verified physicians only. */
+        get: operations["patient_merges_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patient-merges/{id}/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Undo a mistaken merge (same facility, within the undo window). */
+        post: operations["patient_merges_revert_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patient-merges/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Side by side. Record counts are shown to clinicians only (front desk sees
+         *     demographics and administrative facts).
+         */
+        get: operations["patient_merges_compare_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patient-merges/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Record that two similar files are different people (no longer suggested). */
+        post: operations["patient_merges_reject_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patient-merges/suspects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Suspected duplicate pairs among patients registered at this facility only. */
+        get: operations["patient_merges_suspects_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients": {
         parameters: {
             query?: never;
@@ -2325,10 +3070,152 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/scribe/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["scribe_sessions_list"];
+        put?: never;
+        post: operations["scribe_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["scribe_sessions_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["scribe_sessions_approve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}/audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["scribe_sessions_audio_retrieve"];
+        put?: never;
+        post: operations["scribe_sessions_audio_create"];
+        delete: operations["scribe_sessions_audio_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["scribe_sessions_discard_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["scribe_sessions_retry_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/sessions/{id}/sample": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Synthetic test recording (development/testing only). */
+        post: operations["scribe_sessions_sample_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scribe/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["scribe_status_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AIAccessEvent: {
+            /** Format: uuid */
+            readonly id: string;
+            enabled: boolean;
+            reason?: string;
+            readonly changed_by_name: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        AIAccessInputRequest: {
+            enabled: boolean;
+            reason?: string;
+        };
         AccessLogEntry: {
             /** Format: date-time */
             occurred_at: string;
@@ -2350,7 +3237,7 @@ export interface components {
             practitioner?: string | null;
             readonly practitioner_name: string;
             scopes: components["schemas"]["ScopesEnum"][];
-            purpose?: components["schemas"]["PurposeEnum"];
+            purpose?: components["schemas"]["PurposeF9bEnum"];
             duration_hours?: number;
             note?: string;
             status?: components["schemas"]["AccessStatusEnum"];
@@ -2363,7 +3250,14 @@ export interface components {
             decided_at?: string | null;
             /** Format: date-time */
             readonly created_at: string;
+            readonly delivery: (components["schemas"]["DeliveryEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /**
+         * @description * `patient_app` - تطبيق المريض
+         *     * `otp` - رمز إلى الهاتف
+         * @enum {string}
+         */
+        AccessRequestCreateChannelEnum: "patient_app" | "otp";
         AccessRequestCreateRequest: {
             /** Format: uuid */
             patient_id?: string;
@@ -2371,7 +3265,7 @@ export interface components {
             card_token?: string;
             scopes: components["schemas"]["ScopesEnum"][];
             hours: number;
-            channel: components["schemas"]["ChannelEnum"];
+            channel: components["schemas"]["AccessRequestCreateChannelEnum"];
             note?: string;
         };
         /**
@@ -2385,10 +3279,66 @@ export interface components {
         AccessStatusEnum: "pending" | "approved" | "denied" | "expired" | "cancelled";
         AccountActivated: {
             setup_link: string;
+            delivery: components["schemas"]["DeliveryEnum"];
         };
         ActivateAccountRequest: {
             email?: string;
             phone?: string;
+        };
+        /**
+         * @description * `manual_debit` - خصم يدوي
+         *     * `credit_grant` - رصيد مجاني
+         *     * `charge_correction` - تصحيح رسوم
+         *     * `settlement` - تسوية مالية
+         *     * `refund` - استرداد مبلغ
+         * @enum {string}
+         */
+        AdjustmentInputKindEnum: "manual_debit" | "credit_grant" | "charge_correction" | "settlement" | "refund";
+        AdjustmentInputRequest: {
+            kind: components["schemas"]["AdjustmentInputKindEnum"];
+            /** Format: decimal */
+            amount: string;
+            reason: string;
+        };
+        AdminMedication: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Display/trade name as prescribed. */
+            readonly name: string;
+            readonly brand_name: string;
+            readonly active_ingredient: string;
+            readonly strength: string;
+            readonly dosage_form: components["schemas"]["DosageFormEnum"];
+            /** @description Dose unit, e.g. حبة، مل */
+            readonly unit: string;
+            readonly default_route: components["schemas"]["DefaultRouteEnum"];
+            is_active?: boolean;
+            readonly source: components["schemas"]["Source0c8Enum"];
+            readonly source_reference: string;
+            readonly manufacturer: string;
+            readonly country_of_registration: string;
+            readonly registration_number: string;
+            /** @description Declared data source, e.g. the licensed catalog. */
+            readonly source_name: string;
+            readonly source_version: string;
+            /** Format: date */
+            readonly source_date: string | null;
+            /** Format: date-time */
+            readonly imported_at: string | null;
+            /** @description Identifier of the entry in its source. */
+            readonly external_id: string;
+            readonly is_synthetic: boolean;
+            readonly review_status: components["schemas"]["ReviewStatusEnum"] | components["schemas"]["BlankEnum"];
+            /** Format: uuid */
+            readonly merged_into: string | null;
+            readonly merged_into_name: string;
+            readonly added_by_name: string;
+            /** Format: date-time */
+            readonly reviewed_at: string | null;
+            /** @default 0 */
+            readonly favorites_count: number;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         AdminStats: {
             organizations_by_kind: {
@@ -2401,6 +3351,48 @@ export interface components {
             encounters_last_30_days: number;
             prescriptions_last_30_days: number;
             denied_access_last_7_days: number;
+        };
+        AdminWalletSummary: {
+            /** Format: uuid */
+            practitioner_id: string;
+            name: string;
+            specialty: string;
+            currency: string;
+            /** Format: decimal */
+            balance: string;
+            /** Format: decimal */
+            amount_due: string;
+            /** Format: decimal */
+            total_charges: string;
+            /** Format: decimal */
+            total_payments: string;
+            /** Format: date-time */
+            last_payment_at: string | null;
+            sessions: number;
+            /** Format: decimal */
+            billable_minutes: string;
+            /** Format: decimal */
+            price_per_minute: string;
+            plan_name: string;
+            rounding_mode: string;
+            ai_enabled: boolean;
+            /** Format: decimal */
+            provider_cost: string;
+            /** Format: decimal */
+            margin: string;
+        };
+        AdministrativeFacts: {
+            facilities: number;
+            has_account: boolean;
+            guardians: number;
+            active_cards: number;
+        };
+        Alert: {
+            kind: string;
+            severity: string;
+            /** Format: uuid */
+            practitioner_id: string | null;
+            message: string;
         };
         /** @description Provenance fields every clinical record exposes. */
         Allergy: {
@@ -2455,6 +3447,34 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        ApproveRequest: {
+            reason?: string;
+            complaint?: string;
+            history?: string;
+            examination?: string;
+            assessment?: string;
+            plan?: string;
+            follow_up_note?: string;
+            /** Format: date */
+            follow_up_date?: string | null;
+            vitals?: {
+                [key: string]: unknown;
+            };
+            diagnoses?: {
+                [key: string]: unknown;
+            }[];
+            allergies?: {
+                [key: string]: unknown;
+            }[];
+            prescription_items?: {
+                [key: string]: unknown;
+            }[];
+            orders?: {
+                [key: string]: unknown;
+            }[];
+            /** @default false */
+            finalize_encounter: boolean;
+        };
         AuditEvent: {
             /** Format: uuid */
             readonly id: string;
@@ -2472,6 +3492,19 @@ export interface components {
             patient_id?: string | null;
             ip_address?: string | null;
         };
+        BillingSettings: {
+            /** Format: decimal */
+            doctor_debt_alert?: string;
+            /** Format: decimal */
+            total_debt_alert?: string;
+            /** Format: decimal */
+            monthly_provider_cost_alert?: string;
+            /** Format: decimal */
+            usage_spike_factor?: string;
+            overdue_days?: number;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
         /**
          * @description * `exact` - دقيق
          *     * `year` - السنة فقط
@@ -2481,6 +3514,58 @@ export interface components {
         BirthDatePrecisionEnum: "exact" | "year" | "estimated";
         /** @enum {unknown} */
         BlankEnum: "";
+        CatalogImport: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly original_filename: string;
+            readonly file_format: string;
+            readonly sha256: string;
+            readonly source_name: string;
+            readonly source_version: string;
+            /** Format: date */
+            readonly source_date: string | null;
+            readonly source_url: string;
+            /** @description Licence / written permission allowing reuse of the data. */
+            readonly license_text: string;
+            readonly license_confirmed: boolean;
+            /** @description Synthetic sample data (development only). */
+            readonly is_synthetic: boolean;
+            readonly status: components["schemas"]["CatalogImportStatusEnum"];
+            readonly total_rows: number;
+            readonly created_count: number;
+            readonly updated_count: number;
+            readonly unchanged_count: number;
+            readonly duplicate_count: number;
+            readonly error_count: number;
+            readonly error_report: unknown;
+            readonly preview: unknown;
+            readonly imported_by_name: string;
+            /** Format: date-time */
+            readonly committed_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `previewed` - معاينة (لم يُستورد بعد)
+         *     * `committed` - تم الاستيراد
+         *     * `discarded` - أُلغي
+         *     * `failed` - فشل
+         * @enum {string}
+         */
+        CatalogImportStatusEnum: "previewed" | "committed" | "discarded" | "failed";
+        CatalogImportUploadRequest: {
+            /** Format: binary */
+            file: string;
+            source_name: string;
+            source_version?: string;
+            /** Format: date */
+            source_date?: string | null;
+            source_url?: string;
+            license_text: string;
+            license_confirmed: boolean;
+            /** @default false */
+            is_synthetic: boolean;
+        };
         /**
          * @description * `lab_result` - نتيجة تحليل
          *     * `xray` - أشعة بسيطة
@@ -2511,18 +3596,27 @@ export interface components {
          */
         CategoryE8eEnum: "encounter_diagnosis" | "problem_list" | "past_history";
         /**
-         * @description * `patient_app` - تطبيق المريض
-         *     * `otp` - رمز إلى الهاتف
-         * @enum {string}
-         */
-        ChannelEnum: "patient_app" | "otp";
-        /**
          * @description * `active` - نشط
          *     * `resolved` - شُفي
          *     * `inactive` - غير نشط
          * @enum {string}
          */
         ClinicalStatusEnum: "active" | "resolved" | "inactive";
+        Compare: {
+            a: components["schemas"]["CompareSide"];
+            b: components["schemas"]["CompareSide"];
+            reasons: string[];
+            warnings: string[];
+            blockers: string[];
+        };
+        CompareSide: {
+            patient: components["schemas"]["PatientDetail"];
+            facts: components["schemas"]["AdministrativeFacts"];
+            /** @description Clinicians only (null for front desk). */
+            record_counts: {
+                [key: string]: number;
+            } | null;
+        };
         /** @description Provenance fields every clinical record exposes. */
         Condition: {
             /** Format: uuid */
@@ -2576,6 +3670,13 @@ export interface components {
             /** @default false */
             finalize_now: boolean;
         };
+        /**
+         * @description * `verbal` - موافقة شفهية أمام الطبيب
+         *     * `written` - موافقة مكتوبة
+         *     * `not_required` - غير مطلوبة (إملاء الطبيب وحده)
+         * @enum {string}
+         */
+        ConsentMethodEnum: "verbal" | "written" | "not_required";
         CorrectionCreated: {
             /** Format: uuid */
             id: string;
@@ -2586,6 +3687,11 @@ export interface components {
             target_id: string;
             message: string;
         };
+        /**
+         * @description * `USD` - دولار أمريكي
+         * @enum {string}
+         */
+        CurrencyEnum: "USD";
         CurrentMedication: {
             name: string;
             /** Format: uuid */
@@ -2598,6 +3704,12 @@ export interface components {
             ends_on: string | null;
             ongoing: boolean;
         };
+        /**
+         * @description * `keep` - keep
+         *     * `merge` - merge
+         * @enum {string}
+         */
+        DecisionEnum: "keep" | "merge";
         DecisionResult: {
             grant: components["schemas"]["Grant"] | null;
         };
@@ -2618,6 +3730,15 @@ export interface components {
          * @enum {string}
          */
         DefaultRouteEnum: "oral" | "sublingual" | "topical" | "iv" | "im" | "sc" | "inhalation" | "nasal" | "ophthalmic" | "otic" | "rectal" | "vaginal" | "other";
+        /**
+         * @description * `queued` - queued
+         *     * `sent` - sent
+         *     * `not_configured` - not_configured
+         *     * `failed` - failed
+         *     * `suppressed` - suppressed
+         * @enum {string}
+         */
+        DeliveryEnum: "queued" | "sent" | "not_configured" | "failed" | "suppressed";
         Department: {
             /** Format: uuid */
             readonly id: string;
@@ -2625,6 +3746,78 @@ export interface components {
         };
         DepartmentRequest: {
             name: string;
+        };
+        DicomInstance: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly instance_number: number | null;
+            readonly frames: number;
+        };
+        DicomSeries: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly modality: string;
+            readonly number: number | null;
+            readonly description: string;
+            readonly instance_count: number;
+        };
+        DicomStudy: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly document: string;
+            /** Format: uuid */
+            readonly patient: string;
+            /** Format: uuid */
+            readonly encounter: string | null;
+            /** Format: uuid */
+            readonly imaging_report: string | null;
+            readonly title: string;
+            readonly category: string;
+            readonly organization_name: string | null;
+            readonly record_status: string;
+            readonly status: components["schemas"]["DicomStudyStatusEnum"];
+            readonly error_code: string;
+            readonly modalities: string;
+            /** Format: date */
+            readonly study_date: string | null;
+            readonly study_description: string;
+            readonly series_count: number;
+            readonly instance_count: number;
+            /** Format: date-time */
+            readonly stored_at: string | null;
+            readonly window_presets: string[];
+            /** @description Always false: this viewer is for review only, not cleared for clinical diagnosis. */
+            readonly diagnostic_use: boolean;
+        };
+        /**
+         * @description * `pending` - قيد التجهيز
+         *     * `stored` - جاهزة للعرض
+         *     * `failed` - تعذرت المعالجة
+         * @enum {string}
+         */
+        DicomStudyStatusEnum: "pending" | "stored" | "failed";
+        DicomUploadRequest: {
+            /** Format: uuid */
+            patient: string;
+            /**
+             * Format: binary
+             * @description One DICOM file (.dcm) or a ZIP of ONE DICOM study.
+             */
+            file: string;
+            category: components["schemas"]["Category91cEnum"];
+            title: string;
+            description?: string;
+            /** Format: date */
+            document_date?: string | null;
+            /** Format: uuid */
+            encounter?: string | null;
+            /** Format: uuid */
+            lab_report?: string | null;
+            /** Format: uuid */
+            imaging_report?: string | null;
+            /** @default false */
+            run_ocr: boolean;
         };
         /** @description Provenance fields every clinical record exposes. */
         Document: {
@@ -2673,6 +3866,7 @@ export interface components {
             id: string;
             title: string;
             mime_type: string;
+            scan_status: string;
         };
         DocumentUploadRequest: {
             /** Format: uuid */
@@ -2811,6 +4005,16 @@ export interface components {
             follow_up_date?: string | null;
             follow_up_note?: string;
         };
+        /**
+         * @description * `health_card` - البطاقة الصحية لأحد الملفين
+         *     * `national_id_document` - الهوية الشخصية أو جواز السفر
+         *     * `family_booklet` - دفتر العائلة أو بيان القيد
+         *     * `patient_confirmed` - أكد المريض أو وليه أن الملفين له
+         *     * `phone_verified` - تحقق من رقم الهاتف
+         *     * `clinical_history_match` - تطابق التاريخ المرضي
+         * @enum {string}
+         */
+        EvidenceChecksEnum: "health_card" | "national_id_document" | "family_booklet" | "patient_confirmed" | "phone_verified" | "clinical_history_match";
         Favorite: {
             /** Format: uuid */
             readonly id: string;
@@ -2869,8 +4073,8 @@ export interface components {
             practitioner?: string | null;
             readonly practitioner_name: string;
             scopes: components["schemas"]["ScopesEnum"][];
-            purpose?: components["schemas"]["PurposeEnum"];
-            method: components["schemas"]["MethodEnum"];
+            purpose?: components["schemas"]["PurposeF9bEnum"];
+            method: components["schemas"]["GrantMethodEnum"];
             /** Format: date-time */
             starts_at?: string;
             /** Format: date-time */
@@ -2881,6 +4085,15 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /**
+         * @description * `patient_app` - موافقة من حساب المريض
+         *     * `otp` - رمز تحقق إلى هاتف المريض
+         *     * `in_person` - تحقق حضوري بالبطاقة
+         *     * `referral` - ضمن إحالة بموافقة المريض
+         *     * `patient_share` - مشاركة بادر بها المريض
+         * @enum {string}
+         */
+        GrantMethodEnum: "patient_app" | "otp" | "in_person" | "referral" | "patient_share";
         Guardian: {
             /** Format: uuid */
             readonly id: string;
@@ -3208,7 +4421,9 @@ export interface components {
             unit?: string;
             default_route?: components["schemas"]["DefaultRouteEnum"];
             readonly is_active: boolean;
-            readonly source: components["schemas"]["MedicationSourceEnum"];
+            readonly source: components["schemas"]["Source0c8Enum"];
+            manufacturer?: string;
+            readonly is_synthetic: boolean;
         };
         MedicationRequest: {
             /** @description Display/trade name as prescribed. */
@@ -3220,14 +4435,8 @@ export interface components {
             /** @description Dose unit, e.g. حبة، مل */
             unit?: string;
             default_route?: components["schemas"]["DefaultRouteEnum"];
+            manufacturer?: string;
         };
-        /**
-         * @description * `synthetic_test` - بيانات اختبار اصطناعية
-         *     * `imported` - مستورد من مصدر موثق
-         *     * `practitioner` - أضافه طبيب
-         * @enum {string}
-         */
-        MedicationSourceEnum: "synthetic_test" | "imported" | "practitioner";
         MemberCreateRequest: {
             full_name: string;
             email?: string;
@@ -3270,15 +4479,76 @@ export interface components {
             department?: string | null;
             status?: components["schemas"]["Status90dEnum"];
         };
+        MergeCase: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly status: components["schemas"]["MergeCaseStatusEnum"];
+            readonly source: components["schemas"]["MergedPatientBrief"];
+            readonly target: components["schemas"]["MergedPatientBrief"];
+            /** @description Detection reasons, e.g. same_phone_birth_year. */
+            readonly reasons: unknown;
+            readonly evidence_checks: unknown;
+            readonly evidence_notes: string;
+            readonly decision_reason: string;
+            readonly reviewed_by_name: string;
+            readonly reviewer_role: string;
+            /** Format: date-time */
+            readonly reviewed_at: string | null;
+            readonly reverted_by_name: string;
+            /** Format: date-time */
+            readonly reverted_at: string | null;
+            readonly revert_reason: string;
+            /** @description Rows that could not move back / created after the merge (manual review list). */
+            readonly revert_report: unknown;
+            readonly moved_summary: {
+                [key: string]: number;
+            };
+            readonly kept_summary: {
+                [key: string]: number;
+            };
+            readonly can_revert: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         /**
-         * @description * `patient_app` - موافقة من حساب المريض
-         *     * `otp` - رمز تحقق إلى هاتف المريض
-         *     * `in_person` - تحقق حضوري بالبطاقة
-         *     * `referral` - ضمن إحالة بموافقة المريض
-         *     * `patient_share` - مشاركة بادر بها المريض
+         * @description * `open` - قيد المراجعة
+         *     * `merged` - تم الدمج
+         *     * `rejected` - ليسا الشخص نفسه
+         *     * `reverted` - تم التراجع عن الدمج
          * @enum {string}
          */
-        MethodEnum: "patient_app" | "otp" | "in_person" | "referral" | "patient_share";
+        MergeCaseStatusEnum: "open" | "merged" | "rejected" | "reverted";
+        MergeRequestRequest: {
+            /**
+             * Format: uuid
+             * @description The duplicate file folded into the target.
+             */
+            source: string;
+            /**
+             * Format: uuid
+             * @description The surviving file.
+             */
+            target: string;
+            evidence_checks: components["schemas"]["EvidenceChecksEnum"][];
+            evidence_notes: string;
+            reason: string;
+            confirm: boolean;
+        };
+        MergedPatientBrief: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            health_number: string;
+            status: string;
+        };
+        /**
+         * @description * `cash` - نقداً
+         *     * `bank_transfer` - تحويل مصرفي
+         *     * `money_transfer` - حوالة
+         *     * `other` - أخرى
+         * @enum {string}
+         */
+        MethodBaaEnum: "cash" | "bank_transfer" | "money_transfer" | "other";
         MfaSetup: {
             secret: string;
             otpauth_uri: string;
@@ -3295,6 +4565,12 @@ export interface components {
          * @enum {string}
          */
         ModalityEnum: "xray" | "ultrasound" | "ct" | "mri" | "ecg" | "echo" | "mammography" | "other";
+        /**
+         * @description * `conversation` - الاستماع الذكي (حوار)
+         *     * `dictation` - الإملاء الطبي الذكي
+         * @enum {string}
+         */
+        ModeEnum: "conversation" | "dictation";
         Notification: {
             /** Format: uuid */
             readonly id: string;
@@ -3319,6 +4595,61 @@ export interface components {
          * @enum {string}
          */
         NotificationKindEnum: "access_request" | "access_granted" | "new_record" | "lab_result" | "referral" | "incoming_order" | "system";
+        /** @enum {unknown} */
+        NullEnum: null;
+        OcrConvertRequest: {
+            title: string;
+            external_lab_name?: string;
+            /**
+             * Format: date
+             * @description Date printed on the report (reviewed).
+             */
+            result_date?: string | null;
+            conclusion?: string;
+            observations: components["schemas"]["LabObservationRequest"][];
+        };
+        OcrResult: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly document: string;
+            readonly document_title: string;
+            readonly document_mime_type: string;
+            /** Format: uuid */
+            readonly patient: string;
+            readonly status: components["schemas"]["OcrResultStatusEnum"];
+            readonly error_code: string;
+            readonly provider: string;
+            readonly engine: string;
+            readonly engine_version: string;
+            readonly pages: number;
+            readonly text: string;
+            /** Format: double */
+            readonly mean_confidence: number | null;
+            readonly suggested_category: string;
+            readonly extracted: unknown;
+            /** Format: date-time */
+            readonly processed_at: string | null;
+            /** Format: date-time */
+            readonly reviewed_at: string | null;
+            readonly reviewed_by_name: string | null;
+            /** Format: uuid */
+            readonly lab_report: string | null;
+            readonly lab_report_status: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `queued` - في الانتظار
+         *     * `done` - اكتمل
+         *     * `failed` - فشل
+         *     * `unavailable` - غير متاح
+         *     * `reviewed` - رُوجع وحُوّل إلى مسودة
+         * @enum {string}
+         */
+        OcrResultStatusEnum: "queued" | "done" | "failed" | "unavailable" | "reviewed";
         Ok: {
             ok: boolean;
         };
@@ -3391,6 +4722,59 @@ export interface components {
         OtpVerifyRequest: {
             otp: string;
         };
+        /** @description Delivery metadata only: masked recipient, never the body (it may hold a code/link). */
+        OutboundMessageAdmin: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly channel: components["schemas"]["OutboundMessageAdminChannelEnum"];
+            readonly purpose: components["schemas"]["OutboundMessageAdminPurposeEnum"];
+            readonly recipient_masked: string;
+            readonly status: components["schemas"]["OutboundMessageAdminStatusEnum"];
+            readonly attempts: number;
+            readonly max_attempts: number;
+            readonly last_error: string;
+            readonly provider: string;
+            readonly provider_message_id: string;
+            /** Format: date-time */
+            readonly next_attempt_at: string | null;
+            /** Format: date-time */
+            readonly sent_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `sms` - رسالة نصية
+         *     * `email` - بريد إلكتروني
+         * @enum {string}
+         */
+        OutboundMessageAdminChannelEnum: "sms" | "email";
+        /**
+         * @description * `otp` - رمز تحقق
+         *     * `account_activation` - تفعيل حساب
+         *     * `password_reset` - استعادة كلمة المرور
+         *     * `notification` - إشعار
+         * @enum {string}
+         */
+        OutboundMessageAdminPurposeEnum: "otp" | "account_activation" | "password_reset" | "notification";
+        /**
+         * @description * `queued` - في الطابور
+         *     * `sending` - قيد الإرسال
+         *     * `sent` - أُرسلت
+         *     * `failed` - فشلت
+         *     * `not_configured` - خدمة الإرسال غير مفعلة
+         *     * `suppressed` - أوقفت (حد الإرسال)
+         * @enum {string}
+         */
+        OutboundMessageAdminStatusEnum: "queued" | "sending" | "sent" | "failed" | "not_configured" | "suppressed";
+        OutboundMessageStats: {
+            by_status: {
+                [key: string]: number;
+            };
+            sms_provider: string;
+            sms_configured: boolean;
+            email_provider: string;
+            email_configured: boolean;
+        };
         /**
          * @description * `success` - نجاح
          *     * `denied` - مرفوض
@@ -3398,6 +4782,25 @@ export interface components {
          * @enum {string}
          */
         OutcomeEnum: "success" | "denied" | "failure";
+        Overview: {
+            currency: string;
+            /** Format: decimal */
+            total_balance: string;
+            /** Format: decimal */
+            total_debt: string;
+            /** Format: decimal */
+            total_collected: string;
+            debtor_count: number;
+            creditor_count: number;
+            /** Format: decimal */
+            ai_revenue: string;
+            /** Format: decimal */
+            provider_cost: string;
+            /** Format: decimal */
+            margin: string;
+            billed_sessions: number;
+            failed_sessions: number;
+        };
         PaginatedAccessLogEntryList: {
             /** @example 123 */
             count: number;
@@ -3412,6 +4815,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["AccessLogEntry"][];
+        };
+        PaginatedAdminMedicationList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminMedication"][];
         };
         PaginatedAllergyList: {
             /** @example 123 */
@@ -3443,6 +4861,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["AuditEvent"][];
         };
+        PaginatedCatalogImportList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["CatalogImport"][];
+        };
         PaginatedConditionList: {
             /** @example 123 */
             count: number;
@@ -3472,6 +4905,22 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Department"][];
+        };
+        PaginatedDicomInstanceList: {
+            count: number;
+            /** Format: uri */
+            next: string | null;
+            /** Format: uri */
+            previous: string | null;
+            results: components["schemas"]["DicomInstance"][];
+        };
+        PaginatedDicomSeriesList: {
+            count: number;
+            /** Format: uri */
+            next: string | null;
+            /** Format: uri */
+            previous: string | null;
+            results: components["schemas"]["DicomSeries"][];
         };
         PaginatedDocumentList: {
             /** @example 123 */
@@ -3593,6 +5042,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Membership"][];
         };
+        PaginatedMergeCaseList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["MergeCase"][];
+        };
         PaginatedNotificationList: {
             /** @example 123 */
             count: number;
@@ -3622,6 +5086,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Organization"][];
+        };
+        PaginatedOutboundMessageAdminList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["OutboundMessageAdmin"][];
         };
         PaginatedPatientAccessStateList: {
             /** @example 123 */
@@ -3758,6 +5237,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["ServiceRequest"][];
         };
+        PaginatedSessionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Session"][];
+        };
         PaginatedSubscriptionList: {
             /** @example 123 */
             count: number;
@@ -3788,6 +5282,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["SubscriptionPlan"][];
         };
+        PaginatedTransactionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Transaction"][];
+        };
         PaginatedUserSummaryList: {
             /** @example 123 */
             count: number;
@@ -3815,6 +5324,9 @@ export interface components {
         PasswordResetRequestRequest: {
             identifier: string;
         };
+        PatchedAdminMedicationRequest: {
+            is_active?: boolean;
+        };
         PatchedAllergyWriteRequest: {
             /** Format: uuid */
             patient?: string;
@@ -3827,6 +5339,17 @@ export interface components {
             is_active?: boolean;
             /** @default false */
             finalize_now: boolean;
+        };
+        PatchedBillingSettingsRequest: {
+            /** Format: decimal */
+            doctor_debt_alert?: string;
+            /** Format: decimal */
+            total_debt_alert?: string;
+            /** Format: decimal */
+            monthly_provider_cost_alert?: string;
+            /** Format: decimal */
+            usage_spike_factor?: string;
+            overdue_days?: number;
         };
         PatchedConditionWriteRequest: {
             /** Format: uuid */
@@ -3999,6 +5522,18 @@ export interface components {
             diagnosis_text?: string;
             notes?: string;
             items?: components["schemas"]["PrescriptionItemRequest"][];
+        };
+        PatchedPricingPlanRequest: {
+            code?: string;
+            name?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            price_per_minute?: string;
+            rounding_mode?: components["schemas"]["RoundingModeEnum"];
+            minimum_billable_seconds?: number;
+            is_default?: boolean;
+            is_active?: boolean;
+            notes?: string;
         };
         PatchedProfileUpdateRequest: {
             full_name?: string;
@@ -4187,7 +5722,7 @@ export interface components {
             scopes: components["schemas"]["ScopesEnum"][];
             days: number;
             /** @default treatment */
-            purpose: components["schemas"]["PurposeEnum"];
+            purpose: components["schemas"]["PurposeF9bEnum"];
         };
         PatientSummary: {
             current_medications: components["schemas"]["CurrentMedication"][];
@@ -4201,6 +5736,34 @@ export interface components {
         PatientWithAccess: {
             access: components["schemas"]["PatientAccessInfo"];
             patient: components["schemas"]["PatientDetail"];
+        };
+        PaymentInputRequest: {
+            /** Format: decimal */
+            amount: string;
+            /** @default USD */
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date-time */
+            paid_at?: string | null;
+            method: components["schemas"]["MethodBaaEnum"];
+            reference?: string;
+            notes?: string;
+            /** @description Client-generated key: retries never create a second payment. */
+            idempotency_key?: string;
+        };
+        /**
+         * @description * `cash` - نقداً
+         *     * `bank_transfer` - تحويل مصرفي
+         *     * `money_transfer` - حوالة
+         *     * `other` - أخرى
+         * @enum {string}
+         */
+        PaymentMethodEnum: "cash" | "bank_transfer" | "money_transfer" | "other";
+        PaymentResult: {
+            transaction: components["schemas"]["Transaction"];
+            /** Format: decimal */
+            balance: string;
+            /** Format: decimal */
+            amount_due: string;
         };
         Practitioner: {
             /** Format: uuid */
@@ -4362,6 +5925,42 @@ export interface components {
             notes?: string;
             items: components["schemas"]["PrescriptionItemRequest"][];
         };
+        PriceInputRequest: {
+            /** Format: uuid */
+            plan_id?: string;
+            /** Format: decimal */
+            price_per_minute?: string;
+            /** @default ceil_minute */
+            rounding_mode: components["schemas"]["RoundingModeEnum"];
+        };
+        PricingPlan: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            name: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            price_per_minute: string;
+            rounding_mode?: components["schemas"]["RoundingModeEnum"];
+            minimum_billable_seconds?: number;
+            is_default?: boolean;
+            is_active?: boolean;
+            notes?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        PricingPlanRequest: {
+            code: string;
+            name: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            price_per_minute: string;
+            rounding_mode?: components["schemas"]["RoundingModeEnum"];
+            minimum_billable_seconds?: number;
+            is_default?: boolean;
+            is_active?: boolean;
+            notes?: string;
+        };
         /**
          * @description * `routine` - عادي
          *     * `urgent` - عاجل
@@ -4403,9 +6002,25 @@ export interface components {
          *     * `diagnostics` - تحاليل أو تصوير
          * @enum {string}
          */
-        PurposeEnum: "treatment" | "referral" | "second_opinion" | "diagnostics";
+        PurposeF9bEnum: "treatment" | "referral" | "second_opinion" | "diagnostics";
         ReasonRequest: {
             reason: string;
+        };
+        Receipt: {
+            receipt_number: string;
+            /** Format: decimal */
+            amount: string;
+            currency: string;
+            /** Format: date-time */
+            paid_at: string;
+            method: string;
+            reference: string;
+            notes: string;
+            received_by: string | null;
+            practitioner_name: string;
+            /** Format: decimal */
+            balance_after: string;
+            is_reversed: boolean;
         };
         RecordRef: {
             /** Format: uuid */
@@ -4489,6 +6104,13 @@ export interface components {
         ReissueCardRequest: {
             reason: string;
         };
+        RejectPairRequest: {
+            /** Format: uuid */
+            a: string;
+            /** Format: uuid */
+            b: string;
+            reason: string;
+        };
         /**
          * @description * `parent` - أب/أم
          *     * `legal_guardian` - وصي قانوني
@@ -4510,6 +6132,25 @@ export interface components {
             /** Format: date-time */
             created_at: string;
         };
+        ReversalReasonRequest: {
+            reason: string;
+        };
+        RevertRequest: {
+            reason: string;
+        };
+        ReviewRequest: {
+            decision: components["schemas"]["DecisionEnum"];
+            /** Format: uuid */
+            target?: string | null;
+        };
+        /**
+         * @description * `` - لا يحتاج مراجعة
+         *     * `pending` - بانتظار المراجعة
+         *     * `accepted` - أُبقي في الكتالوج
+         *     * `merged` - دُمج في صنف موجود
+         * @enum {string}
+         */
+        ReviewStatusEnum: "pending" | "accepted" | "merged";
         /**
          * @description * `org_admin` - مدير المنشأة
          *     * `physician` - طبيب
@@ -4520,6 +6161,13 @@ export interface components {
          * @enum {string}
          */
         RolesEnum: "org_admin" | "physician" | "nurse" | "receptionist" | "lab_staff" | "imaging_staff";
+        /**
+         * @description * `per_second` - بالثانية
+         *     * `ceil_minute` - تقريب للأعلى لكل دقيقة
+         *     * `ceil_half_minute` - تقريب للأعلى لكل نصف دقيقة
+         * @enum {string}
+         */
+        RoundingModeEnum: "per_second" | "ceil_minute" | "ceil_half_minute";
         /**
          * @description * `oral` - فموي
          *     * `sublingual` - تحت اللسان
@@ -4567,6 +6215,28 @@ export interface components {
          * @enum {string}
          */
         ScopesEnum: "summary" | "encounters" | "prescriptions" | "labs" | "imaging" | "documents" | "referrals";
+        ScribeAudioUploadRequest: {
+            /** Format: binary */
+            file: string;
+        };
+        ScribeSampleRequest: {
+            sample: string;
+        };
+        ScribeSessionCharge: {
+            billable_seconds: number;
+            amount: string;
+            currency: string;
+            price_per_minute: string;
+        };
+        ScribeStatus: {
+            enabled: boolean;
+            price_per_minute: string;
+            currency: string;
+            samples: {
+                [key: string]: unknown;
+            }[];
+            provider_is_mock: boolean;
+        };
         /**
          * @description * `requested` - مطلوب
          *     * `received` - استلمته الجهة المنفذة
@@ -4654,6 +6324,52 @@ export interface components {
             /** @default true */
             send_now: boolean;
         };
+        Session: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly encounter: string;
+            /** Format: uuid */
+            readonly patient: string;
+            readonly mode: components["schemas"]["ModeEnum"];
+            readonly status: components["schemas"]["SessionStatusEnum"];
+            readonly consent_method: components["schemas"]["ConsentMethodEnum"];
+            readonly consent_note: string;
+            /** Format: date-time */
+            readonly consent_at: string;
+            readonly audio_seconds: number;
+            readonly audio_is_sample: boolean;
+            readonly audio_available: boolean;
+            /** Format: date-time */
+            readonly retention_until: string | null;
+            readonly transcript: unknown;
+            readonly draft: unknown;
+            readonly is_mock: boolean;
+            readonly stt_provider: string;
+            readonly extraction_provider: string;
+            readonly attempts: number;
+            readonly error_code: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly ready_at: string | null;
+            /** Format: date-time */
+            readonly approved_at: string | null;
+            /** @description What the doctor applied to the record on approval. */
+            readonly applied: unknown;
+            readonly billing: components["schemas"]["ScribeSessionCharge"] | null;
+        };
+        /**
+         * @description * `created` - بانتظار التسجيل
+         *     * `uploaded` - رُفع التسجيل
+         *     * `processing` - قيد المعالجة
+         *     * `ready` - المسودة جاهزة للمراجعة
+         *     * `approved` - اعتمدها الطبيب
+         *     * `failed` - فشلت المعالجة
+         *     * `discarded` - أُلغيت
+         * @enum {string}
+         */
+        SessionStatusEnum: "created" | "uploaded" | "processing" | "ready" | "approved" | "failed" | "discarded";
         /**
          * @description * `mild` - خفيفة
          *     * `moderate` - متوسطة
@@ -4683,6 +6399,13 @@ export interface components {
         SigPreview: {
             sig: string;
         };
+        /**
+         * @description * `synthetic_test` - بيانات اختبار اصطناعية
+         *     * `imported` - مستورد من مصدر موثق
+         *     * `practitioner` - أضافه طبيب
+         * @enum {string}
+         */
+        Source0c8Enum: "synthetic_test" | "imported" | "practitioner";
         /**
          * @description * `clinician` - طبيب
          *     * `laboratory` - مختبر
@@ -4718,6 +6441,14 @@ export interface components {
          * @enum {string}
          */
         SpecialtyEnum: "general_practice" | "family_medicine" | "internal_medicine" | "pediatrics" | "obgyn" | "cardiology" | "dermatology" | "orthopedics" | "ent" | "ophthalmology" | "neurology" | "psychiatry" | "urology" | "general_surgery" | "endocrinology" | "gastroenterology" | "nephrology" | "pulmonology" | "dentistry" | "radiology" | "laboratory_medicine" | "other";
+        StartRequest: {
+            /** Format: uuid */
+            encounter: string;
+            mode: components["schemas"]["ModeEnum"];
+            consent_method: components["schemas"]["ConsentMethodEnum"];
+            consent_note?: string;
+            client_key: string;
+        };
         /**
          * @description * `sent` - مرسلة
          *     * `accepted` - مقبولة
@@ -4813,6 +6544,15 @@ export interface components {
          * @enum {string}
          */
         SubscriptionStatusEnum: "trial" | "active" | "suspended" | "cancelled";
+        SuspectPair: {
+            a: components["schemas"]["PatientList"];
+            b: components["schemas"]["PatientList"];
+            reasons: string[];
+            /** Format: double */
+            name_similarity: number;
+            /** Format: double */
+            score: number;
+        };
         /**
          * @description * `encounter` - encounter
          *     * `prescription` - prescription
@@ -4876,6 +6616,45 @@ export interface components {
             expires_at: string;
             user: components["schemas"]["Me"];
         };
+        /** @description Statement line. Contains no patient or clinical information by design. */
+        Transaction: {
+            /** Format: uuid */
+            readonly id: string;
+            kind: components["schemas"]["TransactionKindEnum"];
+            /** Format: decimal */
+            amount: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            balance_after: string;
+            /**
+             * Format: date-time
+             * @description Business date (e.g. date the cash was received).
+             */
+            occurred_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly created_by_name: string;
+            readonly organization_name: string;
+            description?: string;
+            payment_method?: components["schemas"]["PaymentMethodEnum"] | components["schemas"]["BlankEnum"];
+            reference?: string;
+            receipt_number?: string | null;
+            /** Format: uuid */
+            readonly reverses_id: string;
+            readonly is_reversed: boolean;
+        };
+        /**
+         * @description * `ai_usage` - استهلاك الذكاء الاصطناعي
+         *     * `payment` - دفعة
+         *     * `reversal` - عكس عملية
+         *     * `manual_debit` - خصم يدوي
+         *     * `credit_grant` - رصيد مجاني
+         *     * `charge_correction` - تصحيح رسوم
+         *     * `settlement` - تسوية مالية
+         *     * `refund` - استرداد مبلغ
+         * @enum {string}
+         */
+        TransactionKindEnum: "ai_usage" | "payment" | "reversal" | "manual_debit" | "credit_grant" | "charge_correction" | "settlement" | "refund";
         UnreadCount: {
             unread: number;
         };
@@ -4906,6 +6685,52 @@ export interface components {
          * @enum {string}
          */
         VerificationStatusEnum: "pending" | "verified" | "rejected" | "suspended";
+        WalletRow: {
+            /** Format: uuid */
+            practitioner_id: string;
+            name: string;
+            specialty: string;
+            organizations: string[];
+            /** Format: decimal */
+            price_per_minute: string;
+            sessions: number;
+            /** Format: decimal */
+            total_charges: string;
+            /** Format: decimal */
+            total_payments: string;
+            /** Format: decimal */
+            balance: string;
+            /** Format: decimal */
+            debt: string;
+            /** Format: date-time */
+            last_payment_at: string | null;
+            ai_enabled: boolean;
+        };
+        WalletSummary: {
+            /** Format: uuid */
+            practitioner_id: string;
+            name: string;
+            specialty: string;
+            currency: string;
+            /** Format: decimal */
+            balance: string;
+            /** Format: decimal */
+            amount_due: string;
+            /** Format: decimal */
+            total_charges: string;
+            /** Format: decimal */
+            total_payments: string;
+            /** Format: date-time */
+            last_payment_at: string | null;
+            sessions: number;
+            /** Format: decimal */
+            billable_minutes: string;
+            /** Format: decimal */
+            price_per_minute: string;
+            plan_name: string;
+            rounding_mode: string;
+            ai_enabled: boolean;
+        };
         /**
          * @description * `sat` - السبت
          *     * `sun` - الأحد
@@ -5081,6 +6906,220 @@ export interface operations {
             };
         };
     };
+    admin_catalog_imports_list: {
+        parameters: {
+            query?: {
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCatalogImportList"];
+                };
+            };
+        };
+    };
+    admin_catalog_imports_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["CatalogImportUploadRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImport"];
+                };
+            };
+        };
+    };
+    admin_catalog_imports_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImport"];
+                };
+            };
+        };
+    };
+    admin_catalog_imports_commit_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImport"];
+                };
+            };
+        };
+    };
+    admin_catalog_imports_discard_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImport"];
+                };
+            };
+        };
+    };
+    admin_catalog_medications_list: {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                is_synthetic?: boolean;
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+                q?: string;
+                review_status?: string;
+                source?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminMedicationList"];
+                };
+            };
+        };
+    };
+    admin_catalog_medications_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMedication"];
+                };
+            };
+        };
+    };
+    admin_catalog_medications_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminMedicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminMedicationRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminMedicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMedication"];
+                };
+            };
+        };
+    };
+    admin_catalog_medications_review_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReviewRequest"];
+                "multipart/form-data": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMedication"];
+                };
+            };
+        };
+    };
     admin_join_requests_list: {
         parameters: {
             query?: {
@@ -5129,6 +7168,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JoinRequest"];
+                };
+            };
+        };
+    };
+    admin_messages_list: {
+        parameters: {
+            query?: {
+                channel?: string;
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+                purpose?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedOutboundMessageAdminList"];
+                };
+            };
+        };
+    };
+    admin_messages_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutboundMessageStats"];
                 };
             };
         };
@@ -5912,6 +7997,516 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+        };
+    };
+    billing_admin_alerts_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alert"][];
+                };
+            };
+        };
+    };
+    "billing_admin_export.csv_retrieve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    billing_admin_overview_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Overview"];
+                };
+            };
+        };
+    };
+    billing_admin_plans_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PricingPlan"][];
+                };
+            };
+        };
+    };
+    billing_admin_plans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PricingPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PricingPlanRequest"];
+                "multipart/form-data": components["schemas"]["PricingPlanRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PricingPlan"];
+                };
+            };
+        };
+    };
+    billing_admin_plans_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا pricing plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPricingPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPricingPlanRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPricingPlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PricingPlan"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_list: {
+        parameters: {
+            query?: {
+                ai?: string;
+                ordering?: string;
+                q?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WalletRow"][];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWalletSummary"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_adjustments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdjustmentInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdjustmentInputRequest"];
+                "multipart/form-data": components["schemas"]["AdjustmentInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Transaction"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_ai_access_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AIAccessInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AIAccessInputRequest"];
+                "multipart/form-data": components["schemas"]["AIAccessInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWalletSummary"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_ai_access_events_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AIAccessEvent"][];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_payments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PaymentInputRequest"];
+                "multipart/form-data": components["schemas"]["PaymentInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentResult"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_price_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PriceInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PriceInputRequest"];
+                "multipart/form-data": components["schemas"]["PriceInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWalletSummary"];
+                };
+            };
+        };
+    };
+    billing_admin_practitioners_transactions_list: {
+        parameters: {
+            query?: {
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTransactionList"];
+                };
+            };
+        };
+    };
+    billing_admin_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSettings"];
+                };
+            };
+        };
+    };
+    billing_admin_settings_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedBillingSettingsRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedBillingSettingsRequest"];
+                "multipart/form-data": components["schemas"]["PatchedBillingSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSettings"];
+                };
+            };
+        };
+    };
+    billing_admin_transactions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا ledger transaction. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Transaction"];
+                };
+            };
+        };
+    };
+    billing_admin_transactions_receipt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا ledger transaction. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Receipt"];
+                };
+            };
+        };
+    };
+    billing_admin_transactions_reverse_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا ledger transaction. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReversalReasonRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReversalReasonRequest"];
+                "multipart/form-data": components["schemas"]["ReversalReasonRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Transaction"];
+                };
+            };
+        };
+    };
+    billing_me_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WalletSummary"];
+                };
+            };
+        };
+    };
+    billing_me_transactions_list: {
+        parameters: {
+            query?: {
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTransactionList"];
+                };
+            };
+        };
+    };
+    billing_me_transactions_receipt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description نوع نص UUID يحدد هذا ledger transaction. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Receipt"];
                 };
             };
         };
@@ -6730,6 +9325,27 @@ export interface operations {
             };
         };
     };
+    diagnostics_imaging_reports_print_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImagingReport"];
+                };
+            };
+        };
+    };
     diagnostics_imaging_reports_versions_list: {
         parameters: {
             query?: {
@@ -7249,6 +9865,131 @@ export interface operations {
             };
         };
     };
+    dicom_documents_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DicomStudy"];
+                };
+            };
+        };
+    };
+    dicom_documents_instances_rendered_retrieve: {
+        parameters: {
+            query?: {
+                fmt?: "jpeg" | "png";
+                /** @description 0-based frame index */
+                frame?: number;
+                preset?: "abdomen" | "bone" | "brain" | "default" | "lung" | "soft_tissue";
+                /** @description window center (with ww) */
+                wc?: number;
+                /** @description window width (with wc) */
+                ww?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+                instance_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                    "image/jpeg": string;
+                };
+            };
+        };
+    };
+    dicom_documents_series_retrieve: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDicomSeriesList"];
+                };
+            };
+        };
+    };
+    dicom_documents_series_instances_retrieve: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+                series_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDicomInstanceList"];
+                };
+            };
+        };
+    };
+    dicom_studies_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["DicomUploadRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Document"];
+                };
+            };
+        };
+    };
     directory_organizations_list: {
         parameters: {
             query?: {
@@ -7379,6 +10120,7 @@ export interface operations {
             content: {
                 "multipart/form-data": components["schemas"]["PatchedDocumentUploadRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["PatchedDocumentUploadRequest"];
+                "application/json": components["schemas"]["PatchedDocumentUploadRequest"];
             };
         };
         responses: {
@@ -7405,6 +10147,7 @@ export interface operations {
             content: {
                 "multipart/form-data": components["schemas"]["AmendmentRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -7452,6 +10195,7 @@ export interface operations {
             content: {
                 "multipart/form-data": components["schemas"]["ReasonRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["ReasonRequest"];
+                "application/json": components["schemas"]["ReasonRequest"];
             };
         };
         responses: {
@@ -7482,6 +10226,75 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Document"];
+                };
+            };
+        };
+    };
+    documents_ocr_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrResult"];
+                };
+            };
+        };
+    };
+    documents_ocr_convert_to_lab_report_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OcrConvertRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["OcrConvertRequest"];
+                "multipart/form-data": components["schemas"]["OcrConvertRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabReport"];
+                };
+            };
+        };
+    };
+    documents_ocr_run_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrResult"];
                 };
             };
         };
@@ -8501,6 +11314,170 @@ export interface operations {
             };
         };
     };
+    patient_merges_list: {
+        parameters: {
+            query?: {
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMergeCaseList"];
+                };
+            };
+        };
+    };
+    patient_merges_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MergeRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MergeRequestRequest"];
+                "multipart/form-data": components["schemas"]["MergeRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeCase"];
+                };
+            };
+        };
+    };
+    patient_merges_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeCase"];
+                };
+            };
+        };
+    };
+    patient_merges_revert_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevertRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RevertRequest"];
+                "multipart/form-data": components["schemas"]["RevertRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeCase"];
+                };
+            };
+        };
+    };
+    patient_merges_compare_retrieve: {
+        parameters: {
+            query: {
+                a: string;
+                b: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Compare"];
+                };
+            };
+        };
+    };
+    patient_merges_reject_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectPairRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RejectPairRequest"];
+                "multipart/form-data": components["schemas"]["RejectPairRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeCase"];
+                };
+            };
+        };
+    };
+    patient_merges_suspects_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuspectPair"][];
+                };
+            };
+        };
+    };
     patients_list: {
         parameters: {
             query?: {
@@ -9334,6 +12311,258 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedReferralList"];
+                };
+            };
+        };
+    };
+    scribe_sessions_list: {
+        parameters: {
+            query?: {
+                encounter?: string;
+                /** @description رقم الصفحة ضمن النتائج المقسمة. */
+                page?: number;
+                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSessionList"];
+                };
+            };
+        };
+    };
+    scribe_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRequest"];
+                "multipart/form-data": components["schemas"]["StartRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StartRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ApproveRequest"];
+                "multipart/form-data": components["schemas"]["ApproveRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApproveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_audio_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_audio_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ScribeAudioUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_audio_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    scribe_sessions_discard_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_retry_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_sessions_sample_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScribeSampleRequest"];
+                "multipart/form-data": components["schemas"]["ScribeSampleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ScribeSampleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    scribe_status_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScribeStatus"];
                 };
             };
         };

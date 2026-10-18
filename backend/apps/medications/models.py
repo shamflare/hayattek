@@ -1,3 +1,6 @@
+import uuid
+
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
@@ -48,8 +51,22 @@ class CatalogSource(models.TextChoices):
     PRACTITIONER = "practitioner", "أضافه طبيب"
 
 
+class ReviewStatus(models.TextChoices):
+    """Review of medicines added by practitioners ("unknown medications")."""
+
+    NONE = "", "لا يحتاج مراجعة"
+    PENDING = "pending", "بانتظار المراجعة"
+    ACCEPTED = "accepted", "أُبقي في الكتالوج"
+    MERGED = "merged", "دُمج في صنف موجود"
+
+
 class Medication(BaseModel):
-    """Catalog entry. Never invent active ingredients: leave blank unless sourced (§9)."""
+    """Catalog entry. Never invent active ingredients: leave blank unless sourced (§9).
+
+    Provenance (§11): every imported entry records its source, version/date and the import
+    batch. Synthetic development data is flagged `is_synthetic` and hidden from search when
+    HAYAT["CATALOG_INCLUDE_SYNTHETIC"] is false (production).
+    """
 
     name = models.CharField(max_length=200, help_text="Display/trade name as prescribed.")
     brand_name = models.CharField(max_length=200, blank=True)
@@ -67,6 +84,28 @@ class Medication(BaseModel):
     )
     search_text = models.CharField(max_length=600, editable=False)
 
+    manufacturer = models.CharField(max_length=200, blank=True)
+    country_of_registration = models.CharField(max_length=80, blank=True)
+    registration_number = models.CharField(max_length=80, blank=True)
+    source_name = models.CharField(max_length=200, blank=True,
+                                   help_text="Declared data source, e.g. the licensed catalog.")
+    source_version = models.CharField(max_length=60, blank=True)
+    source_date = models.DateField(null=True, blank=True)
+    imported_at = models.DateTimeField(null=True, blank=True)
+    external_id = models.CharField(max_length=120, blank=True, db_index=True,
+                                   help_text="Identifier of the entry in its source.")
+    is_synthetic = models.BooleanField(default=False, db_index=True)
+    dedupe_key = models.CharField(max_length=600, blank=True, db_index=True, editable=False)
+    catalog_import = models.ForeignKey("CatalogImport", null=True, blank=True,
+                                       on_delete=models.SET_NULL, related_name="medications")
+    review_status = models.CharField(max_length=10, choices=ReviewStatus.choices, blank=True,
+                                     default=ReviewStatus.NONE, db_index=True)
+    merged_into = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering = ("name",)
         indexes = [GinIndex(fields=["search_text"], name="med_search_trgm",
@@ -76,10 +115,66 @@ class Medication(BaseModel):
         return " ".join(p for p in [self.name, self.strength] if p)
 
     def save(self, *args, **kwargs):
+        from .catalog import dedupe_key
+
         self.search_text = normalize_arabic(
             " ".join([self.name, self.brand_name, self.active_ingredient, self.strength])
         )
+        self.dedupe_key = dedupe_key(self.name, self.strength, self.dosage_form,
+                                     self.manufacturer)
+        if self.source == CatalogSource.SYNTHETIC_TEST:
+            self.is_synthetic = True
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = {*kwargs["update_fields"], "search_text", "dedupe_key",
+                                       "is_synthetic"}
         super().save(*args, **kwargs)
+
+
+class ImportStatus(models.TextChoices):
+    PREVIEWED = "previewed", "معاينة (لم يُستورد بعد)"
+    COMMITTED = "committed", "تم الاستيراد"
+    DISCARDED = "discarded", "أُلغي"
+    FAILED = "failed", "فشل"
+
+
+def _import_upload_to(instance, filename: str) -> str:
+    ext = "json" if filename.lower().endswith(".json") else "csv"
+    return f"catalog-imports/{uuid.uuid4().hex}.{ext}"
+
+
+class CatalogImport(BaseModel):
+    """One upload of a medication catalog file: declared source + licence, dry-run preview,
+    then an explicit commit by a platform administrator (§11, ADR-028)."""
+
+    file = models.FileField(upload_to=_import_upload_to)
+    original_filename = models.CharField(max_length=200, blank=True)
+    file_format = models.CharField(max_length=8, default="csv")
+    sha256 = models.CharField(max_length=64, blank=True)
+    source_name = models.CharField(max_length=200)
+    source_version = models.CharField(max_length=60, blank=True)
+    source_date = models.DateField(null=True, blank=True)
+    source_url = models.CharField(max_length=300, blank=True)
+    license_text = models.CharField(
+        max_length=1000, help_text="Licence / written permission allowing reuse of the data.")
+    license_confirmed = models.BooleanField(default=False)
+    is_synthetic = models.BooleanField(default=False,
+                                       help_text="Synthetic sample data (development only).")
+    status = models.CharField(max_length=10, choices=ImportStatus.choices,
+                              default=ImportStatus.PREVIEWED, db_index=True)
+    total_rows = models.PositiveIntegerField(default=0)
+    created_count = models.PositiveIntegerField(default=0)
+    updated_count = models.PositiveIntegerField(default=0)
+    unchanged_count = models.PositiveIntegerField(default=0)
+    duplicate_count = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
+    error_report = models.JSONField(default=list, blank=True)
+    preview = models.JSONField(default=list, blank=True)
+    imported_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                                    on_delete=models.SET_NULL, related_name="+")
+    committed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-created_at",)
 
 
 class MedicationFavorite(BaseModel):

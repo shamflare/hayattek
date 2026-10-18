@@ -12,9 +12,9 @@ from django.utils.translation import gettext as _
 from apps.audit import services as audit
 from apps.audit.models import AuditOutcome
 from apps.core.exceptions import DomainError
-from apps.notifications.models import NotificationKind
+from apps.notifications.messaging import delivery_state, send_message
+from apps.notifications.models import MessageChannel, MessagePurpose, MessageStatus, NotificationKind
 from apps.notifications.services import notify, patient_recipients
-from apps.notifications.sms import get_sms_provider
 
 from .context import PracticeContext
 from .models import (
@@ -105,12 +105,19 @@ def request_access(*, ctx: PracticeContext, patient, scopes, hours: int, channel
         access_request.otp_expires_at = timezone.now() + timedelta(
             minutes=settings.HAYAT["OTP_TTL_MINUTES"])
         access_request.save(update_fields=["otp_hash", "otp_expires_at", "updated_at"])
-        get_sms_provider().send(
-            patient.phone,
-            _("%(brand)s: رمز السماح لـ %(org)s بالاطلاع على ملفك هو %(code)s. لا تشاركه إلا مع "
-              "طبيبك.") % {"brand": settings.HAYAT["BRAND_NAME"],
-                          "org": ctx.organization.name, "code": code},
+        message = send_message(
+            channel=MessageChannel.SMS, to=patient.phone, purpose=MessagePurpose.OTP,
+            body=_("%(brand)s: رمز السماح لـ %(org)s بالاطلاع على ملفك هو %(code)s. لا تشاركه "
+                   "إلا مع طبيبك.") % {"brand": settings.HAYAT["BRAND_NAME"],
+                                       "org": ctx.organization.name, "code": code},
+            idempotency_key=f"otp:{access_request.pk}",
         )
+        if message.status == MessageStatus.SUPPRESSED:
+            # Rolls back the request: no code exists that nobody received.
+            raise DomainError(_("أُرسلت رموز كثيرة إلى هذا الرقم مؤخراً. انتظر قليلاً أو استخدم "
+                                "التحقق الحضوري."), code="sms_rate_limited", status_code=429)
+        # Honest delivery state for the API (never the code itself): see AccessRequestSerializer.
+        access_request.delivery = delivery_state(message)
     else:
         practitioner_name = ctx.practitioner.display_name if ctx.practitioner else ""
         notify(patient_recipients(patient), kind=NotificationKind.ACCESS_REQUEST,

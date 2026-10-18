@@ -209,6 +209,265 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedAuditEventList'
           description: ''
+  /api/v1/admin/catalog/imports:
+    get:
+      operationId: admin_catalog_imports_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCatalogImportList'
+          description: ''
+    post:
+      operationId: admin_catalog_imports_create
+      description: Upload + dry run. Nothing is written to the catalog until `commit`.
+      tags:
+      - admin
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CatalogImportUploadRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogImport'
+          description: ''
+  /api/v1/admin/catalog/imports/{id}:
+    get:
+      operationId: admin_catalog_imports_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogImport'
+          description: ''
+  /api/v1/admin/catalog/imports/{id}/commit:
+    post:
+      operationId: admin_catalog_imports_commit_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogImport'
+          description: ''
+  /api/v1/admin/catalog/imports/{id}/discard:
+    post:
+      operationId: admin_catalog_imports_discard_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogImport'
+          description: ''
+  /api/v1/admin/catalog/medications:
+    get:
+      operationId: admin_catalog_medications_list
+      description: Browse/search the whole catalog; mark entries inactive; review
+        unknown medicines.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: is_synthetic
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: review_status
+        schema:
+          type: string
+      - in: query
+        name: source
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminMedicationList'
+          description: ''
+  /api/v1/admin/catalog/medications/{id}:
+    get:
+      operationId: admin_catalog_medications_retrieve
+      description: Browse/search the whole catalog; mark entries inactive; review
+        unknown medicines.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMedication'
+          description: ''
+    patch:
+      operationId: admin_catalog_medications_partial_update
+      description: Browse/search the whole catalog; mark entries inactive; review
+        unknown medicines.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminMedicationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminMedicationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminMedicationRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMedication'
+          description: ''
+  /api/v1/admin/catalog/medications/{id}/review:
+    post:
+      operationId: admin_catalog_medications_review_create
+      description: 'Decide on a medicine a practitioner typed: keep it, or merge into
+        a catalog entry.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMedication'
+          description: ''
   /api/v1/admin/join-requests:
     get:
       operationId: admin_join_requests_list
@@ -270,6 +529,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JoinRequest'
+          description: ''
+  /api/v1/admin/messages:
+    get:
+      operationId: admin_messages_list
+      description: Read-only delivery log for platform operators (PHASE2 §5 "متابعة
+        حالة الإرسال").
+      parameters:
+      - in: query
+        name: channel
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      - in: query
+        name: purpose
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOutboundMessageAdminList'
+          description: ''
+  /api/v1/admin/messages/stats:
+    get:
+      operationId: admin_messages_stats_retrieve
+      description: Read-only delivery log for platform operators (PHASE2 §5 "متابعة
+        حالة الإرسال").
+      tags:
+      - admin
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundMessageStats'
           description: ''
   /api/v1/admin/organizations:
     get:
@@ -1149,6 +1467,591 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+          description: ''
+  /api/v1/billing/admin/alerts:
+    get:
+      operationId: billing_admin_alerts_list
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/v1/billing/admin/export.csv:
+    get:
+      operationId: billing_admin_export.csv_retrieve
+      description: CSV of doctors' balances (no patient or clinical data). PDF = printable
+        web page.
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/billing/admin/overview:
+    get:
+      operationId: billing_admin_overview_retrieve
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overview'
+          description: ''
+  /api/v1/billing/admin/plans:
+    get:
+      operationId: billing_admin_plans_list
+      description: Plans can be created and edited (editing never changes past usage)
+        but not deleted.
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PricingPlan'
+          description: ''
+    post:
+      operationId: billing_admin_plans_create
+      description: Plans can be created and edited (editing never changes past usage)
+        but not deleted.
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingPlanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PricingPlanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PricingPlanRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlan'
+          description: ''
+  /api/v1/billing/admin/plans/{id}:
+    patch:
+      operationId: billing_admin_plans_partial_update
+      description: Plans can be created and edited (editing never changes past usage)
+        but not deleted.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا pricing plan.
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingPlanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingPlanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPricingPlanRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlan'
+          description: ''
+  /api/v1/billing/admin/practitioners:
+    get:
+      operationId: billing_admin_practitioners_list
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: query
+        name: ai
+        schema:
+          type: string
+      - in: query
+        name: ordering
+        schema:
+          type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WalletRow'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}:
+    get:
+      operationId: billing_admin_practitioners_retrieve
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWalletSummary'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/adjustments:
+    post:
+      operationId: billing_admin_practitioners_adjustments_create
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdjustmentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdjustmentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdjustmentInputRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/ai-access:
+    post:
+      operationId: billing_admin_practitioners_ai_access_create
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIAccessInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AIAccessInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AIAccessInputRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWalletSummary'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/ai-access-events:
+    get:
+      operationId: billing_admin_practitioners_ai_access_events_list
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AIAccessEvent'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/payments:
+    post:
+      operationId: billing_admin_practitioners_payments_create
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentInputRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResult'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/price:
+    post:
+      operationId: billing_admin_practitioners_price_create
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriceInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriceInputRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWalletSummary'
+          description: ''
+  /api/v1/billing/admin/practitioners/{id}/transactions:
+    get:
+      operationId: billing_admin_practitioners_transactions_list
+      description: '`/billing/admin/practitioners/{practitioner_id}/…` — one doctor''s
+        wallet.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /api/v1/billing/admin/settings:
+    get:
+      operationId: billing_admin_settings_retrieve
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingSettings'
+          description: ''
+    patch:
+      operationId: billing_admin_settings_partial_update
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBillingSettingsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBillingSettingsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBillingSettingsRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingSettings'
+          description: ''
+  /api/v1/billing/admin/transactions/{id}:
+    get:
+      operationId: billing_admin_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا ledger transaction.
+        required: true
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/billing/admin/transactions/{id}/receipt:
+    get:
+      operationId: billing_admin_transactions_receipt_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا ledger transaction.
+        required: true
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+          description: ''
+  /api/v1/billing/admin/transactions/{id}/reverse:
+    post:
+      operationId: billing_admin_transactions_reverse_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا ledger transaction.
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReversalReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReversalReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReversalReasonRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/billing/me:
+    get:
+      operationId: billing_me_retrieve
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletSummary'
+          description: ''
+  /api/v1/billing/me/transactions:
+    get:
+      operationId: billing_me_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /api/v1/billing/me/transactions/{id}/receipt:
+    get:
+      operationId: billing_me_transactions_receipt_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: نوع نص UUID يحدد هذا ledger transaction.
+        required: true
+      tags:
+      - billing
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
           description: ''
   /api/v1/clinical/allergies:
     get:
@@ -2147,6 +3050,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ImagingReport'
           description: ''
+  /api/v1/diagnostics/imaging-reports/{id}/print:
+    get:
+      operationId: diagnostics_imaging_reports_print_retrieve
+      description: |-
+        Data for the A4 imaging report print page (ADR-009). Finalized reports only;
+        same visibility as reading the report (policy engine), audited as a print.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagingReport'
+          description: ''
   /api/v1/diagnostics/imaging-reports/{id}/versions:
     get:
       operationId: diagnostics_imaging_reports_versions_list
@@ -2791,6 +3719,191 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedServiceRequestList'
           description: ''
+  /api/v1/dicom/documents/{id}:
+    get:
+      operationId: dicom_documents_retrieve
+      description: Study information. Audited once per study open (`document.view_dicom`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - dicom
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DicomStudy'
+          description: ''
+  /api/v1/dicom/documents/{id}/instances/{instance_id}/rendered:
+    get:
+      operationId: dicom_documents_instances_rendered_retrieve
+      description: One rendered frame (8-bit display image), streamed from the private
+        store.
+      parameters:
+      - in: query
+        name: fmt
+        schema:
+          type: string
+          enum:
+          - jpeg
+          - png
+      - in: query
+        name: frame
+        schema:
+          type: integer
+        description: 0-based frame index
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: instance_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: preset
+        schema:
+          type: string
+          enum:
+          - abdomen
+          - bone
+          - brain
+          - default
+          - lung
+          - soft_tissue
+      - in: query
+        name: wc
+        schema:
+          type: number
+          format: double
+        description: window center (with ww)
+      - in: query
+        name: ww
+        schema:
+          type: number
+          format: double
+        description: window width (with wc)
+      tags:
+      - dicom
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/dicom/documents/{id}/series:
+    get:
+      operationId: dicom_documents_series_retrieve
+      description: Read-only viewer API, addressed by the ClinicalDocument id.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      tags:
+      - dicom
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDicomSeriesList'
+          description: ''
+  /api/v1/dicom/documents/{id}/series/{series_id}/instances:
+    get:
+      operationId: dicom_documents_series_instances_retrieve
+      description: Read-only viewer API, addressed by the ClinicalDocument id.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: path
+        name: series_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - dicom
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDicomInstanceList'
+          description: ''
+  /api/v1/dicom/studies:
+    post:
+      operationId: dicom_studies_create
+      description: |-
+        Upload a DICOM study. Single `.dcm` files go through the regular documents pipeline;
+        a ZIP of one study is validated here (limits, zip-slip, one StudyInstanceUID).
+      tags:
+      - dicom
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DicomUploadRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: ''
   /api/v1/directory/organizations:
     get:
       operationId: directory_organizations_list
@@ -2945,6 +4058,9 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/PatchedDocumentUploadRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDocumentUploadRequest'
       security:
       - deviceToken: []
       - sessionCookie: []
@@ -2974,6 +4090,9 @@ paths:
             schema:
               $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AmendmentRequest'
+          application/json:
             schema:
               $ref: '#/components/schemas/AmendmentRequest'
         required: true
@@ -3032,6 +4151,9 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
         required: true
       security:
       - deviceToken: []
@@ -3065,6 +4187,81 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Document'
+          description: ''
+  /api/v1/documents/{id}/ocr:
+    get:
+      operationId: documents_ocr_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - documents
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OcrResult'
+          description: ''
+  /api/v1/documents/{id}/ocr/convert-to-lab-report:
+    post:
+      operationId: documents_ocr_convert_to_lab_report_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - documents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OcrConvertRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OcrConvertRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OcrConvertRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabReport'
+          description: ''
+  /api/v1/documents/{id}/ocr/run:
+    post:
+      operationId: documents_ocr_run_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - documents
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OcrResult'
           description: ''
   /api/v1/documents/{id}/versions:
     get:
@@ -4196,6 +5393,203 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrgSelf'
           description: ''
+  /api/v1/patient-merges:
+    get:
+      operationId: patient_merges_list
+      description: History of decisions taken at this facility (merges, rejections,
+        undos).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - patient-merges
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMergeCaseList'
+          description: ''
+    post:
+      operationId: patient_merges_create
+      description: Merge `source` into `target`. Explicit confirmation and identity
+        evidence required.
+      tags:
+      - patient-merges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergeRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MergeRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MergeRequestRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeCase'
+          description: ''
+  /api/v1/patient-merges/{id}:
+    get:
+      operationId: patient_merges_retrieve
+      description: Duplicate files of the acting facility. Receptionists and verified
+        physicians only.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - patient-merges
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeCase'
+          description: ''
+  /api/v1/patient-merges/{id}/revert:
+    post:
+      operationId: patient_merges_revert_create
+      description: Undo a mistaken merge (same facility, within the undo window).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - patient-merges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevertRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RevertRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RevertRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeCase'
+          description: ''
+  /api/v1/patient-merges/compare:
+    get:
+      operationId: patient_merges_compare_retrieve
+      description: |-
+        Side by side. Record counts are shown to clinicians only (front desk sees
+        demographics and administrative facts).
+      parameters:
+      - in: query
+        name: a
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: b
+        schema:
+          type: string
+        required: true
+      tags:
+      - patient-merges
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compare'
+          description: ''
+  /api/v1/patient-merges/reject:
+    post:
+      operationId: patient_merges_reject_create
+      description: Record that two similar files are different people (no longer suggested).
+      tags:
+      - patient-merges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RejectPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RejectPairRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeCase'
+          description: ''
+  /api/v1/patient-merges/suspects:
+    get:
+      operationId: patient_merges_suspects_list
+      description: Suspected duplicate pairs among patients registered at this facility
+        only.
+      tags:
+      - patient-merges
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SuspectPair'
+          description: ''
   /api/v1/patients:
     get:
       operationId: patients_list
@@ -5209,8 +6603,315 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedReferralList'
           description: ''
+  /api/v1/scribe/sessions:
+    get:
+      operationId: scribe_sessions_list
+      parameters:
+      - in: query
+        name: encounter
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSessionList'
+          description: ''
+    post:
+      operationId: scribe_sessions_create
+      tags:
+      - scribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StartRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StartRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/sessions/{id}:
+    get:
+      operationId: scribe_sessions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/sessions/{id}/approve:
+    post:
+      operationId: scribe_sessions_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApproveRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/sessions/{id}/audio:
+    get:
+      operationId: scribe_sessions_audio_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+    post:
+      operationId: scribe_sessions_audio_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ScribeAudioUploadRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+    delete:
+      operationId: scribe_sessions_audio_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/scribe/sessions/{id}/discard:
+    post:
+      operationId: scribe_sessions_discard_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/sessions/{id}/retry:
+    post:
+      operationId: scribe_sessions_retry_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/sessions/{id}/sample:
+    post:
+      operationId: scribe_sessions_sample_create
+      description: Synthetic test recording (development/testing only).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - scribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScribeSampleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ScribeSampleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ScribeSampleRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/scribe/status:
+    get:
+      operationId: scribe_status_retrieve
+      tags:
+      - scribe
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScribeStatus'
+          description: ''
 components:
   schemas:
+    AIAccessEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enabled:
+          type: boolean
+        reason:
+          type: string
+          maxLength: 300
+        changed_by_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - changed_by_name
+      - created_at
+      - enabled
+      - id
+    AIAccessInputRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        reason:
+          type: string
+          maxLength: 300
+      required:
+      - enabled
     AccessLogEntry:
       type: object
       properties:
@@ -5264,7 +6965,7 @@ components:
           items:
             $ref: '#/components/schemas/ScopesEnum'
         purpose:
-          $ref: '#/components/schemas/PurposeEnum'
+          $ref: '#/components/schemas/PurposeF9bEnum'
         duration_hours:
           type: integer
           maximum: 2147483647
@@ -5286,8 +6987,15 @@ components:
           type: string
           format: date-time
           readOnly: true
+        delivery:
+          nullable: true
+          readOnly: true
+          oneOf:
+          - $ref: '#/components/schemas/DeliveryEnum'
+          - $ref: '#/components/schemas/NullEnum'
       required:
       - created_at
+      - delivery
       - expires_at
       - id
       - organization
@@ -5296,6 +7004,14 @@ components:
       - patient_name
       - practitioner_name
       - scopes
+    AccessRequestCreateChannelEnum:
+      enum:
+      - patient_app
+      - otp
+      type: string
+      description: |-
+        * `patient_app` - تطبيق المريض
+        * `otp` - رمز إلى الهاتف
     AccessRequestCreateRequest:
       type: object
       properties:
@@ -5317,7 +7033,7 @@ components:
           type: integer
           minimum: 1
         channel:
-          $ref: '#/components/schemas/ChannelEnum'
+          $ref: '#/components/schemas/AccessRequestCreateChannelEnum'
         note:
           type: string
           maxLength: 300
@@ -5344,7 +7060,10 @@ components:
       properties:
         setup_link:
           type: string
+        delivery:
+          $ref: '#/components/schemas/DeliveryEnum'
       required:
+      - delivery
       - setup_link
     ActivateAccountRequest:
       type: object
@@ -5358,6 +7077,167 @@ components:
         phone:
           type: string
           maxLength: 20
+    AdjustmentInputKindEnum:
+      enum:
+      - manual_debit
+      - credit_grant
+      - charge_correction
+      - settlement
+      - refund
+      type: string
+      description: |-
+        * `manual_debit` - خصم يدوي
+        * `credit_grant` - رصيد مجاني
+        * `charge_correction` - تصحيح رسوم
+        * `settlement` - تسوية مالية
+        * `refund` - استرداد مبلغ
+    AdjustmentInputRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/AdjustmentInputKindEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - amount
+      - kind
+      - reason
+    AdminMedication:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          description: Display/trade name as prescribed.
+        brand_name:
+          type: string
+          readOnly: true
+        active_ingredient:
+          type: string
+          readOnly: true
+        strength:
+          type: string
+          readOnly: true
+        dosage_form:
+          allOf:
+          - $ref: '#/components/schemas/DosageFormEnum'
+          readOnly: true
+        unit:
+          type: string
+          readOnly: true
+          description: Dose unit, e.g. حبة، مل
+        default_route:
+          allOf:
+          - $ref: '#/components/schemas/DefaultRouteEnum'
+          readOnly: true
+        is_active:
+          type: boolean
+        source:
+          allOf:
+          - $ref: '#/components/schemas/Source0c8Enum'
+          readOnly: true
+        source_reference:
+          type: string
+          readOnly: true
+        manufacturer:
+          type: string
+          readOnly: true
+        country_of_registration:
+          type: string
+          readOnly: true
+        registration_number:
+          type: string
+          readOnly: true
+        source_name:
+          type: string
+          readOnly: true
+          description: Declared data source, e.g. the licensed catalog.
+        source_version:
+          type: string
+          readOnly: true
+        source_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        imported_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        external_id:
+          type: string
+          readOnly: true
+          description: Identifier of the entry in its source.
+        is_synthetic:
+          type: boolean
+          readOnly: true
+        review_status:
+          readOnly: true
+          oneOf:
+          - $ref: '#/components/schemas/ReviewStatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        merged_into:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        merged_into_name:
+          type: string
+          readOnly: true
+        added_by_name:
+          type: string
+          readOnly: true
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        favorites_count:
+          type: integer
+          readOnly: true
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - active_ingredient
+      - added_by_name
+      - brand_name
+      - country_of_registration
+      - created_at
+      - default_route
+      - dosage_form
+      - external_id
+      - favorites_count
+      - id
+      - imported_at
+      - is_synthetic
+      - manufacturer
+      - merged_into
+      - merged_into_name
+      - name
+      - registration_number
+      - review_status
+      - reviewed_at
+      - source
+      - source_date
+      - source_name
+      - source_reference
+      - source_version
+      - strength
+      - unit
     AdminStats:
       type: object
       properties:
@@ -5388,6 +7268,114 @@ components:
       - practitioners_pending
       - practitioners_verified
       - prescriptions_last_30_days
+    AdminWalletSummary:
+      type: object
+      properties:
+        practitioner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        specialty:
+          type: string
+        currency:
+          type: string
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        amount_due:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_charges:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_payments:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        last_payment_at:
+          type: string
+          format: date-time
+          nullable: true
+        sessions:
+          type: integer
+        billable_minutes:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        plan_name:
+          type: string
+        rounding_mode:
+          type: string
+        ai_enabled:
+          type: boolean
+        provider_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        margin:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - ai_enabled
+      - amount_due
+      - balance
+      - billable_minutes
+      - currency
+      - last_payment_at
+      - margin
+      - name
+      - plan_name
+      - practitioner_id
+      - price_per_minute
+      - provider_cost
+      - rounding_mode
+      - sessions
+      - specialty
+      - total_charges
+      - total_payments
+    AdministrativeFacts:
+      type: object
+      properties:
+        facilities:
+          type: integer
+        has_account:
+          type: boolean
+        guardians:
+          type: integer
+        active_cards:
+          type: integer
+      required:
+      - active_cards
+      - facilities
+      - guardians
+      - has_account
+    Alert:
+      type: object
+      properties:
+        kind:
+          type: string
+        severity:
+          type: string
+        practitioner_id:
+          type: string
+          format: uuid
+          nullable: true
+        message:
+          type: string
+      required:
+      - kind
+      - message
+      - practitioner_id
+      - severity
     Allergy:
       type: object
       description: Provenance fields every clinical record exposes.
@@ -5543,6 +7531,55 @@ components:
       required:
       - changes
       - reason
+    ApproveRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 300
+        complaint:
+          type: string
+        history:
+          type: string
+        examination:
+          type: string
+        assessment:
+          type: string
+        plan:
+          type: string
+        follow_up_note:
+          type: string
+          maxLength: 300
+        follow_up_date:
+          type: string
+          format: date
+          nullable: true
+        vitals:
+          type: object
+          additionalProperties: {}
+        diagnoses:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        allergies:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        prescription_items:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        orders:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        finalize_encounter:
+          type: boolean
+          default: false
     AuditEvent:
       type: object
       properties:
@@ -5584,6 +7621,35 @@ components:
       - action
       - id
       - occurred_at
+    BillingSettings:
+      type: object
+      properties:
+        doctor_debt_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_debt_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        monthly_provider_cost_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        usage_spike_factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        overdue_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - updated_at
     BirthDatePrecisionEnum:
       enum:
       - exact
@@ -5597,6 +7663,155 @@ components:
     BlankEnum:
       enum:
       - ''
+    CatalogImport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        original_filename:
+          type: string
+          readOnly: true
+        file_format:
+          type: string
+          readOnly: true
+        sha256:
+          type: string
+          readOnly: true
+        source_name:
+          type: string
+          readOnly: true
+        source_version:
+          type: string
+          readOnly: true
+        source_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        source_url:
+          type: string
+          readOnly: true
+        license_text:
+          type: string
+          readOnly: true
+          description: Licence / written permission allowing reuse of the data.
+        license_confirmed:
+          type: boolean
+          readOnly: true
+        is_synthetic:
+          type: boolean
+          readOnly: true
+          description: Synthetic sample data (development only).
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CatalogImportStatusEnum'
+          readOnly: true
+        total_rows:
+          type: integer
+          readOnly: true
+        created_count:
+          type: integer
+          readOnly: true
+        updated_count:
+          type: integer
+          readOnly: true
+        unchanged_count:
+          type: integer
+          readOnly: true
+        duplicate_count:
+          type: integer
+          readOnly: true
+        error_count:
+          type: integer
+          readOnly: true
+        error_report:
+          readOnly: true
+        preview:
+          readOnly: true
+        imported_by_name:
+          type: string
+          readOnly: true
+        committed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - committed_at
+      - created_at
+      - created_count
+      - duplicate_count
+      - error_count
+      - error_report
+      - file_format
+      - id
+      - imported_by_name
+      - is_synthetic
+      - license_confirmed
+      - license_text
+      - original_filename
+      - preview
+      - sha256
+      - source_date
+      - source_name
+      - source_url
+      - source_version
+      - status
+      - total_rows
+      - unchanged_count
+      - updated_count
+    CatalogImportStatusEnum:
+      enum:
+      - previewed
+      - committed
+      - discarded
+      - failed
+      type: string
+      description: |-
+        * `previewed` - معاينة (لم يُستورد بعد)
+        * `committed` - تم الاستيراد
+        * `discarded` - أُلغي
+        * `failed` - فشل
+    CatalogImportUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        source_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        source_version:
+          type: string
+          maxLength: 60
+        source_date:
+          type: string
+          format: date
+          nullable: true
+        source_url:
+          type: string
+          maxLength: 300
+        license_text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        license_confirmed:
+          type: boolean
+        is_synthetic:
+          type: boolean
+          default: false
+      required:
+      - file
+      - license_confirmed
+      - license_text
+      - source_name
     Category91cEnum:
       enum:
       - lab_result
@@ -5643,14 +7858,6 @@ components:
         * `encounter_diagnosis` - تشخيص زيارة
         * `problem_list` - مرض مزمن / مشكلة مستمرة
         * `past_history` - سوابق مرضية أو جراحية
-    ChannelEnum:
-      enum:
-      - patient_app
-      - otp
-      type: string
-      description: |-
-        * `patient_app` - تطبيق المريض
-        * `otp` - رمز إلى الهاتف
     ClinicalStatusEnum:
       enum:
       - active
@@ -5661,6 +7868,48 @@ components:
         * `active` - نشط
         * `resolved` - شُفي
         * `inactive` - غير نشط
+    Compare:
+      type: object
+      properties:
+        a:
+          $ref: '#/components/schemas/CompareSide'
+        b:
+          $ref: '#/components/schemas/CompareSide'
+        reasons:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        blockers:
+          type: array
+          items:
+            type: string
+      required:
+      - a
+      - b
+      - blockers
+      - reasons
+      - warnings
+    CompareSide:
+      type: object
+      properties:
+        patient:
+          $ref: '#/components/schemas/PatientDetail'
+        facts:
+          $ref: '#/components/schemas/AdministrativeFacts'
+        record_counts:
+          type: object
+          additionalProperties:
+            type: integer
+          nullable: true
+          description: Clinicians only (null for front desk).
+      required:
+      - facts
+      - patient
+      - record_counts
     Condition:
       type: object
       description: Provenance fields every clinical record exposes.
@@ -5820,6 +8069,16 @@ components:
       required:
       - display
       - patient
+    ConsentMethodEnum:
+      enum:
+      - verbal
+      - written
+      - not_required
+      type: string
+      description: |-
+        * `verbal` - موافقة شفهية أمام الطبيب
+        * `written` - موافقة مكتوبة
+        * `not_required` - غير مطلوبة (إملاء الطبيب وحده)
     CorrectionCreated:
       type: object
       properties:
@@ -5844,6 +8103,11 @@ components:
       - message
       - target_id
       - target_type
+    CurrencyEnum:
+      enum:
+      - USD
+      type: string
+      description: '* `USD` - دولار أمريكي'
     CurrentMedication:
       type: object
       properties:
@@ -5874,6 +8138,14 @@ components:
       - prescribed_at
       - prescriber
       - prescription_id
+    DecisionEnum:
+      enum:
+      - keep
+      - merge
+      type: string
+      description: |-
+        * `keep` - keep
+        * `merge` - merge
     DecisionResult:
       type: object
       properties:
@@ -5913,6 +8185,20 @@ components:
         * `rectal` - شرجي
         * `vaginal` - مهبلي
         * `other` - أخرى
+    DeliveryEnum:
+      enum:
+      - queued
+      - sent
+      - not_configured
+      - failed
+      - suppressed
+      type: string
+      description: |-
+        * `queued` - queued
+        * `sent` - sent
+        * `not_configured` - not_configured
+        * `failed` - failed
+        * `suppressed` - suppressed
     Department:
       type: object
       properties:
@@ -5935,6 +8221,200 @@ components:
           maxLength: 150
       required:
       - name
+    DicomInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        instance_number:
+          type: integer
+          readOnly: true
+          nullable: true
+        frames:
+          type: integer
+          readOnly: true
+      required:
+      - frames
+      - id
+      - instance_number
+    DicomSeries:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        modality:
+          type: string
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+          nullable: true
+        description:
+          type: string
+          readOnly: true
+        instance_count:
+          type: integer
+          readOnly: true
+      required:
+      - description
+      - id
+      - instance_count
+      - modality
+      - number
+    DicomStudy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        document:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        encounter:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        imaging_report:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        title:
+          type: string
+          readOnly: true
+        category:
+          type: string
+          readOnly: true
+        organization_name:
+          type: string
+          readOnly: true
+          nullable: true
+        record_status:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DicomStudyStatusEnum'
+          readOnly: true
+        error_code:
+          type: string
+          readOnly: true
+        modalities:
+          type: string
+          readOnly: true
+        study_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        study_description:
+          type: string
+          readOnly: true
+        series_count:
+          type: integer
+          readOnly: true
+        instance_count:
+          type: integer
+          readOnly: true
+        stored_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        window_presets:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        diagnostic_use:
+          type: boolean
+          description: 'Always false: this viewer is for review only, not cleared
+            for clinical diagnosis.'
+          readOnly: true
+      required:
+      - category
+      - diagnostic_use
+      - document
+      - encounter
+      - error_code
+      - id
+      - imaging_report
+      - instance_count
+      - modalities
+      - organization_name
+      - patient
+      - record_status
+      - series_count
+      - status
+      - stored_at
+      - study_date
+      - study_description
+      - title
+      - window_presets
+    DicomStudyStatusEnum:
+      enum:
+      - pending
+      - stored
+      - failed
+      type: string
+      description: |-
+        * `pending` - قيد التجهيز
+        * `stored` - جاهزة للعرض
+        * `failed` - تعذرت المعالجة
+    DicomUploadRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        file:
+          type: string
+          format: binary
+          description: One DICOM file (.dcm) or a ZIP of ONE DICOM study.
+        category:
+          $ref: '#/components/schemas/Category91cEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 500
+        document_date:
+          type: string
+          format: date
+          nullable: true
+        encounter:
+          type: string
+          format: uuid
+          nullable: true
+        lab_report:
+          type: string
+          format: uuid
+          nullable: true
+        imaging_report:
+          type: string
+          format: uuid
+          nullable: true
+        run_ocr:
+          type: boolean
+          default: false
+      required:
+      - category
+      - file
+      - patient
+      - title
     Document:
       type: object
       description: Provenance fields every clinical record exposes.
@@ -6085,9 +8565,12 @@ components:
           type: string
         mime_type:
           type: string
+        scan_status:
+          type: string
       required:
       - id
       - mime_type
+      - scan_status
       - title
     DocumentUploadRequest:
       type: object
@@ -6437,6 +8920,22 @@ components:
           maxLength: 300
       required:
       - patient
+    EvidenceChecksEnum:
+      enum:
+      - health_card
+      - national_id_document
+      - family_booklet
+      - patient_confirmed
+      - phone_verified
+      - clinical_history_match
+      type: string
+      description: |-
+        * `health_card` - البطاقة الصحية لأحد الملفين
+        * `national_id_document` - الهوية الشخصية أو جواز السفر
+        * `family_booklet` - دفتر العائلة أو بيان القيد
+        * `patient_confirmed` - أكد المريض أو وليه أن الملفين له
+        * `phone_verified` - تحقق من رقم الهاتف
+        * `clinical_history_match` - تطابق التاريخ المرضي
     Favorite:
       type: object
       properties:
@@ -6555,9 +9054,9 @@ components:
           items:
             $ref: '#/components/schemas/ScopesEnum'
         purpose:
-          $ref: '#/components/schemas/PurposeEnum'
+          $ref: '#/components/schemas/PurposeF9bEnum'
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/GrantMethodEnum'
         starts_at:
           type: string
           format: date-time
@@ -6587,6 +9086,20 @@ components:
       - patient_name
       - practitioner_name
       - scopes
+    GrantMethodEnum:
+      enum:
+      - patient_app
+      - otp
+      - in_person
+      - referral
+      - patient_share
+      type: string
+      description: |-
+        * `patient_app` - موافقة من حساب المريض
+        * `otp` - رمز تحقق إلى هاتف المريض
+        * `in_person` - تحقق حضوري بالبطاقة
+        * `referral` - ضمن إحالة بموافقة المريض
+        * `patient_share` - مشاركة بادر بها المريض
     Guardian:
       type: object
       properties:
@@ -7482,12 +9995,19 @@ components:
           readOnly: true
         source:
           allOf:
-          - $ref: '#/components/schemas/MedicationSourceEnum'
+          - $ref: '#/components/schemas/Source0c8Enum'
+          readOnly: true
+        manufacturer:
+          type: string
+          maxLength: 200
+        is_synthetic:
+          type: boolean
           readOnly: true
       required:
       - dosage_form
       - id
       - is_active
+      - is_synthetic
       - name
       - source
     MedicationRequest:
@@ -7515,19 +10035,12 @@ components:
           maxLength: 30
         default_route:
           $ref: '#/components/schemas/DefaultRouteEnum'
+        manufacturer:
+          type: string
+          maxLength: 200
       required:
       - dosage_form
       - name
-    MedicationSourceEnum:
-      enum:
-      - synthetic_test
-      - imported
-      - practitioner
-      type: string
-      description: |-
-        * `synthetic_test` - بيانات اختبار اصطناعية
-        * `imported` - مستورد من مصدر موثق
-        * `practitioner` - أضافه طبيب
     MemberCreateRequest:
       type: object
       properties:
@@ -7650,20 +10163,172 @@ components:
           $ref: '#/components/schemas/Status90dEnum'
       required:
       - roles
-    MethodEnum:
+    MergeCase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/MergeCaseStatusEnum'
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/MergedPatientBrief'
+          readOnly: true
+        target:
+          allOf:
+          - $ref: '#/components/schemas/MergedPatientBrief'
+          readOnly: true
+        reasons:
+          readOnly: true
+          description: Detection reasons, e.g. same_phone_birth_year.
+        evidence_checks:
+          readOnly: true
+        evidence_notes:
+          type: string
+          readOnly: true
+        decision_reason:
+          type: string
+          readOnly: true
+        reviewed_by_name:
+          type: string
+          readOnly: true
+        reviewer_role:
+          type: string
+          readOnly: true
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        reverted_by_name:
+          type: string
+          readOnly: true
+        reverted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        revert_reason:
+          type: string
+          readOnly: true
+        revert_report:
+          readOnly: true
+          description: Rows that could not move back / created after the merge (manual
+            review list).
+        moved_summary:
+          type: object
+          additionalProperties:
+            type: integer
+          readOnly: true
+        kept_summary:
+          type: object
+          additionalProperties:
+            type: integer
+          readOnly: true
+        can_revert:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - can_revert
+      - created_at
+      - decision_reason
+      - evidence_checks
+      - evidence_notes
+      - id
+      - kept_summary
+      - moved_summary
+      - reasons
+      - revert_reason
+      - revert_report
+      - reverted_at
+      - reverted_by_name
+      - reviewed_at
+      - reviewed_by_name
+      - reviewer_role
+      - source
+      - status
+      - target
+    MergeCaseStatusEnum:
       enum:
-      - patient_app
-      - otp
-      - in_person
-      - referral
-      - patient_share
+      - open
+      - merged
+      - rejected
+      - reverted
       type: string
       description: |-
-        * `patient_app` - موافقة من حساب المريض
-        * `otp` - رمز تحقق إلى هاتف المريض
-        * `in_person` - تحقق حضوري بالبطاقة
-        * `referral` - ضمن إحالة بموافقة المريض
-        * `patient_share` - مشاركة بادر بها المريض
+        * `open` - قيد المراجعة
+        * `merged` - تم الدمج
+        * `rejected` - ليسا الشخص نفسه
+        * `reverted` - تم التراجع عن الدمج
+    MergeRequestRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          format: uuid
+          description: The duplicate file folded into the target.
+        target:
+          type: string
+          format: uuid
+          description: The surviving file.
+        evidence_checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceChecksEnum'
+        evidence_notes:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        confirm:
+          type: boolean
+      required:
+      - confirm
+      - evidence_checks
+      - evidence_notes
+      - reason
+      - source
+      - target
+    MergedPatientBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        health_number:
+          type: string
+        status:
+          type: string
+      required:
+      - full_name
+      - health_number
+      - id
+      - status
+    MethodBaaEnum:
+      enum:
+      - cash
+      - bank_transfer
+      - money_transfer
+      - other
+      type: string
+      description: |-
+        * `cash` - نقداً
+        * `bank_transfer` - تحويل مصرفي
+        * `money_transfer` - حوالة
+        * `other` - أخرى
     MfaSetup:
       type: object
       properties:
@@ -7694,6 +10359,14 @@ components:
         * `echo` - إيكو قلب
         * `mammography` - تصوير الثدي
         * `other` - أخرى
+    ModeEnum:
+      enum:
+      - conversation
+      - dictation
+      type: string
+      description: |-
+        * `conversation` - الاستماع الذكي (حوار)
+        * `dictation` - الإملاء الطبي الذكي
     Notification:
       type: object
       properties:
@@ -7744,6 +10417,154 @@ components:
         * `referral` - إحالة
         * `incoming_order` - طلب وارد
         * `system` - النظام
+    NullEnum:
+      enum:
+      - null
+    OcrConvertRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        external_lab_name:
+          type: string
+          maxLength: 200
+        result_date:
+          type: string
+          format: date
+          nullable: true
+          description: Date printed on the report (reviewed).
+        conclusion:
+          type: string
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabObservationRequest'
+      required:
+      - observations
+      - title
+    OcrResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        document:
+          type: string
+          format: uuid
+          readOnly: true
+        document_title:
+          type: string
+          readOnly: true
+        document_mime_type:
+          type: string
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/OcrResultStatusEnum'
+          readOnly: true
+        error_code:
+          type: string
+          readOnly: true
+        provider:
+          type: string
+          readOnly: true
+        engine:
+          type: string
+          readOnly: true
+        engine_version:
+          type: string
+          readOnly: true
+        pages:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+          readOnly: true
+        mean_confidence:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        suggested_category:
+          type: string
+          readOnly: true
+        extracted:
+          readOnly: true
+        processed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        reviewed_by_name:
+          type: string
+          readOnly: true
+          nullable: true
+        lab_report:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        lab_report_status:
+          type: string
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - document
+      - document_mime_type
+      - document_title
+      - engine
+      - engine_version
+      - error_code
+      - extracted
+      - id
+      - lab_report
+      - lab_report_status
+      - mean_confidence
+      - pages
+      - patient
+      - processed_at
+      - provider
+      - reviewed_at
+      - reviewed_by_name
+      - status
+      - suggested_category
+      - text
+      - updated_at
+    OcrResultStatusEnum:
+      enum:
+      - queued
+      - done
+      - failed
+      - unavailable
+      - reviewed
+      type: string
+      description: |-
+        * `queued` - في الانتظار
+        * `done` - اكتمل
+        * `failed` - فشل
+        * `unavailable` - غير متاح
+        * `reviewed` - رُوجع وحُوّل إلى مسودة
     Ok:
       type: object
       properties:
@@ -7960,6 +10781,130 @@ components:
           maxLength: 10
       required:
       - otp
+    OutboundMessageAdmin:
+      type: object
+      description: 'Delivery metadata only: masked recipient, never the body (it may
+        hold a code/link).'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        channel:
+          allOf:
+          - $ref: '#/components/schemas/OutboundMessageAdminChannelEnum'
+          readOnly: true
+        purpose:
+          allOf:
+          - $ref: '#/components/schemas/OutboundMessageAdminPurposeEnum'
+          readOnly: true
+        recipient_masked:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/OutboundMessageAdminStatusEnum'
+          readOnly: true
+        attempts:
+          type: integer
+          readOnly: true
+        max_attempts:
+          type: integer
+          readOnly: true
+        last_error:
+          type: string
+          readOnly: true
+        provider:
+          type: string
+          readOnly: true
+        provider_message_id:
+          type: string
+          readOnly: true
+        next_attempt_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attempts
+      - channel
+      - created_at
+      - id
+      - last_error
+      - max_attempts
+      - next_attempt_at
+      - provider
+      - provider_message_id
+      - purpose
+      - recipient_masked
+      - sent_at
+      - status
+    OutboundMessageAdminChannelEnum:
+      enum:
+      - sms
+      - email
+      type: string
+      description: |-
+        * `sms` - رسالة نصية
+        * `email` - بريد إلكتروني
+    OutboundMessageAdminPurposeEnum:
+      enum:
+      - otp
+      - account_activation
+      - password_reset
+      - notification
+      type: string
+      description: |-
+        * `otp` - رمز تحقق
+        * `account_activation` - تفعيل حساب
+        * `password_reset` - استعادة كلمة المرور
+        * `notification` - إشعار
+    OutboundMessageAdminStatusEnum:
+      enum:
+      - queued
+      - sending
+      - sent
+      - failed
+      - not_configured
+      - suppressed
+      type: string
+      description: |-
+        * `queued` - في الطابور
+        * `sending` - قيد الإرسال
+        * `sent` - أُرسلت
+        * `failed` - فشلت
+        * `not_configured` - خدمة الإرسال غير مفعلة
+        * `suppressed` - أوقفت (حد الإرسال)
+    OutboundMessageStats:
+      type: object
+      properties:
+        by_status:
+          type: object
+          additionalProperties:
+            type: integer
+        sms_provider:
+          type: string
+        sms_configured:
+          type: boolean
+        email_provider:
+          type: string
+        email_configured:
+          type: boolean
+      required:
+      - by_status
+      - email_configured
+      - email_provider
+      - sms_configured
+      - sms_provider
     OutcomeEnum:
       enum:
       - success
@@ -7970,6 +10915,55 @@ components:
         * `success` - نجاح
         * `denied` - مرفوض
         * `failure` - فشل
+    Overview:
+      type: object
+      properties:
+        currency:
+          type: string
+        total_balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_debt:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_collected:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        debtor_count:
+          type: integer
+        creditor_count:
+          type: integer
+        ai_revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        provider_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        margin:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        billed_sessions:
+          type: integer
+        failed_sessions:
+          type: integer
+      required:
+      - ai_revenue
+      - billed_sessions
+      - creditor_count
+      - currency
+      - debtor_count
+      - failed_sessions
+      - margin
+      - provider_cost
+      - total_balance
+      - total_collected
+      - total_debt
     PaginatedAccessLogEntryList:
       type: object
       required:
@@ -7993,6 +10987,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessLogEntry'
+    PaginatedAdminMedicationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminMedication'
     PaginatedAllergyList:
       type: object
       required:
@@ -8039,6 +11056,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditEvent'
+    PaginatedCatalogImportList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogImport'
     PaginatedConditionList:
       type: object
       required:
@@ -8085,6 +11125,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Department'
+    PaginatedDicomInstanceList:
+      type: object
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DicomInstance'
+      required:
+      - count
+      - next
+      - previous
+      - results
+    PaginatedDicomSeriesList:
+      type: object
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          format: uri
+          nullable: true
+        previous:
+          type: string
+          format: uri
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DicomSeries'
+      required:
+      - count
+      - next
+      - previous
+      - results
     PaginatedDocumentList:
       type: object
       required:
@@ -8269,6 +11353,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Membership'
+    PaginatedMergeCaseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MergeCase'
     PaginatedNotificationList:
       type: object
       required:
@@ -8315,6 +11422,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
+    PaginatedOutboundMessageAdminList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboundMessageAdmin'
     PaginatedPatientAccessStateList:
       type: object
       required:
@@ -8522,6 +11652,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ServiceRequest'
+    PaginatedSessionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
     PaginatedSubscriptionList:
       type: object
       required:
@@ -8568,6 +11721,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SubscriptionPlan'
+    PaginatedTransactionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
     PaginatedUserSummaryList:
       type: object
       required:
@@ -8628,6 +11804,11 @@ components:
           maxLength: 254
       required:
       - identifier
+    PatchedAdminMedicationRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
     PatchedAllergyWriteRequest:
       type: object
       properties:
@@ -8656,6 +11837,29 @@ components:
           type: boolean
           writeOnly: true
           default: false
+    PatchedBillingSettingsRequest:
+      type: object
+      properties:
+        doctor_debt_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_debt_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        monthly_provider_cost_alert:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        usage_spike_factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        overdue_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
     PatchedConditionWriteRequest:
       type: object
       properties:
@@ -9058,6 +12262,37 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PrescriptionItemRequest'
+    PatchedPricingPlanRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        rounding_mode:
+          $ref: '#/components/schemas/RoundingModeEnum'
+        minimum_billable_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_default:
+          type: boolean
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          maxLength: 300
     PatchedProfileUpdateRequest:
       type: object
       properties:
@@ -9525,7 +12760,7 @@ components:
           minimum: 1
         purpose:
           allOf:
-          - $ref: '#/components/schemas/PurposeEnum'
+          - $ref: '#/components/schemas/PurposeF9bEnum'
           default: treatment
       required:
       - days
@@ -9581,6 +12816,65 @@ components:
       required:
       - access
       - patient
+    PaymentInputRequest:
+      type: object
+      properties:
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          default: USD
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+        method:
+          $ref: '#/components/schemas/MethodBaaEnum'
+        reference:
+          type: string
+          maxLength: 100
+        notes:
+          type: string
+          maxLength: 300
+        idempotency_key:
+          type: string
+          description: 'Client-generated key: retries never create a second payment.'
+          maxLength: 80
+      required:
+      - amount
+      - method
+    PaymentMethodEnum:
+      enum:
+      - cash
+      - bank_transfer
+      - money_transfer
+      - other
+      type: string
+      description: |-
+        * `cash` - نقداً
+        * `bank_transfer` - تحويل مصرفي
+        * `money_transfer` - حوالة
+        * `other` - أخرى
+    PaymentResult:
+      type: object
+      properties:
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        amount_due:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+      required:
+      - amount_due
+      - balance
+      - transaction
     Practitioner:
       type: object
       properties:
@@ -10064,6 +13358,98 @@ components:
       required:
       - items
       - patient
+    PriceInputRequest:
+      type: object
+      properties:
+        plan_id:
+          type: string
+          format: uuid
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        rounding_mode:
+          allOf:
+          - $ref: '#/components/schemas/RoundingModeEnum'
+          default: ceil_minute
+    PricingPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 120
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        rounding_mode:
+          $ref: '#/components/schemas/RoundingModeEnum'
+        minimum_billable_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_default:
+          type: boolean
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          maxLength: 300
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - id
+      - name
+      - price_per_minute
+    PricingPlanRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        rounding_mode:
+          $ref: '#/components/schemas/RoundingModeEnum'
+        minimum_billable_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_default:
+          type: boolean
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          maxLength: 300
+      required:
+      - code
+      - name
+      - price_per_minute
     Priority0fbEnum:
       enum:
       - routine
@@ -10135,7 +13521,7 @@ components:
       - display_name
       - id
       - specialty
-    PurposeEnum:
+    PurposeF9bEnum:
       enum:
       - treatment
       - referral
@@ -10156,6 +13542,49 @@ components:
           maxLength: 300
       required:
       - reason
+    Receipt:
+      type: object
+      properties:
+        receipt_number:
+          type: string
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        currency:
+          type: string
+        paid_at:
+          type: string
+          format: date-time
+        method:
+          type: string
+        reference:
+          type: string
+        notes:
+          type: string
+        received_by:
+          type: string
+          nullable: true
+        practitioner_name:
+          type: string
+        balance_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        is_reversed:
+          type: boolean
+      required:
+      - amount
+      - balance_after
+      - currency
+      - is_reversed
+      - method
+      - notes
+      - paid_at
+      - practitioner_name
+      - receipt_number
+      - received_by
+      - reference
     RecordRef:
       type: object
       properties:
@@ -10396,6 +13825,23 @@ components:
           maxLength: 200
       required:
       - reason
+    RejectPairRequest:
+      type: object
+      properties:
+        a:
+          type: string
+          format: uuid
+        b:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - a
+      - b
+      - reason
     RelationshipEnum:
       enum:
       - parent
@@ -10443,6 +13889,46 @@ components:
       - id
       - kind
       - text
+    ReversalReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - reason
+    RevertRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - reason
+    ReviewRequest:
+      type: object
+      properties:
+        decision:
+          $ref: '#/components/schemas/DecisionEnum'
+        target:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - decision
+    ReviewStatusEnum:
+      enum:
+      - pending
+      - accepted
+      - merged
+      type: string
+      description: |-
+        * `` - لا يحتاج مراجعة
+        * `pending` - بانتظار المراجعة
+        * `accepted` - أُبقي في الكتالوج
+        * `merged` - دُمج في صنف موجود
     RolesEnum:
       enum:
       - org_admin
@@ -10459,6 +13945,16 @@ components:
         * `receptionist` - استقبال
         * `lab_staff` - مختبر
         * `imaging_staff` - تصوير طبي
+    RoundingModeEnum:
+      enum:
+      - per_second
+      - ceil_minute
+      - ceil_half_minute
+      type: string
+      description: |-
+        * `per_second` - بالثانية
+        * `ceil_minute` - تقريب للأعلى لكل دقيقة
+        * `ceil_half_minute` - تقريب للأعلى لكل نصف دقيقة
     RouteEnum:
       enum:
       - oral
@@ -10537,6 +14033,60 @@ components:
         * `imaging` - الأشعة والتصوير
         * `documents` - المستندات
         * `referrals` - الإحالات
+    ScribeAudioUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+      - file
+    ScribeSampleRequest:
+      type: object
+      properties:
+        sample:
+          type: string
+          minLength: 1
+      required:
+      - sample
+    ScribeSessionCharge:
+      type: object
+      properties:
+        billable_seconds:
+          type: integer
+        amount:
+          type: string
+        currency:
+          type: string
+        price_per_minute:
+          type: string
+      required:
+      - amount
+      - billable_seconds
+      - currency
+      - price_per_minute
+    ScribeStatus:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        price_per_minute:
+          type: string
+        currency:
+          type: string
+        samples:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        provider_is_mock:
+          type: boolean
+      required:
+      - currency
+      - enabled
+      - price_per_minute
+      - provider_is_mock
+      - samples
     ServiceFulfillmentStatusEnum:
       enum:
       - requested
@@ -10785,6 +14335,138 @@ components:
       - items
       - kind
       - patient
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        encounter:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        mode:
+          allOf:
+          - $ref: '#/components/schemas/ModeEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SessionStatusEnum'
+          readOnly: true
+        consent_method:
+          allOf:
+          - $ref: '#/components/schemas/ConsentMethodEnum'
+          readOnly: true
+        consent_note:
+          type: string
+          readOnly: true
+        consent_at:
+          type: string
+          format: date-time
+          readOnly: true
+        audio_seconds:
+          type: integer
+          readOnly: true
+        audio_is_sample:
+          type: boolean
+          readOnly: true
+        audio_available:
+          type: boolean
+          readOnly: true
+        retention_until:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        transcript:
+          readOnly: true
+        draft:
+          readOnly: true
+        is_mock:
+          type: boolean
+          readOnly: true
+        stt_provider:
+          type: string
+          readOnly: true
+        extraction_provider:
+          type: string
+          readOnly: true
+        attempts:
+          type: integer
+          readOnly: true
+        error_code:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ready_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        applied:
+          readOnly: true
+          description: What the doctor applied to the record on approval.
+        billing:
+          allOf:
+          - $ref: '#/components/schemas/ScribeSessionCharge'
+          nullable: true
+          readOnly: true
+      required:
+      - applied
+      - approved_at
+      - attempts
+      - audio_available
+      - audio_is_sample
+      - audio_seconds
+      - billing
+      - consent_at
+      - consent_method
+      - consent_note
+      - created_at
+      - draft
+      - encounter
+      - error_code
+      - extraction_provider
+      - id
+      - is_mock
+      - mode
+      - patient
+      - ready_at
+      - retention_until
+      - status
+      - stt_provider
+      - transcript
+    SessionStatusEnum:
+      enum:
+      - created
+      - uploaded
+      - processing
+      - ready
+      - approved
+      - failed
+      - discarded
+      type: string
+      description: |-
+        * `created` - بانتظار التسجيل
+        * `uploaded` - رُفع التسجيل
+        * `processing` - قيد المعالجة
+        * `ready` - المسودة جاهزة للمراجعة
+        * `approved` - اعتمدها الطبيب
+        * `failed` - فشلت المعالجة
+        * `discarded` - أُلغيت
     SeverityEnum:
       enum:
       - mild
@@ -10832,6 +14514,16 @@ components:
           type: string
       required:
       - sig
+    Source0c8Enum:
+      enum:
+      - synthetic_test
+      - imported
+      - practitioner
+      type: string
+      description: |-
+        * `synthetic_test` - بيانات اختبار اصطناعية
+        * `imported` - مستورد من مصدر موثق
+        * `practitioner` - أضافه طبيب
     Source6a0Enum:
       enum:
       - clinician
@@ -10894,6 +14586,28 @@ components:
         * `radiology` - أشعة
         * `laboratory_medicine` - مخبري
         * `other` - أخرى
+    StartRequest:
+      type: object
+      properties:
+        encounter:
+          type: string
+          format: uuid
+        mode:
+          $ref: '#/components/schemas/ModeEnum'
+        consent_method:
+          $ref: '#/components/schemas/ConsentMethodEnum'
+        consent_note:
+          type: string
+          maxLength: 300
+        client_key:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+      - client_key
+      - consent_method
+      - encounter
+      - mode
     StateEnum:
       enum:
       - sent
@@ -11091,6 +14805,29 @@ components:
         * `active` - فعال
         * `suspended` - معلق
         * `cancelled` - ملغى
+    SuspectPair:
+      type: object
+      properties:
+        a:
+          $ref: '#/components/schemas/PatientList'
+        b:
+          $ref: '#/components/schemas/PatientList'
+        reasons:
+          type: array
+          items:
+            type: string
+        name_similarity:
+          type: number
+          format: double
+        score:
+          type: number
+          format: double
+      required:
+      - a
+      - b
+      - name_similarity
+      - reasons
+      - score
     TargetTypeEnum:
       enum:
       - encounter
@@ -11244,6 +14981,94 @@ components:
       - expires_at
       - token
       - user
+    Transaction:
+      type: object
+      description: Statement line. Contains no patient or clinical information by
+        design.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/TransactionKindEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        balance_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        occurred_at:
+          type: string
+          format: date-time
+          description: Business date (e.g. date the cash was received).
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        organization_name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          maxLength: 300
+        payment_method:
+          oneOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reference:
+          type: string
+          maxLength: 100
+        receipt_number:
+          type: string
+          nullable: true
+          maxLength: 24
+        reverses_id:
+          type: string
+          format: uuid
+          readOnly: true
+        is_reversed:
+          type: boolean
+          readOnly: true
+      required:
+      - amount
+      - balance_after
+      - created_at
+      - created_by_name
+      - currency
+      - id
+      - is_reversed
+      - kind
+      - occurred_at
+      - organization_name
+      - reverses_id
+    TransactionKindEnum:
+      enum:
+      - ai_usage
+      - payment
+      - reversal
+      - manual_debit
+      - credit_grant
+      - charge_correction
+      - settlement
+      - refund
+      type: string
+      description: |-
+        * `ai_usage` - استهلاك الذكاء الاصطناعي
+        * `payment` - دفعة
+        * `reversal` - عكس عملية
+        * `manual_debit` - خصم يدوي
+        * `credit_grant` - رصيد مجاني
+        * `charge_correction` - تصحيح رسوم
+        * `settlement` - تسوية مالية
+        * `refund` - استرداد مبلغ
     UnreadCount:
       type: object
       properties:
@@ -11307,6 +15132,125 @@ components:
         * `verified` - معتمد
         * `rejected` - مرفوض
         * `suspended` - موقوف
+    WalletRow:
+      type: object
+      properties:
+        practitioner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        specialty:
+          type: string
+        organizations:
+          type: array
+          items:
+            type: string
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        sessions:
+          type: integer
+        total_charges:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_payments:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        debt:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        last_payment_at:
+          type: string
+          format: date-time
+          nullable: true
+        ai_enabled:
+          type: boolean
+      required:
+      - ai_enabled
+      - balance
+      - debt
+      - last_payment_at
+      - name
+      - organizations
+      - practitioner_id
+      - price_per_minute
+      - sessions
+      - specialty
+      - total_charges
+      - total_payments
+    WalletSummary:
+      type: object
+      properties:
+        practitioner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        specialty:
+          type: string
+        currency:
+          type: string
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        amount_due:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_charges:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        total_payments:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        last_payment_at:
+          type: string
+          format: date-time
+          nullable: true
+        sessions:
+          type: integer
+        billable_minutes:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        price_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,4})?$
+        plan_name:
+          type: string
+        rounding_mode:
+          type: string
+        ai_enabled:
+          type: boolean
+      required:
+      - ai_enabled
+      - amount_due
+      - balance
+      - billable_minutes
+      - currency
+      - last_payment_at
+      - name
+      - plan_name
+      - practitioner_id
+      - price_per_minute
+      - rounding_mode
+      - sessions
+      - specialty
+      - total_charges
+      - total_payments
     WeekdaysEnum:
       enum:
       - sat

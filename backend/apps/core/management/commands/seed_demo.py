@@ -85,6 +85,12 @@ class Command(BaseCommand):
                                print_footer="هذه بيانات تجريبية لأغراض التطوير")
             clinic = self._org("عيادة د. سلمى (تجريبية)", OrganizationKind.CLINIC, plan, admin)
             lab = self._org("مختبر الفرات (تجريبي)", OrganizationKind.LABORATORY, plan, admin)
+            # Imaging center: appears in the doctor's "imaging order" performer list
+            # (directory filter kind=imaging_center) and receives the orders (§10).
+            imaging = self._org("مركز الرقة للتصوير الطبي (تجريبي)",
+                                OrganizationKind.IMAGING_CENTER, plan, admin,
+                                address="شارع تجريبي للتصوير، الرقة", phone="022-000111",
+                                print_footer="تقرير تجريبي لأغراض التطوير — ليس للاستخدام الطبي")
 
             doctor = self._user("doctor@hayattek.test", "أحمد التجريبي")
             self._practitioner(doctor, "د. أحمد التجريبي", "internal_medicine", admin)
@@ -102,15 +108,19 @@ class Command(BaseCommand):
             self._member(manager, center, [Role.ORG_ADMIN], admin)
             labtech = self._user("lab@hayattek.test", "فني المختبر (تجريبي)")
             self._member(labtech, lab, [Role.LAB_STAFF], admin)
+            radiographer = self._user("imaging@hayattek.test", "أخصائي التصوير (تجريبي)")
+            self._member(radiographer, imaging, [Role.IMAGING_STAFF], admin, "أخصائي أشعة")
 
             patient_user = self._user("patient@hayattek.test", "مريض تجريبي")
             patient_user.phone = "+963900000001"
             patient_user.save(update_fields=["phone"])
             self._patient(patient_user, center, desk)
+            self._duplicate_pair(center, desk)
 
         self.stdout.write(self.style.SUCCESS(
             "Demo data ready. Password for every demo account: " + DEMO_PASSWORD))
-        for email in ("admin", "doctor", "doctor2", "reception", "manager", "lab", "patient"):
+        for email in ("admin", "doctor", "doctor2", "reception", "manager", "lab", "imaging",
+                      "patient"):
             self.stdout.write(f"  {email}@hayattek.test")
 
     # ------------------------------------------------------------------ helpers
@@ -158,6 +168,24 @@ class Command(BaseCommand):
         Membership.objects.get_or_create(user=user, organization=org,
                                          defaults={"roles": roles, "title": title,
                                                    "added_by": admin})
+
+    def _duplicate_pair(self, org, desk):
+        """Two files of one fictional person (spelling variant, same phone and birth year) to
+        demonstrate the duplicate review and merge (§8). Never merged automatically."""
+        from apps.access.context import PracticeContext
+        from apps.patients.models import Patient
+        from apps.patients.services import create_patient
+
+        if Patient.objects.filter(phone="+963900000077").exists():
+            return
+        membership = Membership.objects.get(user=desk, organization=org)
+        ctx = PracticeContext(user=desk, membership=membership, roles=frozenset(membership.roles))
+        base = {"sex": "female", "birth_date": "1992-03-15", "phone": "+963900000077",
+                "governorate": "raqqa", "city": "الرقة", "family_name": "التجريبية"}
+        create_patient(ctx=ctx, data={**base, "first_name": "سعاد", "father_name": "محمود"})
+        create_patient(ctx=ctx, data={**base, "first_name": "سعاد", "father_name": "محمود",
+                                      "family_name": "التجريبيه", "birth_date": "1992-01-01",
+                                      "birth_date_precision": "year"})
 
     def _patient(self, user, org, desk):
         from apps.access.context import PracticeContext

@@ -1,7 +1,7 @@
 import {
-  Activity, Building2, CalendarHeart, ClipboardList, FileText, FlaskConical, HeartPulse,
-  Home, IdCard, LayoutDashboard, type LucideIcon, Pill, ScanLine, Settings, Share2,
-  ShieldCheck, Stethoscope, UserPlus, Users, UsersRound, Wallet, Send,
+  Activity, Building2, CalendarHeart, ClipboardList, CopyCheck, FileText, FlaskConical, HeartPulse,
+  Home, IdCard, LayoutDashboard, type LucideIcon, MessageSquareText, Pill, ScanLine, Settings, Share2,
+  Landmark, ShieldCheck, Stethoscope, UserPlus, Users, UsersRound, Wallet, Send,
 } from "lucide-react";
 
 export interface NavItem {
@@ -30,9 +30,13 @@ export function staffNav(roles: string[], isClinician: boolean): NavItem[] {
   if (has("receptionist")) {
     items.push({ href: "/app/patients/new", label: "مريض جديد", icon: UserPlus });
   }
+  if (has("receptionist") || isClinician) {
+    items.push({ href: "/app/patients/duplicates", label: "الملفات المكررة", icon: CopyCheck });
+  }
   if (isClinician) {
     items.push({ href: "/app/referrals", label: "الإحالات", icon: Send, mobile: true });
     items.push({ href: "/app/medications", label: "أدويتي وقوالبي", icon: Pill });
+    items.push({ href: "/app/wallet", label: "حسابي المالي", icon: Wallet });
   }
   if (has("lab_staff", "imaging_staff")) {
     items.push({ href: "/app/lab", label: "الطلبات الواردة", icon: FlaskConical, mobile: true });
@@ -67,8 +71,11 @@ export const adminNav: NavItem[] = [
   { href: "/app/admin/practitioners", label: "اعتماد الأطباء", icon: Stethoscope, mobile: true },
   { href: "/app/admin/join-requests", label: "طلبات الانضمام", icon: Send },
   { href: "/app/admin/users", label: "المستخدمون", icon: Users },
+  { href: "/app/admin/wallets", label: "المحافظ والمديونيات", icon: Landmark, mobile: true },
   { href: "/app/admin/plans", label: "الاشتراكات", icon: Wallet },
+  { href: "/app/admin/catalog", label: "كتالوج الأدوية", icon: Pill },
   { href: "/app/admin/audit", label: "السجل الأمني", icon: ShieldCheck, mobile: true },
+  { href: "/app/admin/messages", label: "حالة الرسائل", icon: MessageSquareText },
 ];
 
 export const icons = { Activity };

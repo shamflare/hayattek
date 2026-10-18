@@ -70,6 +70,9 @@ def resolve_practice_context(request) -> PracticeContext | None:
     ctx = None
     raw = request.headers.get(MEMBERSHIP_HEADER)
     user = getattr(request, "user", None)
+    if raw and user is not None and user.is_authenticated and mfa_blocked(request):
+        request._practice_ctx = None
+        return None
     if raw and user is not None and user.is_authenticated:
         membership = (
             Membership.objects.select_related("organization")
@@ -98,7 +101,23 @@ def _looks_like_uuid(value: str) -> bool:
     return True
 
 
+def mfa_blocked(request) -> bool:
+    """Staff/admin accounts without MFA are blocked when HAYAT_ENFORCE_MFA is on (prod)."""
+    if not hasattr(request, "_mfa_blocked"):
+        from apps.accounts.services import requires_mfa
+
+        user = getattr(request, "user", None)
+        request._mfa_blocked = bool(user and user.is_authenticated and requires_mfa(user))
+    return request._mfa_blocked
+
+
+MFA_REQUIRED = exceptions.PermissionDenied(
+    _("حسابك يتطلب تفعيل المصادقة الثنائية قبل المتابعة."), code="mfa_setup_required")
+
+
 def require_practice_context(request) -> PracticeContext:
+    if mfa_blocked(request):
+        raise MFA_REQUIRED
     ctx = resolve_practice_context(request)
     if ctx is None:
         raise exceptions.PermissionDenied(
@@ -112,6 +131,8 @@ class HasPracticeContext(permissions.BasePermission):
     message = _("يرجى اختيار المنشأة التي تعمل باسمها.")
 
     def has_permission(self, request, view) -> bool:
+        if mfa_blocked(request):
+            raise MFA_REQUIRED
         return request.user.is_authenticated and resolve_practice_context(request) is not None
 
 
@@ -119,6 +140,8 @@ class IsClinician(permissions.BasePermission):
     message = _("هذه العملية متاحة للأطباء المعتمدين فقط.")
 
     def has_permission(self, request, view) -> bool:
+        if mfa_blocked(request):
+            raise MFA_REQUIRED
         ctx = resolve_practice_context(request)
         return ctx is not None and ctx.is_clinician
 
@@ -127,6 +150,8 @@ class CanManagePatients(permissions.BasePermission):
     message = _("لا تملك صلاحية إدارة ملفات المرضى في هذه المنشأة.")
 
     def has_permission(self, request, view) -> bool:
+        if mfa_blocked(request):
+            raise MFA_REQUIRED
         ctx = resolve_practice_context(request)
         return ctx is not None and ctx.can_manage_patients
 
@@ -135,6 +160,8 @@ class IsOrgAdmin(permissions.BasePermission):
     message = _("هذه العملية متاحة لمدير المنشأة فقط.")
 
     def has_permission(self, request, view) -> bool:
+        if mfa_blocked(request):
+            raise MFA_REQUIRED
         ctx = resolve_practice_context(request)
         return ctx is not None and ctx.is_org_admin
 
@@ -143,4 +170,6 @@ class IsPlatformAdmin(permissions.BasePermission):
     message = _("هذه العملية متاحة لإدارة المنصة فقط.")
 
     def has_permission(self, request, view) -> bool:
+        if mfa_blocked(request):
+            raise MFA_REQUIRED
         return bool(request.user.is_authenticated and request.user.is_platform_admin)

@@ -23,7 +23,11 @@ export function ActivateAccountDialog({ open, onOpenChange, patientId, phone }: 
     })),
     onSuccess: (r) => {
       qc.invalidateQueries({ queryKey: ["patient", patientId] });
-      toast.success("أُرسل رابط تفعيل الحساب للمريض");
+      // Report what really happened to the message (never claim delivery that did not occur).
+      if (r.delivery === "sent") toast.success("أُرسل رابط تفعيل الحساب للمريض");
+      else if (r.delivery === "queued") toast.success("فُعّل الحساب، ورابط التفعيل في طابور الإرسال");
+      else if (r.delivery === "not_configured") toast.warning("فُعّل الحساب، لكن لم يُرسل الرابط: خدمة الرسائل غير مفعلة");
+      else toast.warning("فُعّل الحساب، لكن تعذّر إرسال رابط التفعيل. يستطيع المريض استخدام «نسيت كلمة المرور» لاحقاً");
       if (r.setup_link) setLink(r.setup_link);
       else onOpenChange(false);
     },

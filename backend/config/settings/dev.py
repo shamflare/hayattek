@@ -25,3 +25,19 @@ REST_FRAMEWORK = {
     **REST_FRAMEWORK,
     "DEFAULT_THROTTLE_RATES": {**REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"], "login": "60/min"},
 }
+
+# OCR: local Tesseract sidecar (`docker compose up -d ocr`), run inline (no dev worker).
+from .base import HAYAT  # noqa: E402
+
+HAYAT["OCR_PROVIDER"] = env("HAYAT_OCR_PROVIDER",
+                            default="apps.documents.ocr.TesseractHttpOcrProvider")
+HAYAT["OCR_INLINE"] = env.bool("HAYAT_OCR_INLINE", default=True)
+
+# Local development runs background tasks inline unless a worker is started explicitly
+# (`celery -A config worker --pool=solo` on Windows) and HAYAT_CELERY_EAGER=false.
+CELERY_TASK_ALWAYS_EAGER = env.bool("HAYAT_CELERY_EAGER", default=True)
+
+# Private DICOM store: `docker compose up -d orthanc` (127.0.0.1 only). DEV-ONLY credentials.
+HAYAT["ORTHANC_URL"] = env("ORTHANC_URL", default="http://127.0.0.1:58042")
+HAYAT["ORTHANC_USERNAME"] = env("ORTHANC_USERNAME", default="hayat")
+HAYAT["ORTHANC_PASSWORD"] = env("ORTHANC_PASSWORD", default="hayat_orthanc_dev_password")

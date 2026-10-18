@@ -239,7 +239,9 @@ class PatientViewSet(viewsets.GenericViewSet):
         return ctx
 
     @extend_schema(request=ActivateAccountSerializer, responses={201: inline_serializer(
-        "AccountActivated", {"setup_link": serializers.CharField(allow_blank=True)})})
+        "AccountActivated", {"setup_link": serializers.CharField(allow_blank=True),
+                             "delivery": serializers.ChoiceField(choices=[
+                                 "queued", "sent", "not_configured", "failed", "suppressed"])})})
     @action(detail=True, methods=["post"])
     def account(self, request, pk=None):
         """Give the patient an app account. The setup link is returned only in development."""
@@ -249,9 +251,9 @@ class PatientViewSet(viewsets.GenericViewSet):
         patient = self._get_patient(pk)
         data = ActivateAccountSerializer(data=request.data)
         data.is_valid(raise_exception=True)
-        _user, link = services.activate_account(ctx=ctx, patient=patient, request=request,
-                                                **data.validated_data)
-        return Response({"setup_link": link if dj_settings.DEBUG else ""},
+        _user, link, delivery = services.activate_account(ctx=ctx, patient=patient,
+                                                          request=request, **data.validated_data)
+        return Response({"setup_link": link if dj_settings.DEBUG else "", "delivery": delivery},
                         status=status.HTTP_201_CREATED)
 
     @extend_schema(request=LinkGuardianSerializer, responses={201: GuardianSerializer})

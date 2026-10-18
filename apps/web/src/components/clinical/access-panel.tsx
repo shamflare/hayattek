@@ -61,6 +61,8 @@ export function AccessDialog({ open, onOpenChange, patientId, hasPhone, hasAccou
   const [attestation, setAttestation] = React.useState("المريض حاضر وعرض بطاقته الصحية ووافق شفهياً");
   const [requestId, setRequestId] = React.useState<string | null>(null);
   const [otp, setOtp] = React.useState("");
+  // Honest SMS delivery state from the server: never claim a code was sent when it was not.
+  const [smsNotice, setSmsNotice] = React.useState<string | null>(null);
 
   const done = (msg: string) => { toast.success(msg); refresh(); onOpenChange(false); setRequestId(null); setOtp(""); };
 
@@ -80,7 +82,21 @@ export function AccessDialog({ open, onOpenChange, patientId, hasPhone, hasAccou
     },
     onSuccess: (res) => {
       if (method === "in_person") done("تم منح الوصول");
-      else if (method === "otp") { setRequestId((res as { id: string }).id); toast.success("أُرسل الرمز إلى هاتف المريض"); }
+      else if (method === "otp") {
+        const { id, delivery } = res as { id: string; delivery?: string | null };
+        if (delivery === "sent" || delivery === "queued") {
+          setSmsNotice(null);
+          setRequestId(id);
+          toast.success(delivery === "sent" ? "أُرسل الرمز إلى هاتف المريض" : "الرسالة في طابور الإرسال وستصل خلال لحظات");
+        } else {
+          const msg = delivery === "not_configured"
+            ? "لم يتم إرسال الرسالة: خدمة الرسائل غير مفعلة — استخدم التحقق الحضوري"
+            : "تعذّر إرسال الرسالة إلى هاتف المريض — استخدم التحقق الحضوري";
+          setSmsNotice(msg);
+          setMethod("in_person");
+          toast.error(msg);
+        }
+      }
       else done("أُرسل الطلب إلى حساب المريض. ستصلك موافقته كإشعار.");
     },
     onError: (e) => toast.error(errorMessage(e)),
@@ -120,6 +136,9 @@ export function AccessDialog({ open, onOpenChange, patientId, hasPhone, hasAccou
           </div>
         ) : (
           <div className="space-y-5">
+            {smsNotice && (
+              <div role="alert" className="rounded-2xl bg-warning-soft px-4 py-3 text-sm text-warning">{smsNotice}</div>
+            )}
             <div className="grid gap-3 sm:grid-cols-3">
               {methods.map((x) => (
                 <button key={x.id} type="button" disabled={Boolean(x.disabled)} onClick={() => setMethod(x.id)}
