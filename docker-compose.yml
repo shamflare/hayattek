@@ -1,0 +1,45 @@
+# Local development infrastructure for HAYAT.
+# Usage: docker compose up -d
+name: hayat
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hayat
+      POSTGRES_USER: hayat
+      POSTGRES_PASSWORD: hayat_dev_password
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hayat -d hayat"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:56379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Private S3-compatible object storage (SeaweedFS; MinIO images are no longer
+  # publicly distributed). Any S3-compatible service works in production.
+  s3:
+    image: chrislusf/seaweedfs:latest
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json -master.volumeSizeLimitMB=1024
+    ports:
+      - "127.0.0.1:58333:8333"
+    volumes:
+      - s3data:/data
+      - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+
+volumes:
+  pgdata:
+  s3data:

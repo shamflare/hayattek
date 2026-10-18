@@ -1,0 +1,53 @@
+[project]
+name = "hayat-backend"
+version = "0.1.0"
+description = "HAYAT Healthcare Network — Django API"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2,<5.3",
+    "djangorestframework>=3.16",
+    "drf-spectacular>=0.28",
+    "django-environ>=0.12",
+    "psycopg[binary]>=3.2",
+    "argon2-cffi>=23.1",
+    "django-filter>=25.1",
+    "django-storages[s3]>=1.14",
+    "boto3>=1.35",
+    "celery[redis]>=5.4",
+    "redis>=5.0",
+    "qrcode[pil]>=8.0",
+    "pyotp>=2.9",
+    "pillow>=11.0",
+    "gunicorn>=23.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+    "factory-boy>=3.3",
+    "ruff>=0.8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+testpaths = ["tests", "apps"]
+addopts = "-q --reuse-db"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003", "RUF012", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+"**/tests/**" = ["S105", "S106"]

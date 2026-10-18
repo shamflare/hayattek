@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "hayat_dev",
+      "credentials": [
+        { "accessKey": "hayat_s3_dev", "secretKey": "hayat_s3_dev_password" }
+      ],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}
