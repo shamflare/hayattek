@@ -38,6 +38,9 @@ class AuditEvent(models.Model):
         ordering = ("-occurred_at",)
         indexes = [models.Index(fields=["patient_id", "-occurred_at"])]
 
+    def __str__(self) -> str:
+        return f"{self.occurred_at:%Y-%m-%d %H:%M} {self.action} {self.outcome}"
+
     def save(self, *args, **kwargs):
         if not self._state.adding:
             raise RuntimeError("AuditEvent rows are immutable.")

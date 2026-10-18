@@ -14,7 +14,7 @@ class Action:
     AUTH_LOGIN = "auth.login"
     AUTH_LOGIN_FAILED = "auth.login_failed"
     AUTH_LOGOUT = "auth.logout"
-    AUTH_PASSWORD_CHANGED = "auth.password_changed"
+    AUTH_PASSWORD_CHANGED = "auth.password_changed"  # noqa: S105
     AUTH_MFA_CHANGED = "auth.mfa_changed"
     PATIENT_CREATE = "patient.create"
     PATIENT_VIEW = "patient.view"

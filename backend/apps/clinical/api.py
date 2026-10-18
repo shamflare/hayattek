@@ -80,6 +80,11 @@ class ClinicalRecordViewSet(viewsets.GenericViewSet):
     prefetch_related: tuple = ()
     lookup_value_regex = "[0-9a-f-]{36}"
 
+    def get_queryset(self):
+        # Real querysets are built per patient via the policy engine; this only serves
+        # OpenAPI introspection.
+        return self.model.objects.none()
+
     # ---------------------------------------------------------------- helpers
     @property
     def ctx(self):

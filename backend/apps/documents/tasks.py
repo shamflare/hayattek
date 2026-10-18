@@ -15,7 +15,7 @@ def run_ocr(document_id: str) -> None:
     try:
         with document.file.open("rb") as fh:
             output = provider.extract(fh.read(), document.mime_type)
-    except Exception:  # noqa: BLE001 — never leak file content into logs
+    except Exception:
         result.status = OcrStatus.FAILED
         result.save(update_fields=["status", "updated_at"])
         return

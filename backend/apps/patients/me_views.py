@@ -32,6 +32,7 @@ CorrectionSerializer = inline_serializer("CorrectionRequestInput", {
 
 class MyPatientViewSet(viewsets.GenericViewSet):
     """Endpoints under /me/patients/{patient_id}/ for the patient or a guardian."""
+    queryset = Patient.objects.none()  # OpenAPI introspection only
 
     lookup_value_regex = "[0-9a-f-]{36}"
 

@@ -188,21 +188,11 @@ class AdminSubscriptionViewSet(viewsets.ModelViewSet):
         return qs.filter(organization_id=org) if org else qs
 
 
-AuditEventSerializer = inline_serializer(
-    "AuditEventRow",
-    {
-        "id": serializers.UUIDField(),
-        "occurred_at": serializers.DateTimeField(),
-        "actor_id": serializers.UUIDField(allow_null=True),
-        "organization_id": serializers.UUIDField(allow_null=True),
-        "action": serializers.CharField(),
-        "outcome": serializers.CharField(),
-        "target_type": serializers.CharField(),
-        "target_id": serializers.CharField(),
-        "patient_id": serializers.UUIDField(allow_null=True),
-        "ip_address": serializers.CharField(allow_null=True),
-    },
-)
+class AuditEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuditEvent
+        fields = ("id", "occurred_at", "actor_id", "organization_id", "action", "outcome",
+                  "target_type", "target_id", "patient_id", "ip_address")
 
 
 class AdminAuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -221,15 +211,6 @@ class AdminAuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 qs = qs.filter(**{field: params[field]})
         return qs
 
-    def list(self, request, *args, **kwargs):
-        page = self.paginate_queryset(self.get_queryset())
-        rows = [
-            {f: getattr(e, f) for f in ("id", "occurred_at", "actor_id", "organization_id",
-                                        "action", "outcome", "target_type", "target_id",
-                                        "patient_id", "ip_address")}
-            for e in page
-        ]
-        return self.get_paginated_response(rows)
 
 
 class AdminStatsView(APIView):
@@ -295,6 +276,7 @@ class OrgProfileView(APIView):
 
 
 class OrgMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = Membership.objects.none()  # OpenAPI introspection only
     permission_classes = [IsOrgAdmin]
     http_method_names = ["get", "post", "patch", "head", "options"]
 
@@ -302,6 +284,8 @@ class OrgMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.
         return MembershipUpdateSerializer if self.action == "partial_update" else MembershipSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         ctx = require_practice_context(self.request)
         return Membership.objects.filter(organization=ctx.organization).select_related(
             "user", "user__practitioner").order_by("user__full_name")
@@ -324,11 +308,14 @@ class OrgMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.
 
 
 class OrgDepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.none()  # OpenAPI introspection only
     permission_classes = [IsOrgAdmin]
     serializer_class = DepartmentSerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         return Department.objects.filter(organization=require_practice_context(self.request).organization)
 
     def perform_create(self, serializer):

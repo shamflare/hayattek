@@ -14,9 +14,12 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Notification.objects.none()  # OpenAPI introspection only
     serializer_class = NotificationSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         qs = Notification.objects.filter(user=self.request.user)
         if self.request.query_params.get("unread") == "1":
             qs = qs.filter(read_at__isnull=True)

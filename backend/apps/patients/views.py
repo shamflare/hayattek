@@ -57,6 +57,7 @@ def access_info(ctx, patient_id) -> dict:
 
 class PatientViewSet(viewsets.GenericViewSet):
     """Patient identity for facility staff. Clinical data lives under /clinical/."""
+    queryset = Patient.objects.none()  # OpenAPI introspection only
 
     permission_classes = [HasPracticeContext]
     lookup_value_regex = "[0-9a-f-]{36}"

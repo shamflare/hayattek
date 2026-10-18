@@ -108,6 +108,8 @@ class FacilityAccessViewSet(viewsets.GenericViewSet):
 
 class MySharingViewSet(viewsets.GenericViewSet):
     """The patient (or guardian) manages who can see their records."""
+    queryset = AccessGrant.objects.none()  # OpenAPI introspection only
+    queryset = AccessRequest.objects.none()  # OpenAPI introspection only
 
     serializer_class = GrantSerializer
 
@@ -209,11 +211,14 @@ class MySharingViewSet(viewsets.GenericViewSet):
 
 class FacilityGrantsListView(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Effective grants held by the acting organization (e.g. 'shared with us' list)."""
+    queryset = AccessGrant.objects.none()  # OpenAPI introspection only
 
     permission_classes = [HasPracticeContext]
     serializer_class = GrantSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         ctx = require_practice_context(self.request)
         if not ctx.is_clinician:
             return AccessGrant.objects.none()

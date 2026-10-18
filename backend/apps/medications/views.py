@@ -19,7 +19,13 @@ from apps.core.arabic import normalize_arabic
 from apps.core.exceptions import DomainError
 
 from . import services
-from .models import CatalogSource, Medication, MedicationFavorite, Prescription, PrescriptionTemplate
+from .models import (
+    CatalogSource,
+    Medication,
+    MedicationFavorite,
+    Prescription,
+    PrescriptionTemplate,
+)
 from .serializers import (
     FavoriteSerializer,
     MedicationSerializer,
@@ -58,12 +64,15 @@ class MedicationViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
+    queryset = MedicationFavorite.objects.none()  # OpenAPI introspection only
     permission_classes = [IsClinician]
     serializer_class = FavoriteSerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
     pagination_class = None
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         return MedicationFavorite.objects.filter(
             practitioner=require_practice_context(self.request).practitioner
         ).select_related("medication")
@@ -91,12 +100,15 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
 
 class TemplateViewSet(viewsets.ModelViewSet):
+    queryset = PrescriptionTemplate.objects.none()  # OpenAPI introspection only
     permission_classes = [IsClinician]
     serializer_class = TemplateSerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
     pagination_class = None
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
         return PrescriptionTemplate.objects.filter(
             practitioner=require_practice_context(self.request).practitioner)
 
