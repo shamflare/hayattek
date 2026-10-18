@@ -11,6 +11,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { OrderDialog, ConditionDialog, ReferralDialog, UploadDialog } from "@/components/clinical/quick-dialogs";
+import { ScribePanel } from "@/components/scribe/scribe-panel";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChoiceChips, Field, Input, Textarea } from "@/components/ui/field";
@@ -213,6 +214,7 @@ function EncounterEditor({ encounter, onSaved }: { encounter: Encounter; onSaved
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-20">
+        <ScribePanel encounterId={encounter.id} />
         <Card className="p-4">
           <div className="mb-3 flex items-center justify-between text-xs text-muted">
             <span>{save.isPending ? "جارٍ الحفظ…" : dirty ? "تغييرات غير محفوظة" : savedAt ? `حُفظت ${savedAt.toLocaleTimeString("ar-SY-u-nu-latn", { hour: "2-digit", minute: "2-digit" })}` : "مسودة"}</span>
