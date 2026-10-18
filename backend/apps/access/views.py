@@ -157,7 +157,7 @@ class MySharingViewSet(viewsets.GenericViewSet):
         return Response(GrantSerializer(grant).data)
 
     @extend_schema(responses=AccessRequestSerializer(many=True))
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], pagination_class=None)
     def requests(self, request):
         qs = AccessRequest.objects.filter(
             patient_id__in=self._patient_ids(), status=AccessRequestStatus.PENDING,

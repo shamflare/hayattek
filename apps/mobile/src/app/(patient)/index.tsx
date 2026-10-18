@@ -66,7 +66,7 @@ export default function HomeScreen() {
                   <AppText variant="caption" tone="onPrimary" style={{ opacity: 0.85 }}>
                     {isWard ? `${ar.home.viewing}: ${patientName ?? ""}` : ar.home.healthNumber}
                   </AppText>
-                  <AppText variant="heading" tone="onPrimary" ltr style={{ letterSpacing: 1.5 }}>{formatHealthNumber(healthNumber)}</AppText>
+                  <AppText variant="heading" tone="onPrimary" ltr style={{ letterSpacing: 1.5, alignSelf: "flex-start" }}>{formatHealthNumber(healthNumber)}</AppText>
                 </View>
               </Pressable>
             ) : null}
@@ -91,7 +91,10 @@ export default function HomeScreen() {
                   {pending.map((p) => p.organization_name).join("، ")}
                 </AppText>
               </View>
-              <Button title={ar.home.pendingAction} compact onPress={() => router.navigate("/consent")} />
+              {/* Visual pill only: the whole banner is the touch target (no nested buttons). */}
+              <View style={{ backgroundColor: t.primary, borderRadius: radius.md, paddingHorizontal: space.md, minHeight: 40, justifyContent: "center" }}>
+                <AppText variant="small" weight="semibold" tone="onPrimary">{ar.home.pendingAction}</AppText>
+              </View>
             </View>
           </Pressable>
         ) : null}

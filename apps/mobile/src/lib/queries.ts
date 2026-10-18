@@ -141,7 +141,7 @@ export function useAccessRequests() {
     queryKey: [scope, "sharing", "requests"],
     queryFn: async () =>
       listOf<Schemas["AccessRequest"]>(
-        await unwrap(api.GET("/api/v1/me/sharing/requests", { params: { query: { page_size: 50 } } })),
+        await unwrap(api.GET("/api/v1/me/sharing/requests")),
       ),
   });
 }

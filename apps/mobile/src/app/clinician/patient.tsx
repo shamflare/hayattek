@@ -13,7 +13,7 @@ import {
 import { ar, label } from "@/i18n/ar";
 import { api, errorMessage, unwrap, type Schemas } from "@/lib/api";
 import { identify, useClinician } from "@/lib/clinician";
-import { formatDate, formatHealthNumber, formatShortDate } from "@/lib/format";
+import { formatDate, formatHealthNumber, formatShortDate, rtlSafe } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { space, useTheme } from "@/theme";
 
@@ -46,7 +46,7 @@ export default function ClinicianPatient() {
             <AppText variant="small" tone="muted">
               {ar.clinician.age(patient.age_years)} · {label(ar.clinician.sex, patient.sex ?? "unknown")}
             </AppText>
-            <AppText variant="heading" ltr style={{ letterSpacing: 1.5 }}>{formatHealthNumber(patient.health_number)}</AppText>
+            <AppText variant="heading" ltr style={{ letterSpacing: 1.5, alignSelf: "flex-start" }}>{formatHealthNumber(patient.health_number)}</AppText>
           </View>
         </Row>
         <Row gap={6} style={{ flexWrap: "wrap", marginTop: space.md }}>
@@ -209,7 +209,7 @@ function Summary({ patientId }: { patientId: string }) {
         {s.current_medications.length === 0 ? <AppText variant="small" tone="muted">{ar.clinician.currentMedsEmpty}</AppText> :
           s.current_medications.map((m, i) => (
             <View key={`${m.prescription_id}-${i}`} style={{ marginBottom: space.sm }}>
-              <AppText variant="body" weight="medium">{m.name}</AppText>
+              <AppText variant="body" weight="medium">{rtlSafe(m.name)}</AppText>
               <AppText variant="caption" tone="muted">
                 {m.prescriber}{m.organization ? ` · ${m.organization}` : ""} · {m.ongoing ? ar.clinician.ongoing : m.ends_on ? `${ar.clinician.until} ${formatShortDate(m.ends_on)}` : formatShortDate(m.prescribed_at)}
               </AppText>

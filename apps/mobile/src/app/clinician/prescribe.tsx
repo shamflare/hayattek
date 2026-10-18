@@ -11,6 +11,7 @@ import {
 import { ar, label } from "@/i18n/ar";
 import { api, errorMessage, unwrap, type Schemas } from "@/lib/api";
 import { useClinician } from "@/lib/clinician";
+import { rtlSafe } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import { radius, space, useTheme } from "@/theme";
 
@@ -182,13 +183,13 @@ export default function QuickPrescription() {
                     key={f.id}
                     testID="favorite-option"
                     accessibilityRole="radio"
-                    accessibilityState={{ selected: on }}
+                    accessibilityState={{ checked: on }}
                     onPress={() => setSelected(on ? null : f)}
                     style={{ flexDirection: "row", alignItems: "center", gap: space.md, padding: space.md, minHeight: 60, borderRadius: radius.lg, borderWidth: on ? 2 : 1, borderColor: on ? t.primary : t.border, backgroundColor: on ? t.brandSoft : t.elevated }}
                   >
                     <IconBubble tone="accent"><Pill size={20} color={t.accent} /></IconBubble>
                     <View style={{ flex: 1 }}>
-                      <AppText variant="body" weight="semibold">{f.medication.name}{f.medication.strength ? ` ${f.medication.strength}` : ""}</AppText>
+                      <AppText variant="body" weight="semibold">{rtlSafe([f.medication.name, f.medication.strength].filter(Boolean).join(" "))}</AppText>
                       <AppText variant="caption" tone="muted">{label(ar.dosageForms, f.medication.dosage_form)}{f.medication.active_ingredient ? ` · ${f.medication.active_ingredient}` : ""}</AppText>
                     </View>
                   </Pressable>
@@ -198,7 +199,7 @@ export default function QuickPrescription() {
 
           {selected ? (
             <Card style={{ marginTop: space.lg }} testID="rx-item-editor">
-              <AppText variant="heading" style={{ marginBottom: space.md }}>{selected.medication.name}</AppText>
+              <AppText variant="heading" style={{ marginBottom: space.md }}>{rtlSafe([selected.medication.name, selected.medication.strength].filter(Boolean).join(" "))}</AppText>
               <TextField label={`${ar.clinician.dose} (${selected.medication.unit || label(ar.dosageForms, selected.medication.dosage_form)})`} value={dose} onChangeText={setDose} keyboardType="decimal-pad" />
               <AppText variant="small" weight="medium" style={{ marginBottom: 6 }}>{ar.clinician.timesOfDay}</AppText>
               <Chips options={TIMES.map((v) => ({ value: v, label: ar.timesOfDay[v] }))} selected={times} onToggle={(v) => setTimes((c) => (c.includes(v) ? c.filter((x) => x !== v) : TIMES.filter((x) => c.includes(x) || x === v)))} />
@@ -230,7 +231,7 @@ export default function QuickPrescription() {
             <Row key={i} gap={space.sm} align="flex-start" style={{ marginBottom: space.md }}>
               <Badge text={String(i + 1)} tone="accent" />
               <View style={{ flex: 1 }}>
-                <AppText variant="body" weight="semibold">{it.medication_name}{it.strength ? ` ${it.strength}` : ""}</AppText>
+                <AppText variant="body" weight="semibold">{rtlSafe([it.medication_name, it.strength].filter(Boolean).join(" "))}</AppText>
                 <AppText variant="small" tone="muted">{it.sig ?? (it.times_of_day ?? []).map((x) => ar.timesOfDay[x]).join("، ")}</AppText>
               </View>
               {!finalized ? (

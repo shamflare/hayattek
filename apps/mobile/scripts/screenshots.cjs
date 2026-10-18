@@ -60,6 +60,7 @@ async function tab(page, label) {
     await shot(page, "m00-login");
     await login(page, "patient@hayattek.test");
     await tid(page, "home-greeting").waitFor({ timeout: 30_000 });
+    await page.locator('[data-testid="home-screen"] [data-testid^="timeline-"]').first().waitFor({ timeout: 20_000 }).catch(() => {});
     await idle(page);
     await shot(page, "m01-home");
 
@@ -69,19 +70,20 @@ async function tab(page, label) {
     await shot(page, "m02-card");
 
     await tab(page, "السجل");
-    await page.locator('[data-testid^="timeline-"]').first().waitFor({ timeout: 20_000 });
+    await page.locator('[data-testid="timeline-list"] [data-testid^="timeline-"]').first().waitFor({ timeout: 20_000 });
     await shot(page, "m03-timeline");
 
     // Open each detail type that exists in the demo data.
     for (const type of ["prescription", "lab_report", "encounter", "document"]) {
-      const row = page.locator(`[data-testid="timeline-${type}"]`).first();
+      const row = page.locator(`[data-testid="timeline-list"] [data-testid="timeline-${type}"]`).first();
       if (await row.count()) {
         await row.click();
         await tid(page, "record-detail").waitFor({ timeout: 20_000 });
         await idle(page);
         await shot(page, `m04-detail-${type}`);
         await page.goBack();
-        await page.locator('[data-testid^="timeline-"]').first().waitFor();
+        await page.waitForTimeout(800);
+        await page.locator('[data-testid="timeline-list"] [data-testid^="timeline-"]').first().waitFor();
       }
     }
 
@@ -89,8 +91,28 @@ async function tab(page, label) {
     await tid(page, "consent-screen").waitFor();
     await idle(page);
     await shot(page, "m05-consent-requests");
+    if (process.env.HAYAT_WRITE === "1" && (await tid(page, "access-request-card").count())) {
+      // Approve a pending (synthetic) request with one scope unticked.
+      await tid(page, "scope-documents").click();
+      await tid(page, "request-approve").click();
+      await tid(page, "confirm-dialog-ok").last().waitFor();
+      await shot(page, "m05b-consent-confirm");
+      await tid(page, "confirm-dialog-ok").last().click();
+      await page.getByText("تمت الموافقة على الطلب.").first().waitFor({ timeout: 20_000 });
+      await shot(page, "m05c-consent-approved");
+    }
     await tid(page, "segment-grants").click();
     await shot(page, "m06-consent-grants");
+    if (process.env.HAYAT_WRITE === "1") {
+      // Revoke the grant to the demo clinic (restores the demo state, exercises revoke).
+      const card = page.locator('[data-testid="grant-card"]').filter({ hasText: "مجمع الرقة الطبي" }).first();
+      if (await card.count()) {
+        await card.locator('[data-testid="grant-revoke"]').click();
+        await tid(page, "confirm-dialog-ok").last().click();
+        await page.getByText("تم إلغاء الوصول.").first().waitFor({ timeout: 20_000 });
+        await shot(page, "m06b-consent-revoked");
+      }
+    }
     await tid(page, "segment-log").click();
     await idle(page);
     await shot(page, "m07-consent-log");
@@ -99,21 +121,27 @@ async function tab(page, label) {
     await tid(page, "more-screen").waitFor();
     await shot(page, "m08-more");
 
-    await page.getByText("الوصفات", { exact: true }).first().click();
+    await page.locator('[data-testid="more-screen"]').getByText("الوصفات", { exact: true }).first().click();
     await tid(page, "prescriptions-list").waitFor({ timeout: 20_000 }).catch(() => {});
     await shot(page, "m09-prescriptions");
     await page.goBack();
-    await page.getByText("التحاليل", { exact: true }).first().click();
+    await page.locator('[data-testid="more-screen"]').getByText("التحاليل", { exact: true }).first().click();
     await idle(page);
     await shot(page, "m10-labs");
     await page.goBack();
-    await page.getByText("المستندات", { exact: true }).first().click();
+    await page.locator('[data-testid="more-screen"]').getByText("المستندات", { exact: true }).first().click();
     await idle(page);
     await shot(page, "m11-documents");
     await page.goBack();
-    await page.getByText("الإشعارات", { exact: true }).first().click();
+    await page.locator('[data-testid="more-screen"]').getByText("الإشعارات", { exact: true }).first().click();
     await idle(page);
     await shot(page, "m12-notifications");
+    // Logout: revokes the device token server-side and returns to the login screen.
+    await page.goBack();
+    await tid(page, "logout").click();
+    await tid(page, "confirm-dialog-ok").last().click();
+    await tid(page, "login-identifier").waitFor({ timeout: 20_000 });
+    console.log("logout ok");
     await page.close();
 
     /* ------------------------------------------------------------- dark */
@@ -148,20 +176,42 @@ async function tab(page, label) {
     if (await tid(doc, "clinician-new-visit").count()) {
       await tid(doc, "clinician-new-visit").click();
       await tid(doc, "clinician-visit").waitFor();
-      await tid(doc, "visit-reason").fill("زيارة اختبار من تطبيق الموبايل (تجريبي)");
+      await tid(doc, "visit-reason").fill("زيارة اختبار من تطبيق الموبايل (بيانات تجريبية)");
+      await tid(doc, "visit-assessment").fill("بيانات تجريبية لاختبار الواجهة");
       await shot(doc, "c05-visit");
+      if (process.env.HAYAT_WRITE === "1") {
+        // Creates + finalizes a synthetic encounter through the real API.
+        await tid(doc, "visit-finalize").click();
+        await tid(doc, "confirm-dialog-ok").last().click();
+        await doc.getByText("تم الاعتماد.").first().waitFor({ timeout: 20_000 });
+        await shot(doc, "c05b-visit-finalized");
+      }
       await doc.goBack();
+      await doc.waitForTimeout(1500);
       await tid(doc, "clinician-new-rx").click();
       await tid(doc, "clinician-prescribe").waitFor();
       await idle(doc);
-      const fav = doc.locator('[data-testid="favorite-option"]').first();
+      await doc.waitForTimeout(1500);
+      const fav = doc.locator('[data-testid="favorite-option"]').last();
       if (await fav.count()) {
         await fav.click();
-        await doc.waitForTimeout(1200);
+        await tid(doc, "rx-item-editor").waitFor({ timeout: 10_000 });
+        await tid(doc, "sig-preview").waitFor({ timeout: 10_000 }).catch(() => problems.push("[flow] no sig preview"));
+        await tid(doc, "rx-item-editor").scrollIntoViewIfNeeded();
+        await shot(doc, "c06-prescribe-editor");
+        await tid(doc, "rx-add-item").click();
+        await doc.waitForTimeout(500);
+        await tid(doc, "rx-finalize").scrollIntoViewIfNeeded();
+        await shot(doc, "c07-prescribe-items");
+        if (process.env.HAYAT_WRITE === "1") {
+          await tid(doc, "rx-finalize").click();
+          await tid(doc, "confirm-dialog-ok").last().click();
+          await doc.getByText("تم إنشاء الوصفة.", { exact: false }).first().waitFor({ timeout: 20_000 });
+          await shot(doc, "c08-prescription-finalized");
+        }
+      } else {
+        await shot(doc, "c06-prescribe");
       }
-      await shot(doc, "c06-prescribe");
-      await doc.mouse.wheel(0, 700);
-      await shot(doc, "c07-prescribe-scrolled");
     } else {
       problems.push("[flow] doctor cannot author for this patient (no new-visit button)");
     }

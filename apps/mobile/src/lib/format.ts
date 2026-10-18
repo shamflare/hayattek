@@ -72,3 +72,18 @@ export function greeting(): "morning" | "evening" {
   );
   return hour >= 4 && hour < 12 ? "morning" : "evening";
 }
+
+/** Wrap left-to-right fragments ("500 mg", codes) in a Unicode isolate so they keep their order inside Arabic text. */
+export function ltr(value: string | null | undefined): string {
+  return value ? `⁦${value}⁩` : "";
+}
+
+/**
+ * Mixed Arabic/Latin strings such as medication names ("دواء — سكري 500 mg",
+ * "Paracetamol 500 mg"): force an RTL paragraph (RLM) and isolate each Latin/number
+ * run so units stay after their numbers and the line aligns to the right.
+ */
+export function rtlSafe(value: string | null | undefined): string {
+  if (!value) return "";
+  return `‏${value.replace(/[A-Za-z0-9][A-Za-z0-9.,%/µ+\- ]*[A-Za-z0-9%]|[A-Za-z0-9]/g, (m) => ltr(m))}`;
+}

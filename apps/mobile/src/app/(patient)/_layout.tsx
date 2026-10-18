@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Clock, CreditCard, House, Menu, ShieldCheck } from "lucide-react-native";
 
 import { ar } from "@/i18n/ar";
@@ -7,6 +8,7 @@ import { fonts, useTheme } from "@/theme";
 
 export default function PatientTabs() {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
   const requests = useAccessRequests();
   const pending = requests.data?.filter((r) => r.status === "pending").length ?? 0;
 
@@ -18,9 +20,9 @@ export default function PatientTabs() {
         headerShadowVisible: false,
         tabBarActiveTintColor: t.primary,
         tabBarInactiveTintColor: t.subtle,
-        tabBarStyle: { backgroundColor: t.elevated, borderTopColor: t.border },
-        tabBarItemStyle: { paddingVertical: 4 },
-        tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 12 },
+        tabBarStyle: { backgroundColor: t.elevated, borderTopColor: t.border, height: 74 + insets.bottom, paddingTop: 6, paddingBottom: 10 + insets.bottom },
+        tabBarLabelPosition: "below-icon",
+        tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 12, lineHeight: 22, paddingBottom: 2 },
         sceneStyle: { backgroundColor: t.bg },
       }}
     >

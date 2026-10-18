@@ -298,6 +298,7 @@ export function TextField({ label, hint, error, style, ...props }: TextInputProp
             paddingVertical: props.multiline ? space.md : 0,
             fontFamily: fonts.regular,
             fontSize: 16,
+            outlineColor: t.ring,
             // No textAlign: inputs follow the RTL writing direction (start = right).
             textAlignVertical: props.multiline ? "top" : "center",
           },

@@ -2,7 +2,7 @@ import { InfiniteList } from "@/components/infinite-list";
 import { openRecord, RecordIcon } from "@/components/records";
 import { AppText, Badge, ListRow, Row, statusTone } from "@/components/ui";
 import { ar, label } from "@/i18n/ar";
-import { formatShortDate } from "@/lib/format";
+import { formatShortDate, rtlSafe } from "@/lib/format";
 import { usePrescriptions } from "@/lib/queries";
 import { useSession } from "@/lib/session";
 
@@ -19,7 +19,7 @@ export default function PrescriptionsScreen() {
       renderItem={(rx) => (
         <ListRow
           leading={<RecordIcon type="prescription" />}
-          title={rx.items.map((i) => i.medication_name).filter(Boolean).join("، ") || `${ar.record.prescription} ${rx.number}`}
+          title={rtlSafe(rx.items.map((i) => i.medication_name).filter(Boolean).join("، ")) || `${ar.record.prescription} ${rx.number}`}
           subtitle={[rx.author_name, rx.organization_name].filter(Boolean).join(" · ")}
           meta={
             <Row gap={6} style={{ marginTop: 4, flexWrap: "wrap" }}>

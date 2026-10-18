@@ -3267,18 +3267,6 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
-      - name: page
-        required: false
-        in: query
-        description: رقم الصفحة ضمن النتائج المقسمة.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
-        schema:
-          type: integer
       tags:
       - me
       security:
@@ -3289,7 +3277,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedPatientReportedInfoList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientReportedInfo'
           description: ''
     post:
       operationId: me_patients_reported_create
@@ -3468,19 +3458,6 @@ paths:
     get:
       operationId: me_sharing_requests_list
       description: The patient (or guardian) manages who can see their records.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: رقم الصفحة ضمن النتائج المقسمة.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
-        schema:
-          type: integer
       tags:
       - me
       security:
@@ -3491,7 +3468,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedAccessRequestList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessRequest'
           description: ''
   /api/v1/me/sharing/requests/{request_id}/decide:
     post:
@@ -8014,29 +7993,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessLogEntry'
-    PaginatedAccessRequestList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccessRequest'
     PaginatedAllergyList:
       type: object
       required:
@@ -8405,29 +8361,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatientList'
-    PaginatedPatientReportedInfoList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/PatientReportedInfo'
     PaginatedPractitionerList:
       type: object
       required:

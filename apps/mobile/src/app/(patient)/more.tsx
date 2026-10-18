@@ -39,7 +39,7 @@ export default function MoreScreen() {
           <IconBubble><UserRound size={22} color={t.primary} /></IconBubble>
           <View style={{ flex: 1 }}>
             <AppText variant="heading">{me?.full_name}</AppText>
-            <AppText variant="small" tone="muted" ltr>{me?.email || me?.phone}</AppText>
+            <AppText variant="small" tone="muted" ltr style={{ alignSelf: "flex-start" }}>{me?.email || me?.phone}</AppText>
           </View>
         </View>
       </Card>

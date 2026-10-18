@@ -3413,21 +3413,6 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["AccessLogEntry"][];
         };
-        PaginatedAccessRequestList: {
-            /** @example 123 */
-            count: number;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=4
-             */
-            next?: string | null;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=2
-             */
-            previous?: string | null;
-            results: components["schemas"]["AccessRequest"][];
-        };
         PaginatedAllergyList: {
             /** @example 123 */
             count: number;
@@ -3667,21 +3652,6 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PatientList"][];
-        };
-        PaginatedPatientReportedInfoList: {
-            /** @example 123 */
-            count: number;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=4
-             */
-            next?: string | null;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=2
-             */
-            previous?: string | null;
-            results: components["schemas"]["PatientReportedInfo"][];
         };
         PaginatedPractitionerList: {
             /** @example 123 */
@@ -7667,12 +7637,7 @@ export interface operations {
     };
     me_patients_reported_list: {
         parameters: {
-            query?: {
-                /** @description رقم الصفحة ضمن النتائج المقسمة. */
-                page?: number;
-                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
-                page_size?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -7686,7 +7651,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedPatientReportedInfoList"];
+                    "application/json": components["schemas"]["PatientReportedInfo"][];
                 };
             };
         };
@@ -7837,12 +7802,7 @@ export interface operations {
     };
     me_sharing_requests_list: {
         parameters: {
-            query?: {
-                /** @description رقم الصفحة ضمن النتائج المقسمة. */
-                page?: number;
-                /** @description عدد النتائج التي يجب إرجاعها في كل صفحة. */
-                page_size?: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7854,7 +7814,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedAccessRequestList"];
+                    "application/json": components["schemas"]["AccessRequest"][];
                 };
             };
         };

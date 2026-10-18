@@ -11,7 +11,7 @@ import {
 } from "@/components/ui";
 import { ar, label } from "@/i18n/ar";
 import { errorMessage, type Schemas } from "@/lib/api";
-import { formatBytes, formatDate, formatDateTime, formatDecimal } from "@/lib/format";
+import { formatBytes, formatDate, formatDateTime, formatDecimal, ltr, rtlSafe } from "@/lib/format";
 import { openDocument } from "@/lib/open-document";
 import { DETAIL_TYPES, useRecord, type AnyRecord, type RecordType } from "@/lib/queries";
 import { radius, space, useTheme } from "@/theme";
@@ -100,7 +100,7 @@ function EncounterView({ e }: { e: Schemas["Encounter"] }) {
           <>
             <AppText variant="caption" tone="muted" weight="medium">{ar.record.vitals}</AppText>
             <Row gap={6} style={{ flexWrap: "wrap", marginTop: 4 }}>
-              {vitals.map(([k, v]) => <Badge key={k} text={`${k}: ${String(v)}`} tone="neutral" />)}
+              {vitals.map(([k, v]) => <Badge key={k} text={`${label(ar.vitals, k)}: ${ltr(String(v))}`} tone="neutral" />)}
             </Row>
           </>
         ) : null}
@@ -150,7 +150,7 @@ function PrescriptionView({ rx }: { rx: Schemas["Prescription"] }) {
                 <AppText variant="small" weight="bold" tone="accent">{i + 1}</AppText>
               </View>
               <View style={{ flex: 1 }}>
-                <AppText variant="heading">{item.medication_name}{item.strength ? ` ${item.strength}` : ""}</AppText>
+                <AppText variant="heading">{rtlSafe([item.medication_name, item.strength].filter(Boolean).join(" "))}</AppText>
                 {item.dosage_form ? <AppText variant="caption" tone="muted">{label(ar.dosageForms, item.dosage_form)}</AppText> : null}
               </View>
             </Row>

@@ -41,9 +41,9 @@ export default function ConsentScreen() {
         value={segment}
         onChange={(s) => { setSegment(s); setFeedback(null); }}
         items={[
-          { value: "requests", label: ar.consent.pending, count: pending.length },
-          { value: "grants", label: ar.consent.active, count: active.length },
-          { value: "log", label: ar.consent.log },
+          { value: "requests", label: ar.consent.segRequests, count: pending.length },
+          { value: "grants", label: ar.consent.segGrants, count: active.length },
+          { value: "log", label: ar.consent.segLog },
         ]}
       />
       {feedback ? <Notice text={feedback.text} tone={feedback.tone} /> : null}

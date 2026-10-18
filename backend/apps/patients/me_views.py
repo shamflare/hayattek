@@ -79,7 +79,7 @@ class MyPatientViewSet(viewsets.GenericViewSet):
         return Response(HealthCardSerializer(card).data, status=status.HTTP_201_CREATED)
 
     @extend_schema(responses=PatientReportedInfoSerializer(many=True))
-    @action(detail=True, methods=["get"], url_path="reported")
+    @action(detail=True, methods=["get"], url_path="reported", pagination_class=None)
     def reported(self, request, pk=None):
         patient = self._patient(pk)
         return Response(PatientReportedInfoSerializer(
