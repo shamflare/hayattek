@@ -209,7 +209,7 @@ export function useUnreadCount() {
 export function useMarkRead() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string | "all") =>
+    mutationFn: (id: string | "all"): Promise<unknown> =>
       id === "all"
         ? unwrap(api.POST("/api/v1/notifications/mark-all-read"))
         : unwrap(api.POST("/api/v1/notifications/{id}/read", { params: { path: { id } } })),

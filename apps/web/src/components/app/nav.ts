@@ -36,6 +36,7 @@ export function staffNav(roles: string[], isClinician: boolean): NavItem[] {
   }
   if (has("lab_staff", "imaging_staff")) {
     items.push({ href: "/app/lab", label: "الطلبات الواردة", icon: FlaskConical, mobile: true });
+    items.push({ href: "/app/lab/new", label: "نتيجة دون طلب", icon: ClipboardList });
     if (!has("physician", "receptionist")) {
       items.push({ href: "/app/patients", label: "المرضى", icon: Users, mobile: true });
       items.push({ href: "/app/scan", label: "مسح البطاقة", icon: ScanLine, mobile: true });
@@ -64,6 +65,7 @@ export const adminNav: NavItem[] = [
   { href: "/app/admin", label: "لوحة المنصة", icon: LayoutDashboard, mobile: true },
   { href: "/app/admin/organizations", label: "المنشآت", icon: Building2, mobile: true },
   { href: "/app/admin/practitioners", label: "اعتماد الأطباء", icon: Stethoscope, mobile: true },
+  { href: "/app/admin/join-requests", label: "طلبات الانضمام", icon: Send },
   { href: "/app/admin/users", label: "المستخدمون", icon: Users },
   { href: "/app/admin/plans", label: "الاشتراكات", icon: Wallet },
   { href: "/app/admin/audit", label: "السجل الأمني", icon: ShieldCheck, mobile: true },

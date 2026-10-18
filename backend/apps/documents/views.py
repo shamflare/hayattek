@@ -96,13 +96,18 @@ class DocumentViewSet(ClinicalRecordViewSet):
             provenance = {"organization": None, "author": request.user, "practitioner": None,
                           "author_role": "patient", "source": RecordSource.PATIENT}
 
+        # Attachments of a draft report stay drafts until the report is approved, so nobody
+        # (including the patient) sees a result file before the result itself.
+        parent = links.get("lab_report") or links.get("imaging_report")
+        is_draft = parent is not None and parent.status == RecordStatus.DRAFT
         with transaction.atomic():
             document = ClinicalDocument(
                 patient=patient, category=v["category"], title=v["title"],
                 description=v.get("description", ""), document_date=v.get("document_date"),
                 original_filename=_safe_filename(uploaded.name),
-                scan_status=ScanStatus.CLEAN, status=RecordStatus.FINAL,
-                finalized_at=timezone.now(), **meta, **provenance, **links,
+                scan_status=ScanStatus.CLEAN,
+                status=RecordStatus.DRAFT if is_draft else RecordStatus.FINAL,
+                finalized_at=None if is_draft else timezone.now(), **meta, **provenance, **links,
             )
             document.file.save("upload", uploaded, save=False)
             document.save()

@@ -192,7 +192,12 @@ class _ResultViewSet(ClinicalRecordViewSet):
                               code="invalid_request")
 
     def perform_finalize(self, ctx, record):
+        from apps.documents.models import ClinicalDocument
+
         record = records.finalize(ctx, record, request=self.request)
+        link = {"lab_report": record} if self.model is LabReport else {"imaging_report": record}
+        ClinicalDocument.objects.filter(status=RecordStatus.DRAFT, **link).update(
+            status=RecordStatus.FINAL, finalized_at=timezone.now())
         request_obj = record.service_request
         if request_obj is not None:
             ServiceRequest.objects.filter(pk=request_obj.pk).update(

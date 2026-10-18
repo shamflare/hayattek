@@ -280,3 +280,30 @@ def test_reception_activates_patient_account_and_links_guardian(reception, other
     assert me.get(f"/api/v1/me/patients/{child['id']}").status_code == 200
     wards = me.get("/api/v1/auth/me").data["wards"]
     assert [w["id"] for w in wards] == [child["id"]] or [str(w["id"]) for w in wards] == [child["id"]]
+
+
+def test_attachment_of_draft_lab_report_hidden_until_report_is_final(
+        lab_tech, reception, make_patient, make_user):
+    from apps.patients.models import Patient as P
+
+    patient = make_patient(reception)
+    p = P.objects.get(pk=patient["id"])
+    owner = make_user()
+    p.user = owner
+    p.save()
+    # Walk-in at the lab: register the presented patient, draft a report, attach a PDF.
+    assert lab_tech.post("/api/v1/patients/register", {"health_number": p.health_number}
+                         ).status_code == 200
+    report = lab_tech.post("/api/v1/diagnostics/lab-reports", {
+        "patient": patient["id"], "title": "تقرير تجريبي",
+        "observations": [{"name": "Glucose", "value_numeric": "90", "unit": "mg/dL"}]}).data
+    pdf = SimpleUploadedFile("r.pdf", PDF_BYTES, content_type="application/pdf")
+    doc = lab_tech.client.post("/api/v1/documents", {
+        "patient": patient["id"], "file": pdf, "category": "lab_result", "title": "PDF",
+        "lab_report": report["id"]}, format="multipart").data
+    assert doc["status"] == "draft"
+    me = Actor(owner)
+    assert me.get(f"/api/v1/documents/{doc['id']}").status_code == 404
+    assert lab_tech.post(f"/api/v1/diagnostics/lab-reports/{report['id']}/finalize"
+                         ).status_code == 200
+    assert me.get(f"/api/v1/documents/{doc['id']}").status_code == 200

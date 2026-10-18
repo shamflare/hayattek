@@ -72,7 +72,7 @@ export function SummaryPanel({ patientId, summary, loading, canAuthor }: {
             <div className="font-medium">{med.name}</div>
             <div className="mt-0.5 text-xs text-muted">
               {med.prescriber} · {formatShortDate(med.prescribed_at)}
-              {med.ends_on ? <> · حتى <span className="num">{formatShortDate(med.ends_on)}</span></> : " · مستمر"}
+              {med.ends_on ? ` · حتى ${formatShortDate(med.ends_on)}` : " · مستمر"}
             </div>
           </li>
         ))}

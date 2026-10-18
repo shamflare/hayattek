@@ -29,6 +29,8 @@ export function homeForUser(me: Me, membershipId?: string | null): string {
 interface SessionValue {
   me: Me | undefined;
   isLoading: boolean;
+  /** True once the user and their practice context are both known. */
+  ready: boolean;
   membership: MembershipBrief | null;
   roles: string[];
   has: (...roles: string[]) => boolean;
@@ -54,7 +56,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const meQuery = useMeQuery();
   const me = meQuery.data;
-  const [membershipId, setMembershipId] = React.useState<string | null>(null);
+  // undefined = not resolved yet. Pages render only after resolution so their very first
+  // request already carries the right practice-context header.
+  const [membershipId, setMembershipId] = React.useState<string | null | undefined>(undefined);
 
   React.useEffect(() => {
     if (!me) return;
@@ -73,6 +77,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const value: SessionValue = {
     me,
     isLoading: meQuery.isLoading,
+    ready: Boolean(me) && membershipId !== undefined,
     membership,
     roles,
     has: (...wanted) => wanted.some((r) => roles.includes(r)),

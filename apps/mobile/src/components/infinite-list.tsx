@@ -35,7 +35,7 @@ export function InfiniteList<P, T>({
       contentContainerStyle={[wrap, { paddingBottom: space.xxl * 2 }]}
       data={items}
       keyExtractor={keyOf}
-      ListHeaderComponent={header ? <>{header}</> : null}
+      ListHeaderComponent={header ? <>{header}</> : undefined}
       renderItem={({ item, index }) => (
         <View
           style={{
@@ -55,10 +55,10 @@ export function InfiniteList<P, T>({
       onEndReached={() => {
         if (query.hasNextPage && !query.isFetchingNextPage) void query.fetchNextPage();
       }}
-      refreshControl={<RefreshControl refreshing={query.isRefetching && !query.isFetchingNextPage} onRefresh={() => query.refetch()} tintColor={t.primary} colors={[t.primary]} />}
+      refreshControl={<RefreshControl refreshing={query.isRefetching && !query.isFetchingNextPage} onRefresh={() => { void query.refetch(); }} tintColor={t.primary} colors={[t.primary]} />}
       ListFooterComponent={
         query.isFetchingNextPage ? <ActivityIndicator style={{ marginTop: space.lg }} color={t.primary} /> :
-        items.length > 0 && !query.hasNextPage ? <AppText variant="caption" tone="subtle" center style={{ marginTop: space.lg }}>{ar.common.noMore}</AppText> : null
+        items.length > 0 && !query.hasNextPage ? <AppText variant="caption" tone="subtle" center style={{ marginTop: space.lg }}>{ar.common.noMore}</AppText> : undefined
       }
     />
   );

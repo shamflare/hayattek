@@ -81,10 +81,11 @@ export function AppText({ variant = "body", weight, tone = "default", ltr, cente
 
 /* ------------------------------------------------------------------ Layout */
 
-export function Card({ children, style, padded = true }: { children: ReactNode; style?: StyleProp<ViewStyle>; padded?: boolean }) {
+export function Card({ children, style, padded = true, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; padded?: boolean; testID?: string }) {
   const t = useTheme();
   return (
     <View
+      testID={testID}
       style={[
         {
           backgroundColor: t.elevated,

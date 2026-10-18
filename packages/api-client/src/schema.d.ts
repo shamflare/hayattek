@@ -2448,6 +2448,13 @@ export interface components {
             /** @default false */
             finalize_now: boolean;
         };
+        AmendmentRequest: {
+            reason: string;
+            /** @description Fields to change (same names as the write body). */
+            changes: {
+                [key: string]: unknown;
+            };
+        };
         AuditEvent: {
             /** Format: uuid */
             readonly id: string;
@@ -6048,9 +6055,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AllergyWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["AllergyWriteRequest"];
-                "multipart/form-data": components["schemas"]["AllergyWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -6247,9 +6254,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ConditionWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ConditionWriteRequest"];
-                "multipart/form-data": components["schemas"]["ConditionWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -6446,9 +6453,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EncounterWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["EncounterWriteRequest"];
-                "multipart/form-data": components["schemas"]["EncounterWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -6689,9 +6696,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ImagingReportWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ImagingReportWriteRequest"];
-                "multipart/form-data": components["schemas"]["ImagingReportWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -6888,9 +6895,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LabReportWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["LabReportWriteRequest"];
-                "multipart/form-data": components["schemas"]["LabReportWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -7130,9 +7137,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ServiceRequestWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ServiceRequestWriteRequest"];
-                "multipart/form-data": components["schemas"]["ServiceRequestWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -7426,8 +7433,8 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["DocumentUploadRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["DocumentUploadRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -8919,9 +8926,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["PrescriptionWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["PrescriptionWriteRequest"];
-                "multipart/form-data": components["schemas"]["PrescriptionWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {
@@ -9206,9 +9213,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReferralWriteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ReferralWriteRequest"];
-                "multipart/form-data": components["schemas"]["ReferralWriteRequest"];
+                "application/json": components["schemas"]["AmendmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendmentRequest"];
+                "multipart/form-data": components["schemas"]["AmendmentRequest"];
             };
         };
         responses: {

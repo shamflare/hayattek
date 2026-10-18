@@ -8,7 +8,7 @@ import { LogoMark } from "@/components/ui/logo";
 import { SessionProvider, useSession } from "@/lib/session";
 
 function Gate({ children }: { children: React.ReactNode }) {
-  const { me, isLoading } = useSession();
+  const { me, isLoading, ready } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -16,7 +16,7 @@ function Gate({ children }: { children: React.ReactNode }) {
     if (!isLoading && !me) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
   }, [isLoading, me, pathname, router]);
 
-  if (!me) {
+  if (!me || !ready) {
     return (
       <div className="grid min-h-dvh place-items-center">
         <div className="flex flex-col items-center gap-3 text-sm text-muted">

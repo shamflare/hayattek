@@ -1284,13 +1284,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AllergyWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/AllergyWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AllergyWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -1529,13 +1529,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConditionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConditionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConditionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -1774,13 +1774,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EncounterWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/EncounterWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/EncounterWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -2071,13 +2071,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ImagingReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ImagingReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ImagingReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -2316,13 +2316,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LabReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LabReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LabReportWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -2612,13 +2612,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ServiceRequestWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ServiceRequestWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ServiceRequestWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -2972,10 +2972,10 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/DocumentUploadRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/DocumentUploadRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -4687,13 +4687,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PrescriptionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PrescriptionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PrescriptionWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -5026,13 +5026,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReferralWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ReferralWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ReferralWriteRequest'
+              $ref: '#/components/schemas/AmendmentRequest'
         required: true
       security:
       - deviceToken: []
@@ -5550,6 +5550,20 @@ components:
       required:
       - patient
       - substance
+    AmendmentRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        changes:
+          type: object
+          additionalProperties: {}
+          description: Fields to change (same names as the write body).
+      required:
+      - changes
+      - reason
     AuditEvent:
       type: object
       properties:

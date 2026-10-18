@@ -30,6 +30,10 @@ NOT_FOUND = DomainError(_("السجل غير موجود أو لا تملك صل�
                         status_code=404)
 
 ReasonSerializer = inline_serializer("Reason", {"reason": serializers.CharField(max_length=300)})
+AmendSerializer = inline_serializer("Amendment", {
+    "reason": serializers.CharField(max_length=300),
+    "changes": serializers.DictField(help_text="Fields to change (same names as the write body)."),
+})
 
 
 class RecordMetaSerializer(serializers.ModelSerializer):
@@ -213,6 +217,7 @@ class ClinicalRecordViewSet(viewsets.GenericViewSet):
     def perform_finalize(self, ctx, record):
         return records.finalize(ctx, record, request=self.request)
 
+    @extend_schema(request=AmendSerializer)
     @action(detail=True, methods=["post"])
     def amend(self, request, pk=None):
         ctx = self.require_clinician_ctx()

@@ -22,7 +22,6 @@ export default function HomeScreen() {
 
   const pending = requests.data?.filter((r) => r.status === "pending") ?? [];
   const latest = timeline.data?.pages[0]?.items.slice(0, 5) ?? [];
-  const firstName = (me?.full_name ?? "").split(" ")[0];
   const healthNumber =
     me?.patient?.id === patientId ? me?.patient?.health_number : me?.wards.find((w) => w.id === patientId)?.health_number;
   const isWard = !!patientId && me?.patient?.id !== patientId;
@@ -44,7 +43,7 @@ export default function HomeScreen() {
                 <AppText variant="small" tone="onPrimary" style={{ opacity: 0.85 }}>
                   {greeting() === "morning" ? ar.home.greetingMorning : ar.home.greetingEvening}
                 </AppText>
-                <AppText variant="title" tone="onPrimary" numberOfLines={1} testID="home-greeting">{firstName}</AppText>
+                <AppText variant="title" tone="onPrimary" numberOfLines={1} testID="home-greeting">{me?.full_name}</AppText>
               </View>
               <Pressable
                 accessibilityRole="button"

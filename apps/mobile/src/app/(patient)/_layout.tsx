@@ -18,7 +18,8 @@ export default function PatientTabs() {
         headerShadowVisible: false,
         tabBarActiveTintColor: t.primary,
         tabBarInactiveTintColor: t.subtle,
-        tabBarStyle: { backgroundColor: t.elevated, borderTopColor: t.border, height: 64, paddingTop: 6, paddingBottom: 8 },
+        tabBarStyle: { backgroundColor: t.elevated, borderTopColor: t.border },
+        tabBarItemStyle: { paddingVertical: 4 },
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 12 },
         sceneStyle: { backgroundColor: t.bg },
       }}

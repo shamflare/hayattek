@@ -36,7 +36,7 @@ export const ar = {
     welcome: "أهلاً بك في حياة",
     subtitle: "سجلك الصحي معك أينما ذهبت",
     identifier: "البريد الإلكتروني أو رقم الهاتف",
-    identifierPlaceholder: "name@example.com أو 09xxxxxxxx",
+    identifierPlaceholder: "name@example.com",
     password: "كلمة المرور",
     login: "تسجيل الدخول",
     loggingIn: "جارٍ تسجيل الدخول…",

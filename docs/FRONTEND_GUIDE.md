@@ -46,7 +46,7 @@ src/lib/                  api.ts, session.tsx, format.ts, i18n/, hooks.ts
 ## القواعد الإلزامية
 
 1. **العربية افتراضياً وRTL**. استخدم `ms-/me-/ps-/pe-/start-/end-` وليس `ml/mr/left/right`.
-2. القيم الطبية والأرقام والتواريخ داخل `<span className="num">` (أرقام لاتينية، اتجاه LTR معزول).
+2. القيم الطبية والأرقام الصرفة (الرقم الصحي، القيم المخبرية، الهاتف) داخل `<span className="num">`. **لا تضع التواريخ المنسقة بأسماء الأشهر العربية داخل `.num`** لأن اتجاه LTR يبعثر ترتيبها.
 3. التواريخ عبر `formatDate/formatDateTime/relativeTime` (توقيت دمشق). الأعمار عبر `ageLabel`.
 4. أسماء القيم المرمّزة عبر `label("scopes", value)` وأخواتها من `lib/i18n`. لا تكتب جداول ترجمة مكررة.
 5. كل صفحة لها: حالة تحميل (`Skeleton`/`SkeletonList`)، وحالة فارغة (`EmptyState`)، وحالة خطأ (`ErrorState`).

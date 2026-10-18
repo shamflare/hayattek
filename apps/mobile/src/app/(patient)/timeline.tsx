@@ -52,13 +52,13 @@ export default function TimelineScreen() {
       onEndReached={() => {
         if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
       }}
-      refreshControl={<RefreshControl refreshing={q.isRefetching && !q.isFetchingNextPage} onRefresh={() => q.refetch()} tintColor={t.primary} colors={[t.primary]} />}
+      refreshControl={<RefreshControl refreshing={q.isRefetching && !q.isFetchingNextPage} onRefresh={() => { void q.refetch(); }} tintColor={t.primary} colors={[t.primary]} />}
       ListFooterComponent={
         q.isFetchingNextPage ? (
           <ActivityIndicator style={{ marginTop: space.lg }} color={t.primary} />
         ) : items.length > 0 && !q.hasNextPage ? (
           <AppText variant="caption" tone="subtle" center style={{ marginTop: space.lg }}>{ar.common.noMore}</AppText>
-        ) : null
+        ) : undefined
       }
     />
   );
