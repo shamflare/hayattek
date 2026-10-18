@@ -26,3 +26,5 @@ Thumbs.db
 *.log
 test-results/
 playwright-report/
+.dev-*.log
+apps/web/scripts/*.png

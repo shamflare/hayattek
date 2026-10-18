@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema, extend_schema_field, inline_serializer
 from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -17,6 +17,7 @@ from apps.clinical import records
 from apps.clinical.api import ClinicalRecordViewSet, RecordMetaSerializer
 from apps.clinical.base import VISIBLE_STATUSES
 from apps.core.exceptions import DomainError
+from apps.core.schema_types import PatientBrief
 from apps.notifications.models import NotificationKind
 from apps.notifications.services import notify
 from apps.organizations.models import Membership, Role
@@ -42,6 +43,7 @@ class ReferralSerializer(RecordMetaSerializer):
                   "patient_brief")
         read_only_fields = fields
 
+    @extend_schema_field(PatientBrief)
     def get_patient_brief(self, obj) -> dict:
         return {"full_name": obj.patient.full_name, "age_years": obj.patient.age_years,
                 "health_number": obj.patient.formatted_health_number}

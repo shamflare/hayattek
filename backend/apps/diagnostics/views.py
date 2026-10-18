@@ -13,6 +13,7 @@ from apps.clinical.api import ClinicalRecordViewSet
 from apps.clinical.base import VISIBLE_STATUSES, RecordSource, RecordStatus
 from apps.core.exceptions import DomainError
 from apps.core.ids import random_code
+from apps.core.schema_types import TrendSeries
 from apps.notifications.models import NotificationKind
 from apps.notifications.services import notify, patient_recipients
 from apps.organizations.models import Membership, Role
@@ -254,7 +255,8 @@ class LabReportViewSet(_ResultViewSet):
         return record
 
     @extend_schema(parameters=[OpenApiParameter("patient", str, required=True),
-                               OpenApiParameter("test", str, required=True)])
+                               OpenApiParameter("test", str, required=True)],
+                   responses=TrendSeries)
     @action(detail=False, methods=["get"])
     def trend(self, request):
         """One test over time. Series are split by unit: values with different units are

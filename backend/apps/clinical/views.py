@@ -14,6 +14,13 @@ from apps.access.context import resolve_practice_context
 from apps.access.models import Scope
 from apps.audit import services as audit
 from apps.core.exceptions import DomainError
+from apps.core.schema_types import (
+    CurrentMedication,
+    EncounterBrief,
+    LabReportBrief,
+    ReportedBrief,
+    TimelineItem,
+)
 from apps.patients.models import PatientRegistration, PatientReportedInfo
 
 from . import records
@@ -160,10 +167,10 @@ class PatientSummaryView(APIView):
                    responses=inline_serializer("PatientSummary", {
                        "allergies": AllergySerializer(many=True),
                        "chronic_conditions": ConditionSerializer(many=True),
-                       "current_medications": serializers.ListField(child=serializers.DictField()),
-                       "recent_encounters": serializers.ListField(child=serializers.DictField()),
-                       "recent_lab_reports": serializers.ListField(child=serializers.DictField()),
-                       "patient_reported": serializers.ListField(child=serializers.DictField()),
+                       "current_medications": CurrentMedication,
+                       "recent_encounters": EncounterBrief,
+                       "recent_lab_reports": LabReportBrief,
+                       "patient_reported": ReportedBrief,
                        "hidden_scopes": serializers.ListField(child=serializers.CharField()),
                    }))
     def get(self, request):
@@ -252,7 +259,7 @@ class TimelineView(APIView):
         parameters=[OpenApiParameter("patient", str, required=True),
                     OpenApiParameter("before", str), OpenApiParameter("types", str)],
         responses=inline_serializer("Timeline", {
-            "items": serializers.ListField(child=serializers.DictField()),
+            "items": TimelineItem,
             "next_before": serializers.DateTimeField(allow_null=True),
         }))
     def get(self, request):

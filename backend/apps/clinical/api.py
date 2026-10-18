@@ -19,6 +19,7 @@ from apps.access.context import resolve_practice_context
 from apps.audit import services as audit
 from apps.audit.models import AuditOutcome
 from apps.core.exceptions import DomainError
+from apps.core.schema_types import RecordVersionRow
 from apps.patients.models import Patient
 
 from . import records
@@ -229,6 +230,7 @@ class ClinicalRecordViewSet(viewsets.GenericViewSet):
         return Response(self.read_serializer_class(record, context=self.get_serializer_context()
                                                    ).data)
 
+    @extend_schema(responses=RecordVersionRow)
     @action(detail=True, methods=["get"])
     def versions(self, request, pk=None):
         from .models import RecordVersion

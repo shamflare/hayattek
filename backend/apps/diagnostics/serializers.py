@@ -1,6 +1,8 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.clinical.api import RecordMetaSerializer
+from apps.core.schema_types import DocumentBrief, PatientBrief
 
 from .models import (
     ImagingReport,
@@ -43,6 +45,7 @@ class ServiceRequestSerializer(RecordMetaSerializer):
                   "fulfillment_status", "items", "patient_brief")
         read_only_fields = fields
 
+    @extend_schema_field(PatientBrief)
     def get_patient_brief(self, obj) -> dict:
         p = obj.patient
         return {"full_name": p.full_name, "age_years": p.age_years, "sex": p.sex,
@@ -103,6 +106,7 @@ class LabReportSerializer(RecordMetaSerializer):
                   "documents")
         read_only_fields = fields
 
+    @extend_schema_field(DocumentBrief)
     def get_documents(self, obj) -> list[dict]:
         return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type}
                 for d in obj.documents.exclude(status="entered_in_error")]
@@ -128,6 +132,7 @@ class ImagingReportSerializer(RecordMetaSerializer):
                   "title", "findings", "impression", "documents")
         read_only_fields = fields
 
+    @extend_schema_field(DocumentBrief)
     def get_documents(self, obj) -> list[dict]:
         return [{"id": str(d.pk), "title": d.title, "mime_type": d.mime_type}
                 for d in obj.documents.exclude(status="entered_in_error")]

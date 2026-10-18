@@ -1,5 +1,8 @@
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+
+from apps.core.schema_types import RecordRef, ServiceRequestRef
 
 from .api import RecordMetaSerializer
 from .base import RecordStatus
@@ -101,15 +104,18 @@ class EncounterSerializer(RecordMetaSerializer):
             q |= Q(status=RecordStatus.DRAFT, author=ctx.user)
         return qs.filter(q)
 
+    @extend_schema_field(ConditionSerializer(many=True))
     def get_conditions(self, obj) -> list[dict]:
         qs = self._visible(obj.conditions.all()).select_related("practitioner", "author",
                                                                  "organization")
         return ConditionSerializer(qs, many=True, context=self.context).data
 
+    @extend_schema_field(RecordRef)
     def get_prescriptions(self, obj) -> list[dict]:
         return [{"id": str(p.id), "number": p.number, "status": p.status}
                 for p in self._visible(obj.prescriptions.all())]
 
+    @extend_schema_field(ServiceRequestRef)
     def get_service_requests(self, obj) -> list[dict]:
         return [{"id": str(r.id), "number": r.number, "kind": r.kind, "status": r.status,
                  "fulfillment_status": r.fulfillment_status}

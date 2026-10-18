@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   HAYAT design tokens. Semantic colours are CSS variables so light and
+   dark themes swap in one place.
+   ------------------------------------------------------------------ */
+:root {
+  --bg: #f6f8f7;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #eef2f1;
+  --fg: #0f1f1d;
+  --fg-muted: #51625f;
+  --fg-subtle: #7c8b88;
+  --border: #dde5e3;
+  --border-strong: #c6d2cf;
+  --ring: #1f9e8f;
+
+  --brand-50: #edfaf7;
+  --brand-100: #d3f3ec;
+  --brand-200: #a9e6da;
+  --brand-300: #72d2c2;
+  --brand-400: #3cb7a6;
+  --brand-500: #1f9e8f;
+  --brand-600: #157f74;
+  --brand-700: #14665e;
+  --brand-800: #13514c;
+  --brand-900: #123f3c;
+
+  --accent-500: #e07a5f;
+  --accent-50: #fdf1ed;
+  --danger-500: #d64545;
+  --danger-50: #fdeeee;
+  --warning-500: #d99a1e;
+  --warning-50: #fdf6e7;
+  --success-500: #2f9e5b;
+  --success-50: #ebf7f0;
+  --info-500: #3a7bd5;
+  --info-50: #edf3fc;
+
+  --shadow-sm: 0 1px 2px rgb(15 31 29 / 0.05);
+  --shadow-md: 0 4px 16px -4px rgb(15 31 29 / 0.08), 0 2px 4px rgb(15 31 29 / 0.04);
+  --shadow-lg: 0 24px 48px -12px rgb(15 31 29 / 0.18);
+}
+
+.dark {
+  --bg: #0b1514;
+  --bg-elevated: #111f1d;
+  --bg-sunken: #0e1a19;
+  --fg: #e6efed;
+  --fg-muted: #9db0ac;
+  --fg-subtle: #6f8480;
+  --border: #1f322f;
+  --border-strong: #2b4440;
+  --ring: #3cb7a6;
+  --brand-50: #0f2a27;
+  --brand-100: #12352f;
+  --accent-50: #2b1a15;
+  --danger-50: #2d1515;
+  --warning-50: #2b2312;
+  --success-50: #12261a;
+  --info-50: #131f31;
+  --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 24px 48px -12px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-sunken: var(--bg-sunken);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ring: var(--ring);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-accent: var(--accent-500);
+  --color-accent-soft: var(--accent-50);
+  --color-danger: var(--danger-500);
+  --color-danger-soft: var(--danger-50);
+  --color-warning: var(--warning-500);
+  --color-warning-soft: var(--warning-50);
+  --color-success: var(--success-500);
+  --color-success-soft: var(--success-50);
+  --color-info: var(--info-500);
+  --color-info-soft: var(--info-50);
+  --shadow-soft: var(--shadow-sm);
+  --shadow-card: var(--shadow-md);
+  --shadow-float: var(--shadow-lg);
+  --radius-card: 1rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "kern", "liga";
+}
+
+/* Western digits read best in clinical values; Arabic text keeps its shaping. */
+.num {
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+::selection {
+  background: var(--brand-200);
+  color: var(--brand-900);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.35s ease-out both; }
+
+@keyframes shimmer {
+  100% { transform: translateX(-100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-sunken);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.5), transparent);
+  animation: shimmer 1.4s infinite;
+}
+.dark .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.05), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------------- print (A4 prescriptions, cards) ---------------- */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  html, body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+}

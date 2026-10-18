@@ -1,4 +1,5 @@
 from django.contrib.auth.password_validation import validate_password
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.organizations.models import Membership, Organization
@@ -61,19 +62,23 @@ class MeSerializer(serializers.ModelSerializer):
                   "mfa_enabled", "mfa_setup_required", "must_change_password", "memberships",
                   "practitioner", "patient", "wards")
 
+    @extend_schema_field(MembershipBriefSerializer(many=True))
     def get_memberships(self, user) -> list[dict]:
         qs = (user.memberships.filter(status="active", organization__status="active")
               .select_related("organization"))
         return MembershipBriefSerializer(qs, many=True).data
 
+    @extend_schema_field(PractitionerBriefSerializer(allow_null=True))
     def get_practitioner(self, user) -> dict | None:
         practitioner = getattr(user, "practitioner", None)
         return PractitionerBriefSerializer(practitioner).data if practitioner else None
 
+    @extend_schema_field(PatientBriefSerializer(allow_null=True))
     def get_patient(self, user) -> dict | None:
         patient = getattr(user, "patient_profile", None)
         return PatientBriefSerializer(patient).data if patient else None
 
+    @extend_schema_field(PatientBriefSerializer(many=True))
     def get_wards(self, user) -> list[dict]:
         from apps.access.policy import patient_ids_for_user
 

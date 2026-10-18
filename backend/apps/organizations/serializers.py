@@ -1,6 +1,8 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.models import User
+from apps.core.schema_types import PractitionerRef
 from apps.practitioners.models import Practitioner, Specialty
 
 from .models import (
@@ -64,6 +66,7 @@ class MembershipSerializer(serializers.ModelSerializer):
                   "created_at")
         read_only_fields = ("created_at",)
 
+    @extend_schema_field(PractitionerRef)
     def get_practitioner(self, obj) -> dict | None:
         practitioner = getattr(obj.user, "practitioner", None)
         if practitioner is None:

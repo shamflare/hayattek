@@ -1252,7 +1252,7 @@ paths:
           description: ''
   /api/v1/clinical/allergies/{id}/versions:
     get:
-      operationId: clinical_allergies_versions_retrieve
+      operationId: clinical_allergies_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -1261,6 +1261,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - clinical
       security:
@@ -1271,7 +1283,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Allergy'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/clinical/conditions:
     get:
@@ -1485,7 +1497,7 @@ paths:
           description: ''
   /api/v1/clinical/conditions/{id}/versions:
     get:
-      operationId: clinical_conditions_versions_retrieve
+      operationId: clinical_conditions_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -1494,6 +1506,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - clinical
       security:
@@ -1504,7 +1528,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Condition'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/clinical/encounters:
     get:
@@ -1718,7 +1742,7 @@ paths:
           description: ''
   /api/v1/clinical/encounters/{id}/versions:
     get:
-      operationId: clinical_encounters_versions_retrieve
+      operationId: clinical_encounters_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -1727,6 +1751,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - clinical
       security:
@@ -1737,7 +1773,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Encounter'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/clinical/summary:
     get:
@@ -2003,7 +2039,7 @@ paths:
           description: ''
   /api/v1/diagnostics/imaging-reports/{id}/versions:
     get:
-      operationId: diagnostics_imaging_reports_versions_retrieve
+      operationId: diagnostics_imaging_reports_versions_list
       description: Shared by lab and imaging reports.
       parameters:
       - in: path
@@ -2012,6 +2048,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - diagnostics
       security:
@@ -2022,7 +2070,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ImagingReport'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/diagnostics/lab-reports:
     get:
@@ -2236,7 +2284,7 @@ paths:
           description: ''
   /api/v1/diagnostics/lab-reports/{id}/versions:
     get:
-      operationId: diagnostics_lab_reports_versions_retrieve
+      operationId: diagnostics_lab_reports_versions_list
       description: Shared by lab and imaging reports.
       parameters:
       - in: path
@@ -2245,6 +2293,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - diagnostics
       security:
@@ -2255,7 +2315,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabReport'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/diagnostics/lab-reports/trend:
     get:
@@ -2284,7 +2344,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabReport'
+                $ref: '#/components/schemas/LabTrend'
           description: ''
   /api/v1/diagnostics/lab-tests:
     get:
@@ -2555,7 +2615,7 @@ paths:
           description: ''
   /api/v1/diagnostics/requests/{id}/versions:
     get:
-      operationId: diagnostics_requests_versions_retrieve
+      operationId: diagnostics_requests_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -2564,6 +2624,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - diagnostics
       security:
@@ -2574,7 +2646,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceRequest'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/diagnostics/requests/incoming:
     get:
@@ -2886,7 +2958,7 @@ paths:
           description: ''
   /api/v1/documents/{id}/versions:
     get:
-      operationId: documents_versions_retrieve
+      operationId: documents_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -2895,6 +2967,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - documents
       security:
@@ -2905,7 +2989,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/me/patients/{id}:
     get:
@@ -4524,7 +4608,7 @@ paths:
           description: ''
   /api/v1/prescriptions/{id}/versions:
     get:
-      operationId: prescriptions_versions_retrieve
+      operationId: prescriptions_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -4533,6 +4617,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - prescriptions
       security:
@@ -4543,7 +4639,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Prescription'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/public/cards/{token}:
     get:
@@ -4836,7 +4932,7 @@ paths:
           description: ''
   /api/v1/referrals/{id}/versions:
     get:
-      operationId: referrals_versions_retrieve
+      operationId: referrals_versions_list
       description: 'Base for record endpoints: list/retrieve/create/update(draft)/finalize/amend/void.'
       parameters:
       - in: path
@@ -4845,6 +4941,18 @@ paths:
           type: string
           pattern: ^[0-9a-f-]{36}$
         required: true
+      - name: page
+        required: false
+        in: query
+        description: رقم الصفحة ضمن النتائج المقسمة.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: عدد النتائج التي يجب إرجاعها في كل صفحة.
+        schema:
+          type: integer
       tags:
       - referrals
       security:
@@ -4855,7 +4963,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Referral'
+                $ref: '#/components/schemas/PaginatedRecordVersionRowList'
           description: ''
   /api/v1/referrals/inbox:
     get:
@@ -5565,6 +5673,36 @@ components:
       - message
       - target_id
       - target_type
+    CurrentMedication:
+      type: object
+      properties:
+        name:
+          type: string
+        prescription_id:
+          type: string
+          format: uuid
+        prescribed_at:
+          type: string
+          format: date-time
+        prescriber:
+          type: string
+        organization:
+          type: string
+          nullable: true
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+        ongoing:
+          type: boolean
+      required:
+      - ends_on
+      - name
+      - ongoing
+      - organization
+      - prescribed_at
+      - prescriber
+      - prescription_id
     DecisionResult:
       type: object
       properties:
@@ -5765,6 +5903,20 @@ components:
       - status_reason
       - title
       - version
+    DocumentBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        mime_type:
+          type: string
+      required:
+      - id
+      - mime_type
+      - title
     DocumentUpload:
       type: object
       properties:
@@ -6031,20 +6183,17 @@ components:
         conditions:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/Condition'
           readOnly: true
         prescriptions:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/RecordRef'
           readOnly: true
         service_requests:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/ServiceRequestRef'
           readOnly: true
       required:
       - amended_at
@@ -6077,6 +6226,34 @@ components:
       - status_reason
       - version
       - vitals
+    EncounterBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        occurred_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        assessment:
+          type: string
+        status:
+          type: string
+        author_name:
+          type: string
+        organization_name:
+          type: string
+          nullable: true
+      required:
+      - assessment
+      - author_name
+      - id
+      - occurred_at
+      - organization_name
+      - reason
+      - status
     EncounterTypeEnum:
       enum:
       - consultation
@@ -6448,8 +6625,7 @@ components:
         documents:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/DocumentBrief'
           readOnly: true
       required:
       - amended_at
@@ -6789,8 +6965,7 @@ components:
         documents:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/DocumentBrief'
           readOnly: true
       required:
       - amended_at
@@ -6816,6 +6991,31 @@ components:
       - status_reason
       - title
       - version
+    LabReportBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        occurred_at:
+          type: string
+          format: date-time
+        title:
+          type: string
+        status:
+          type: string
+        abnormal_count:
+          type: integer
+        organization_name:
+          type: string
+          nullable: true
+      required:
+      - abnormal_count
+      - id
+      - occurred_at
+      - organization_name
+      - status
+      - title
     LabReportWrite:
       type: object
       properties:
@@ -6907,6 +7107,63 @@ components:
       - id
       - name_ar
       - name_en
+    LabTrend:
+      type: object
+      properties:
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabTrendSeries'
+      required:
+      - series
+    LabTrendPoint:
+      type: object
+      properties:
+        occurred_at:
+          type: string
+          format: date-time
+        value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+        reference_low:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          nullable: true
+        reference_high:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,4})?$
+          nullable: true
+        interpretation:
+          type: string
+        report_id:
+          type: string
+          format: uuid
+        lab:
+          type: string
+          nullable: true
+      required:
+      - interpretation
+      - lab
+      - occurred_at
+      - reference_high
+      - reference_low
+      - report_id
+      - value
+    LabTrendSeries:
+      type: object
+      properties:
+        unit:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabTrendPoint'
+      required:
+      - points
+      - unit
     LoginRequest:
       type: object
       properties:
@@ -6969,24 +7226,22 @@ components:
         memberships:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/MembershipBrief'
           readOnly: true
         practitioner:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/PractitionerBrief'
           nullable: true
           readOnly: true
         patient:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/PatientBrief'
           nullable: true
           readOnly: true
         wards:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/PatientBrief'
           readOnly: true
       required:
       - full_name
@@ -7156,8 +7411,8 @@ components:
         status:
           $ref: '#/components/schemas/Status90dEnum'
         practitioner:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/PractitionerRef'
           nullable: true
           readOnly: true
         created_at:
@@ -7169,6 +7424,27 @@ components:
       - id
       - practitioner
       - user
+    MembershipBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        organization:
+          $ref: '#/components/schemas/OrganizationBrief'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolesEnum'
+        title:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/Status90dEnum'
+      required:
+      - id
+      - organization
     MembershipUpdate:
       type: object
       properties:
@@ -7417,6 +7693,29 @@ components:
       - member_count
       - name
       - status
+    OrganizationBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        name_en:
+          type: string
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/Kind09cEnum'
+        governorate:
+          $ref: '#/components/schemas/GovernorateEnum'
+        status:
+          $ref: '#/components/schemas/Status36eEnum'
+      required:
+      - id
+      - kind
+      - name
     OrganizationRequest:
       type: object
       properties:
@@ -7991,6 +8290,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PublicPractitioner'
+    PaginatedRecordVersionRowList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecordVersionRow'
     PaginatedReferralList:
       type: object
       required:
@@ -8706,6 +9028,39 @@ components:
       required:
       - grants
       - requests
+    PatientBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        health_number:
+          type: string
+          readOnly: true
+      required:
+      - full_name
+      - health_number
+      - id
+    PatientBriefCard:
+      type: object
+      properties:
+        full_name:
+          type: string
+        age_years:
+          type: integer
+          nullable: true
+        sex:
+          type: string
+        health_number:
+          type: string
+      required:
+      - age_years
+      - full_name
+      - health_number
     PatientCreateRequest:
       type: object
       properties:
@@ -8986,6 +9341,22 @@ components:
     PatientSummary:
       type: object
       properties:
+        current_medications:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentMedication'
+        recent_encounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/EncounterBrief'
+        recent_lab_reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabReportBrief'
+        patient_reported:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportedBrief'
         allergies:
           type: array
           items:
@@ -8994,26 +9365,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Condition'
-        current_medications:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        recent_encounters:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        recent_lab_reports:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        patient_reported:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
         hidden_scopes:
           type: array
           items:
@@ -9090,6 +9441,31 @@ components:
       - verification_notes
       - verification_status
       - verified_at
+    PractitionerBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        display_name:
+          type: string
+          description: 'As printed: د. ...'
+          maxLength: 200
+        display_name_en:
+          type: string
+          maxLength: 200
+        specialty:
+          $ref: '#/components/schemas/SpecialtyEnum'
+        specialty_detail:
+          type: string
+          maxLength: 150
+        verification_status:
+          $ref: '#/components/schemas/VerificationStatusEnum'
+      required:
+      - display_name
+      - id
+      - specialty
     PractitionerInputRequest:
       type: object
       properties:
@@ -9112,6 +9488,23 @@ components:
           maxLength: 150
       required:
       - specialty
+    PractitionerRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        display_name:
+          type: string
+        specialty:
+          type: string
+        verification_status:
+          type: string
+      required:
+      - display_name
+      - id
+      - specialty
+      - verification_status
     PreferredLanguageEnum:
       enum:
       - ar
@@ -9586,6 +9979,41 @@ components:
           maxLength: 300
       required:
       - reason
+    RecordRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        status:
+          type: string
+      required:
+      - id
+      - number
+      - status
+    RecordVersionRow:
+      type: object
+      properties:
+        version:
+          type: integer
+        reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        changed_by:
+          type: string
+        snapshot:
+          type: object
+          additionalProperties: {}
+      required:
+      - changed_by
+      - created_at
+      - reason
+      - snapshot
+      - version
     Referral:
       type: object
       description: Provenance fields every clinical record exposes.
@@ -9702,8 +10130,8 @@ components:
           readOnly: true
           nullable: true
         patient_brief:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/PatientBriefCard'
           readOnly: true
       required:
       - amended_at
@@ -9839,6 +10267,24 @@ components:
           maxLength: 200
       required:
       - reason
+    ReportedBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - id
+      - kind
+      - text
     RolesEnum:
       enum:
       - org_admin
@@ -10048,8 +10494,8 @@ components:
             $ref: '#/components/schemas/ServiceRequestItem'
           readOnly: true
         patient_brief:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/PatientBriefCard'
           readOnly: true
       required:
       - amended_at
@@ -10126,6 +10572,26 @@ components:
         description:
           type: string
           maxLength: 200
+    ServiceRequestRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        kind:
+          type: string
+        status:
+          type: string
+        fulfillment_status:
+          type: string
+      required:
+      - fulfillment_status
+      - id
+      - kind
+      - number
+      - status
     ServiceRequestWrite:
       type: object
       properties:
@@ -10548,8 +11014,7 @@ components:
         items:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/TimelineItem'
         next_before:
           type: string
           format: date-time
@@ -10557,6 +11022,37 @@ components:
       required:
       - items
       - next_before
+    TimelineItem:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uuid
+        occurred_at:
+          type: string
+          format: date-time
+        title:
+          type: string
+        status:
+          type: string
+        author_name:
+          type: string
+        organization_name:
+          type: string
+          nullable: true
+        source:
+          type: string
+      required:
+      - author_name
+      - id
+      - occurred_at
+      - organization_name
+      - source
+      - status
+      - title
+      - type
     TimesOfDayEnum:
       enum:
       - morning

@@ -1,0 +1,11 @@
+{
+  "name": "hayat",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter @hayat/web dev",
+    "build:web": "pnpm --filter @hayat/web build",
+    "gen:api": "pnpm --filter @hayat/api-client generate",
+    "dev:mobile": "pnpm --filter @hayat/mobile start"
+  },
+  "packageManager": "pnpm@11.7.0"
+}
