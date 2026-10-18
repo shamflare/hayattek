@@ -156,7 +156,7 @@ function EncounterEditor({ encounter, onSaved }: { encounter: Encounter; onSaved
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-5">
+      <div className="min-w-0 space-y-5">
         <Card>
           <CardBody className="space-y-5">
             <ChoiceChips value={draft.encounter_type} onChange={(v) => { setDraft((d) => ({ ...d, encounter_type: v as Draft["encounter_type"] })); setDirty(true); }}

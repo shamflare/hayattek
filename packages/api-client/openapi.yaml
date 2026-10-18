@@ -4338,6 +4338,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/PatientDetail'
           description: ''
+  /api/v1/patients/{id}/account:
+    post:
+      operationId: patients_account_create
+      description: Give the patient an app account. The setup link is returned only
+        in development.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - patients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateAccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ActivateAccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ActivateAccountRequest'
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivated'
+          description: ''
   /api/v1/patients/{id}/card:
     get:
       operationId: patients_card_retrieve
@@ -4396,6 +4431,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthCard'
+          description: ''
+  /api/v1/patients/{id}/guardians:
+    post:
+      operationId: patients_guardians_create
+      description: Patient identity for facility staff. Clinical data lives under
+        /clinical/.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]{36}$
+        required: true
+      tags:
+      - patients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkGuardianRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LinkGuardianRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LinkGuardianRequest'
+        required: true
+      security:
+      - deviceToken: []
+      - sessionCookie: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guardian'
           description: ''
   /api/v1/patients/check-duplicates:
     post:
@@ -5289,6 +5360,25 @@ components:
         * `denied` - مرفوض
         * `expired` - منتهي
         * `cancelled` - ملغى
+    AccountActivated:
+      type: object
+      properties:
+        setup_link:
+          type: string
+      required:
+      - setup_link
+    ActivateAccountRequest:
+      type: object
+      properties:
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        phone:
+          type: string
+          maxLength: 20
     AdminStats:
       type: object
       properties:
@@ -5339,6 +5429,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -5597,6 +5688,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -5870,6 +5962,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -6147,6 +6240,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -6500,6 +6594,40 @@ components:
       - patient_name
       - practitioner_name
       - scopes
+    Guardian:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        guardian_name:
+          type: string
+          readOnly: true
+        patient:
+          allOf:
+          - $ref: '#/components/schemas/PatientList'
+          readOnly: true
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        can_view_records:
+          type: boolean
+        can_manage_sharing:
+          type: boolean
+        valid_until:
+          type: string
+          format: date
+          nullable: true
+          description: E.g. the child's 18th birthday.
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - guardian_name
+      - id
+      - patient
+      - relationship
     HealthCard:
       type: object
       properties:
@@ -6571,6 +6699,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -6969,6 +7098,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -7211,6 +7341,22 @@ components:
       required:
       - points
       - unit
+    LinkGuardianRequest:
+      type: object
+      properties:
+        guardian_health_number:
+          type: string
+          minLength: 1
+          maxLength: 20
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        valid_until:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - guardian_health_number
+      - relationship
     LoginRequest:
       type: object
       properties:
@@ -9634,6 +9780,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -10117,6 +10264,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true
@@ -10301,6 +10449,16 @@ components:
           maxLength: 200
       required:
       - reason
+    RelationshipEnum:
+      enum:
+      - parent
+      - legal_guardian
+      - caregiver
+      type: string
+      description: |-
+        * `parent` - أب/أم
+        * `legal_guardian` - وصي قانوني
+        * `caregiver` - مقدم رعاية مفوض
     ReorderRequest:
       type: object
       properties:
@@ -10466,6 +10624,7 @@ components:
         organization_name:
           type: string
           readOnly: true
+          nullable: true
         author_name:
           type: string
           readOnly: true

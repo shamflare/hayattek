@@ -107,7 +107,7 @@ export default function PatientHome() {
             </h2>
             <Link href="/app/me/sharing" className="text-sm font-medium text-brand-600 hover:underline">مركز المشاركة</Link>
           </div>
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className={pending.length > 1 ? "grid gap-3 lg:grid-cols-2" : "max-w-2xl"}>
             {pending.map((r) => <AccessRequestCard key={r.id} request={r} showPatient={patients.length > 1} />)}
           </div>
         </section>

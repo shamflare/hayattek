@@ -73,7 +73,7 @@ export function ResultWorkspace({
       params: { path: { id: reportId! } },
       body: { reason, changes } as never,
     }));
-    toast.success("حُفظ التصحيح وأُبلغ الطبيب والمريض بالنسخة الجديدة");
+    toast.success("حُفظ التصحيح، والنسخة المصححة هي المعتمدة الآن مع حفظ السابقة");
     setAmending(false);
     await queryClient.invalidateQueries({ queryKey: reportKey });
   };

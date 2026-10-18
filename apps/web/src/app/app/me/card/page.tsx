@@ -110,10 +110,10 @@ export default function HealthCardPage() {
           </div>
 
           <div className="mx-auto mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row">
-            <Button size="lg" className="flex-1" onClick={() => window.print()}>
+            <Button size="lg" className="w-full sm:w-auto sm:flex-1" onClick={() => window.print()}>
               <Printer className="size-5" /> طباعة البطاقة
             </Button>
-            <Button size="lg" variant="outline" className="flex-1" onClick={() => setLostOpen(true)}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto sm:flex-1" onClick={() => setLostOpen(true)}>
               <AlertTriangle className="size-5" /> الإبلاغ عن فقدان
             </Button>
           </div>
@@ -166,7 +166,7 @@ export default function HealthCardPage() {
             <div className="rounded-2xl bg-warning-soft p-4 text-sm leading-7 text-fg">
               <p>سيتوقف رمز البطاقة الحالية عن العمل <strong>فوراً</strong>، ويصدر رمز جديد تطبعه أو تعرضه من هاتفك.</p>
               <p className="mt-2">
-                <strong>رقمك الصحي لا يتغير</strong> (<span className="num">{patient.health_number}</span>)، ويبقى ملفك وسجلاتك كما هي.
+                <strong>رقمك الصحي لا يتغير</strong>: <span className="num font-semibold">{patient.health_number}</span>. ويبقى ملفك وسجلاتك كما هي.
               </p>
             </div>
             <Field label="ماذا حدث للبطاقة؟">

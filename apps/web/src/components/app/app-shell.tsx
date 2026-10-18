@@ -20,13 +20,13 @@ import { label } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 
 import { CommandPalette } from "./command-palette";
-import { adminNav, areaForPath, type NavItem, patientNav, staffNav } from "./nav";
+import { adminNav, type Area, areaForPath, type NavItem, patientNav, staffNav } from "./nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const session = useSession();
   const { me, membership, roles, isClinician } = session;
-  const area = areaForPath(pathname);
+  const area = useArea();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [paletteOpen, setPaletteOpen] = React.useState(false);
 
@@ -100,7 +100,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-col">
+      <div className="flex min-w-0 flex-col overflow-x-clip">
         <header className="no-print sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-bg/85 px-4 backdrop-blur-md lg:px-8">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="القائمة">
             <Menu className="size-5" />
@@ -111,7 +111,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="flex h-10 w-full max-w-md items-center gap-2 rounded-xl border border-line bg-elevated px-3 text-sm text-subtle transition-colors hover:border-brand-300"
             >
               <Search className="size-4" />
-              <span className="flex-1 text-start">ابحث عن مريض بالاسم أو الرقم الصحي أو الهاتف…</span>
+              <span className="flex-1 truncate text-start"><span className="sm:hidden">بحث عن مريض…</span><span className="hidden sm:inline">ابحث عن مريض بالاسم أو الرقم الصحي أو الهاتف…</span></span>
               <span className="hidden sm:inline"><Kbd>Ctrl K</Kbd></span>
             </button>
           ) : (
@@ -143,6 +143,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Current area; shared pages (notifications, settings) follow the user's only area when
+ *  they have no staff membership. */
+function useArea(): Area {
+  const pathname = usePathname();
+  const { me } = useSession();
+  const pathArea = areaForPath(pathname);
+  if (pathArea === "staff" && me && me.memberships.length === 0) {
+    return me.is_platform_admin && !me.patient ? "admin" : "patient";
+  }
+  return pathArea;
+}
+
 function MobileTabBar({ items, isActive }: { items: NavItem[]; isActive: (h: string) => boolean }) {
   if (items.length < 2) return null;
   return (
@@ -164,8 +176,7 @@ function MobileTabBar({ items, isActive }: { items: NavItem[]; isActive: (h: str
 function ContextSwitcher() {
   const { me, membership, switchMembership } = useSession();
   const router = useRouter();
-  const pathname = usePathname();
-  const area = areaForPath(pathname);
+  const area = useArea();
   if (!me) return null;
   const hasPatientArea = Boolean(me.patient) || me.wards.length > 0;
   const options = me.memberships.length + (hasPatientArea ? 1 : 0) + (me.is_platform_admin ? 1 : 0);

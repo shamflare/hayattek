@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   CheckCircle2, ClipboardList, FileUp, FlaskConical, IdCard, Image as ImageIcon, MoreHorizontal,
-  Phone, Plus, Printer, Send, ShieldCheck, Stethoscope,
+  Phone, Plus, Printer, Send, ShieldCheck, Smartphone, Stethoscope, Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -12,6 +12,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { AccessRequestCard } from "@/components/clinical/access-panel";
+import { ActivateAccountDialog, LinkGuardianDialog } from "@/components/clinical/account-dialogs";
 import { usePatient, useSummary } from "@/components/clinical/queries";
 import { OrderDialog, ReferralDialog, UploadDialog } from "@/components/clinical/quick-dialogs";
 import { SummaryPanel } from "@/components/clinical/summary-panel";
@@ -23,7 +24,7 @@ import { ageLabel, formatDate, formatPhone, sexLabel } from "@/lib/format";
 import { label } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 
-type DialogKind = "lab" | "imaging" | "upload" | "referral" | null;
+type DialogKind = "lab" | "imaging" | "upload" | "referral" | "account" | "guardian" | null;
 
 function ChartInner() {
   const { id } = useParams<{ id: string }>();
@@ -111,6 +112,12 @@ function ChartInner() {
                   {access?.registered && (
                     <MenuItem icon={Printer} onSelect={() => window.open(`/print/card/${patient.id}`, "_blank")}>طباعة البطاقة الصحية</MenuItem>
                   )}
+                  {access?.registered && has("receptionist", "physician", "nurse") && (
+                    <>
+                      {!patient.has_account && <MenuItem icon={Smartphone} onSelect={() => setDialog("account")}>تفعيل حساب في التطبيق</MenuItem>}
+                      <MenuItem icon={Users} onSelect={() => setDialog("guardian")}>ربط وصي</MenuItem>
+                    </>
+                  )}
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
@@ -124,10 +131,10 @@ function ChartInner() {
 
       {canSeeClinical && access?.can_view_clinical ? (
         <div className="grid items-start gap-5 lg:grid-cols-[1fr_340px]">
-          <div className="order-2 lg:order-1">
+          <div className="order-2 min-w-0 lg:order-1">
             <Timeline patientId={patient.id} />
           </div>
-          <aside className="order-1 lg:sticky lg:top-20 lg:order-2">
+          <aside className="order-1 min-w-0 lg:sticky lg:top-20 lg:order-2">
             <SummaryPanel patientId={patient.id} summary={summary.data} loading={summary.isLoading} canAuthor={isClinician && canAuthor} />
           </aside>
         </div>
@@ -149,6 +156,8 @@ function ChartInner() {
       <OrderDialog kind="lab" open={dialog === "lab"} onOpenChange={(o) => setDialog(o ? "lab" : null)} patientId={patient.id} />
       <OrderDialog kind="imaging" open={dialog === "imaging"} onOpenChange={(o) => setDialog(o ? "imaging" : null)} patientId={patient.id} />
       <UploadDialog open={dialog === "upload"} onOpenChange={(o) => setDialog(o ? "upload" : null)} patientId={patient.id} />
+      <ActivateAccountDialog open={dialog === "account"} onOpenChange={(o) => setDialog(o ? "account" : null)} patientId={patient.id} phone={patient.phone} />
+      <LinkGuardianDialog open={dialog === "guardian"} onOpenChange={(o) => setDialog(o ? "guardian" : null)} patientId={patient.id} />
       <ReferralDialog open={dialog === "referral"} onOpenChange={(o) => setDialog(o ? "referral" : null)} patientId={patient.id} />
       {isClinician && canAuthor && (
         <Button size="lg" className="fixed bottom-20 end-4 z-20 size-14 rounded-full p-0 shadow-float lg:hidden" aria-label="زيارة جديدة"

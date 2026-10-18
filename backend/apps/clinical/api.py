@@ -36,7 +36,7 @@ class RecordMetaSerializer(serializers.ModelSerializer):
     """Provenance fields every clinical record exposes."""
 
     organization_name = serializers.CharField(source="organization.name", read_only=True,
-                                              default=None)
+                                              default=None, allow_null=True)
     author_name = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
     can_amend = serializers.SerializerMethodField()
@@ -75,8 +75,9 @@ class RecordSchema(AutoSchema):
     """Write actions accept the write serializer but respond with the read serializer."""
 
     def get_response_serializers(self):
-        if self.method.lower() != "get" and getattr(self.view, "read_serializer_class", None)                 and self.view.action not in ("versions",):
-            return self.view.read_serializer_class
+        read = getattr(self.view, "read_serializer_class", None)
+        if self.method.lower() != "get" and read and self.view.action != "versions":
+            return read
         return super().get_response_serializers()
 
 

@@ -74,7 +74,7 @@ export function PrescriptionForm({ patientId, encounterId, prescription }: {
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         <MedicationPicker onPick={addMed} onApplyTemplate={applyTemplate} />
         {items.length ? items.map((item, index) => (
           <ItemCard key={item.key} item={item} index={index}

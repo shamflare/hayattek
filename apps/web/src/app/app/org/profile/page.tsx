@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, EyeOff, Layers, Lock, Plus, Printer, Trash2 } from "lucide-react";
+import { Building2, EyeOff, HeartPulse, Layers, Lock, Plus, Printer, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -10,7 +10,6 @@ import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { Field, Input, Select } from "@/components/ui/field";
-import { LogoMark } from "@/components/ui/logo";
 import { Card, CardBody, CardHeader, EmptyState, ErrorState, Skeleton, SkeletonList } from "@/components/ui/surface";
 import { api, errorMessage, type Schemas, unwrap } from "@/lib/api";
 import { formatDate, formatPhone } from "@/lib/format";
@@ -50,6 +49,7 @@ export default function OrgProfilePage() {
     onError: (err) => toast.error(errorMessage(err)),
   });
 
+  if (!membership) return <SkeletonList rows={5} />;
   if (!isAdmin) {
     return (
       <>
@@ -131,7 +131,7 @@ function ProfileEditor({ profile: p, saving, onSave }: { profile: Profile; savin
                       <Input id="pf-email" dir="ltr" type="email" value={form.email} onChange={set("email")} />
                     </Field>
                     <Field label="تذييل الطباعة" optional htmlFor="pf-footer" className="sm:col-span-2"
-                      hint={<>يظهر أسفل كل وصفة مطبوعة. <span className="num">{form.print_footer.length}</span>/300</>}>
+                      hint={<>يظهر أسفل كل وصفة مطبوعة. <span className="num">{`${form.print_footer.length}/300`}</span></>}>
                       <Input id="pf-footer" maxLength={300} value={form.print_footer} onChange={set("print_footer")}
                         placeholder="مثال: أوقات الدوام من 9 صباحاً حتى 5 مساءً" />
                     </Field>
@@ -182,7 +182,7 @@ function PrescriptionPreview({ form }: { form: Form }) {
               )}
             </div>
           </div>
-          <LogoMark className="size-10 shrink-0" />
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white"><HeartPulse className="size-5" /></span>
         </div>
         <div className="mt-4 flex items-end justify-between gap-2 text-xs">
           <div>

@@ -17,3 +17,11 @@ MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", *MIDDLEWARE]  # noqa: F40
 CORS_ALLOWED_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"]
 CORS_ALLOW_CREDENTIALS = False  # the mobile client authenticates with a Token header, not cookies
 CORS_ALLOW_HEADERS = (*default_headers, "x-hayat-membership")
+
+# Many local tools (E2E, screenshots) log in from one IP; production keeps 5/min.
+from .base import REST_FRAMEWORK  # noqa: E402
+
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,
+    "DEFAULT_THROTTLE_RATES": {**REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"], "login": "60/min"},
+}

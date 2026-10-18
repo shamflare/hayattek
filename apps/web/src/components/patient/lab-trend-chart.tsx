@@ -105,7 +105,12 @@ function SingleSeries({ series, testName }: { series: Series; testName: string }
     return { x0, x1, top, bottom, key: i };
   });
 
-  const ticks = [min + (max - min) * 0.15, (min + max) / 2, max - (max - min) * 0.15];
+  // Label the latest reference limits when the lab gave them; otherwise three even ticks.
+  const last = points[points.length - 1];
+  const refTicks = [num(last.reference_low), num(last.reference_high)].filter((v): v is number => v !== null);
+  const ticks = refTicks.length
+    ? refTicks
+    : [min + (max - min) * 0.15, (min + max) / 2, max - (max - min) * 0.15];
   const path = points.map((_, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(values[i]).toFixed(1)}`).join(" ");
   const current: Point | undefined = points[active];
 

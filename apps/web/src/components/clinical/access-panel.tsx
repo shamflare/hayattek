@@ -21,6 +21,17 @@ export function AccessRequestCard({ patientId, hasPhone, hasAccount, registered 
   patientId: string; hasPhone: boolean; hasAccount: boolean; registered: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
+  if (registered) {
+    // Own chart is available: a slim hint is enough.
+    return (
+      <div className="flex items-center gap-3 rounded-2xl border border-line bg-elevated px-4 py-2.5 text-sm">
+        <Lock className="size-4 shrink-0 text-subtle" />
+        <span className="flex-1 text-muted">سجلات المنشآت الأخرى تظهر بموافقة المريض.</span>
+        <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>طلب موافقة</Button>
+        <AccessDialog open={open} onOpenChange={setOpen} patientId={patientId} hasPhone={hasPhone} hasAccount={hasAccount} />
+      </div>
+    );
+  }
   return (
     <Card className="flex flex-col items-start gap-4 border-brand-200 bg-brand-50/60 p-5 sm:flex-row sm:items-center">
       <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-elevated text-brand-600 shadow-soft"><Lock className="size-6" /></div>

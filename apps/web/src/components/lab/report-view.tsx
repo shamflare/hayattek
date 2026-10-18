@@ -68,10 +68,12 @@ export function LabReportView({ report, onAmend }: { report: LabReport; onAmend?
                   <tr key={o.id} className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-5 py-3 last:border-0 sm:table-row sm:p-0", flagged && "bg-warning-soft/50")}>
                     <td className="w-full font-medium sm:w-auto sm:px-5 sm:py-3">{o.name}</td>
                     <td className="sm:px-3 sm:py-3">
-                      <span className={cn("num font-semibold", flagged && "text-warning")}>
-                        {o.value_numeric != null ? trimDecimal(o.value_numeric) : o.value_text}
+                      <span className="num">
+                        <span className={cn("font-semibold", flagged && "text-warning")}>
+                          {o.value_numeric != null ? trimDecimal(o.value_numeric) : o.value_text}
+                        </span>
+                        {o.unit && <span className="text-xs text-muted"> {o.unit}</span>}
                       </span>
-                      {o.unit && <span className="num ms-1 text-xs text-muted">{o.unit}</span>}
                     </td>
                     <td className="text-xs text-muted sm:px-3 sm:py-3"><span className="num">{ref}</span></td>
                     <td className="ms-auto sm:ms-0 sm:px-5 sm:py-3"><InterpretationBadge value={o.interpretation || null} /></td>

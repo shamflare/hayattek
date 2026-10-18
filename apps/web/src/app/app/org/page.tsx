@@ -50,6 +50,7 @@ export default function OrgTeamPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["org", "members"] }),
   });
 
+  if (!membership) return <SkeletonList rows={5} />;
   if (!isAdmin) {
     return (
       <>

@@ -112,11 +112,11 @@ export function AccessRequestCard({ request, showPatient }: { request: AccessReq
       </div>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <Button size="lg" className="flex-1" disabled={scopes.length === 0}
+        <Button size="lg" className="w-full sm:w-auto sm:flex-1" disabled={scopes.length === 0}
           loading={decide.isPending && decide.variables === true} onClick={() => decide.mutate(true)}>
           <Check className="size-5" /> موافقة
         </Button>
-        <Button size="lg" variant="outline" className="flex-1" onClick={() => setConfirmDeny(true)}>
+        <Button size="lg" variant="outline" className="w-full sm:w-auto sm:flex-1" onClick={() => setConfirmDeny(true)}>
           <X className="size-5" /> رفض
         </Button>
       </div>

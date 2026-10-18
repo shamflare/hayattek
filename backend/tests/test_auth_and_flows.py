@@ -251,3 +251,32 @@ def test_search_by_name_number_and_phone(reception, make_patient):
     for q in ("ريم", "اختبار42", p.health_number[:6], "0944123456", "٠٩٤٤١٢٣٤٥٦"):
         ids = [r["id"] for r in reception.get("/api/v1/patients", data={"q": q}).data["results"]]
         assert str(p.pk) in [str(i) for i in ids], q
+
+
+def test_reception_activates_patient_account_and_links_guardian(reception, other_doctor,
+                                                                make_patient):
+    from apps.patients.models import PatientGuardian
+
+    parent = make_patient(reception, first_name="أب", phone="0933111222")
+    child = make_patient(reception, first_name="طفل", phone="", birth_date="2020-05-01")
+    ConsoleSmsProvider.sent.clear()
+    r = reception.post(f"/api/v1/patients/{parent['id']}/account", {})
+    assert r.status_code == 201
+    assert ConsoleSmsProvider.sent and "/reset-password?" in ConsoleSmsProvider.sent[-1][1]
+    parent_obj = Patient.objects.get(pk=parent["id"])
+    assert parent_obj.user is not None and not parent_obj.user.has_usable_password()
+    # Second activation is refused.
+    assert reception.post(f"/api/v1/patients/{parent['id']}/account", {}).status_code == 409
+    # A facility where the patient is not registered cannot do it.
+    assert other_doctor.post(f"/api/v1/patients/{parent['id']}/account", {}).status_code in (403, 404)
+
+    r = reception.post(f"/api/v1/patients/{child['id']}/guardians", {
+        "guardian_health_number": parent_obj.health_number, "relationship": "parent"})
+    assert r.status_code == 201, r.data
+    g = PatientGuardian.objects.get(patient_id=child["id"])
+    assert str(g.valid_until) == "2038-05-01"
+    # The parent now sees the child's file from their own account.
+    me = Actor(parent_obj.user)
+    assert me.get(f"/api/v1/me/patients/{child['id']}").status_code == 200
+    wards = me.get("/api/v1/auth/me").data["wards"]
+    assert [w["id"] for w in wards] == [child["id"]] or [str(w["id"]) for w in wards] == [child["id"]]

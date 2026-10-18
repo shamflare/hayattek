@@ -14,7 +14,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { PatientBriefCard, PriorityBadge, requestItemLabel, type ServiceRequest } from "@/components/lab/shared";
 import { Button } from "@/components/ui/button";
 import { FulfillmentBadge } from "@/components/ui/status";
-import { Badge, Card, EmptyState, ErrorState, Skeleton } from "@/components/ui/surface";
+import { Badge, Card, EmptyState, ErrorState, Skeleton, SkeletonList } from "@/components/ui/surface";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, errorMessage, unwrap } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -70,6 +70,7 @@ export default function LabInboxPage() {
     onError: (err) => toast.error(errorMessage(err)),
   });
 
+  if (!membership) return <SkeletonList rows={5} />;
   if (!allowed) {
     return (
       <>

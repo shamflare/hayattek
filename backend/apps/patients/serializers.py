@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
+    GuardianRelationship,
     HealthCard,
     Patient,
     PatientGuardian,
@@ -128,3 +129,14 @@ class GuardianSerializer(serializers.ModelSerializer):
         model = PatientGuardian
         fields = ("id", "guardian_name", "patient", "relationship", "can_view_records",
                   "can_manage_sharing", "valid_until", "revoked_at")
+
+
+class ActivateAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=False, allow_blank=True)
+    phone = serializers.CharField(max_length=20, required=False, allow_blank=True)
+
+
+class LinkGuardianSerializer(serializers.Serializer):
+    guardian_health_number = serializers.CharField(max_length=20)
+    relationship = serializers.ChoiceField(choices=GuardianRelationship.choices)
+    valid_until = serializers.DateField(required=False, allow_null=True)

@@ -20,10 +20,13 @@ from apps.core.exceptions import DomainError
 from . import services
 from .models import CardStatus, HealthCard, Patient
 from .serializers import (
+    ActivateAccountSerializer,
     DuplicateCheckResponseSerializer,
     DuplicateCheckSerializer,
+    GuardianSerializer,
     HealthCardSerializer,
     IdentifySerializer,
+    LinkGuardianSerializer,
     PatientCreateSerializer,
     PatientDetailSerializer,
     PatientListSerializer,
@@ -226,6 +229,41 @@ class PatientViewSet(viewsets.GenericViewSet):
         card = services.issue_card(patient, issued_by=request.user,
                                    reason=data.validated_data["reason"], request=request, ctx=ctx)
         return Response(HealthCardSerializer(card).data, status=status.HTTP_201_CREATED)
+
+
+    def _require_registered_desk(self, pk):
+        ctx = require_practice_context(self.request)
+        if not ctx.can_manage_patients or not policy.is_registered(ctx, pk):
+            raise DomainError(_("هذه العملية متاحة للمنشأة المسجل فيها المريض."), code="forbidden",
+                              status_code=403)
+        return ctx
+
+    @extend_schema(request=ActivateAccountSerializer, responses={201: inline_serializer(
+        "AccountActivated", {"setup_link": serializers.CharField(allow_blank=True)})})
+    @action(detail=True, methods=["post"])
+    def account(self, request, pk=None):
+        """Give the patient an app account. The setup link is returned only in development."""
+        from django.conf import settings as dj_settings
+
+        ctx = self._require_registered_desk(pk)
+        patient = self._get_patient(pk)
+        data = ActivateAccountSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        _user, link = services.activate_account(ctx=ctx, patient=patient, request=request,
+                                                **data.validated_data)
+        return Response({"setup_link": link if dj_settings.DEBUG else ""},
+                        status=status.HTTP_201_CREATED)
+
+    @extend_schema(request=LinkGuardianSerializer, responses={201: GuardianSerializer})
+    @action(detail=True, methods=["post"])
+    def guardians(self, request, pk=None):
+        ctx = self._require_registered_desk(pk)
+        patient = self._get_patient(pk)
+        data = LinkGuardianSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        guardianship = services.link_guardian(ctx=ctx, patient=patient, request=request,
+                                              **data.validated_data)
+        return Response(GuardianSerializer(guardianship).data, status=status.HTTP_201_CREATED)
 
 
 class PublicCardView(APIView):

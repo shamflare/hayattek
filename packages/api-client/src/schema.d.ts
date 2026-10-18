@@ -1893,6 +1893,23 @@ export interface paths {
         patch: operations["patients_partial_update"];
         trace?: never;
     };
+    "/api/v1/patients/{id}/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Give the patient an app account. The setup link is returned only in development. */
+        post: operations["patients_account_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/{id}/card": {
         parameters: {
             query?: never;
@@ -1905,6 +1922,23 @@ export interface paths {
         put?: never;
         /** @description Patient identity for facility staff. Clinical data lives under /clinical/. */
         post: operations["patients_card_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patients/{id}/guardians": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Patient identity for facility staff. Clinical data lives under /clinical/. */
+        post: operations["patients_guardians_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2349,6 +2383,13 @@ export interface components {
          * @enum {string}
          */
         AccessStatusEnum: "pending" | "approved" | "denied" | "expired" | "cancelled";
+        AccountActivated: {
+            setup_link: string;
+        };
+        ActivateAccountRequest: {
+            email?: string;
+            phone?: string;
+        };
         AdminStats: {
             organizations_by_kind: {
                 [key: string]: number;
@@ -2369,7 +2410,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -2483,7 +2524,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -2586,7 +2627,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -2692,7 +2733,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -2833,6 +2874,22 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        Guardian: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly guardian_name: string;
+            readonly patient: components["schemas"]["PatientList"];
+            relationship: components["schemas"]["RelationshipEnum"];
+            can_view_records?: boolean;
+            can_manage_sharing?: boolean;
+            /**
+             * Format: date
+             * @description E.g. the child's 18th birthday.
+             */
+            valid_until?: string | null;
+            /** Format: date-time */
+            revoked_at?: string | null;
+        };
         HealthCard: {
             /** Format: uuid */
             readonly id: string;
@@ -2865,7 +2922,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -3008,7 +3065,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -3090,6 +3147,12 @@ export interface components {
         LabTrendSeries: {
             unit: string;
             points: components["schemas"]["LabTrendPoint"][];
+        };
+        LinkGuardianRequest: {
+            guardian_health_number: string;
+            relationship: components["schemas"]["RelationshipEnum"];
+            /** Format: date */
+            valid_until?: string | null;
         };
         LoginRequest: {
             /** @description Email or phone number */
@@ -4219,7 +4282,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -4391,7 +4454,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -4449,6 +4512,13 @@ export interface components {
         ReissueCardRequest: {
             reason: string;
         };
+        /**
+         * @description * `parent` - أب/أم
+         *     * `legal_guardian` - وصي قانوني
+         *     * `caregiver` - مقدم رعاية مفوض
+         * @enum {string}
+         */
+        RelationshipEnum: "parent" | "legal_guardian" | "caregiver";
         ReorderRequest: {
             ids: string[];
         };
@@ -4537,7 +4607,7 @@ export interface components {
             readonly patient: string;
             /** Format: uuid */
             readonly organization: string | null;
-            readonly organization_name: string;
+            readonly organization_name: string | null;
             readonly author_name: string;
             readonly author_role: string;
             readonly status: components["schemas"]["Status53dEnum"];
@@ -8563,6 +8633,33 @@ export interface operations {
             };
         };
     };
+    patients_account_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ActivateAccountRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ActivateAccountRequest"];
+                "multipart/form-data": components["schemas"]["ActivateAccountRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountActivated"];
+                };
+            };
+        };
+    };
     patients_card_retrieve: {
         parameters: {
             query?: never;
@@ -8607,6 +8704,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthCard"];
+                };
+            };
+        };
+    };
+    patients_guardians_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LinkGuardianRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LinkGuardianRequest"];
+                "multipart/form-data": components["schemas"]["LinkGuardianRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Guardian"];
                 };
             };
         };

@@ -171,3 +171,69 @@ def duplicate_candidates(*, ctx, first_name: str, family_name: str = "", father_
             .exists()
         )
     return {"candidates": candidates, "network_match_hint": network_hint}
+
+
+@transaction.atomic
+def activate_account(*, ctx, patient: Patient, email: str = "", phone: str = "",
+                     request=None) -> tuple[object, str]:
+    """Create (or link) the patient's login. The patient sets their own password through a
+    one-time link sent by email/SMS; staff never choose or see a password."""
+    from apps.accounts.models import User
+    from apps.accounts.views import build_reset_link, send_reset_link
+    from apps.notifications.sms import get_sms_provider
+
+    if patient.user_id:
+        raise DomainError(_("للمريض حساب مفعل مسبقاً."), code="already_active", status_code=409)
+    email = (email or "").strip().lower()
+    phone = normalize_syrian_phone(phone or patient.phone)
+    if not email and not phone:
+        raise DomainError(_("أدخل بريداً إلكترونياً أو رقم هاتف للمريض."), code="identifier_required")
+    user = None
+    if email:
+        user = User.objects.filter(email__iexact=email).first()
+    if user is None and phone:
+        user = User.objects.filter(phone=phone).first()
+    if user is not None and hasattr(user, "patient_profile"):
+        raise DomainError(_("هذا البريد أو الهاتف مرتبط بملف مريض آخر."), code="identifier_in_use",
+                          status_code=409)
+    if user is None:
+        user = User.objects.create_user(email=email or None, phone=phone or None,
+                                        full_name=patient.full_name)
+    patient.user = user
+    patient.save(update_fields=["user", "updated_at"])
+    link = build_reset_link(user)
+    if user.email:
+        send_reset_link(user)
+    elif user.phone:
+        get_sms_provider().send(user.phone, _("حياة: لتفعيل حسابك وتعيين كلمة المرور افتح: %(l)s")
+                                % {"l": link})
+    audit.record(audit.Action.PATIENT_UPDATE, request=request, ctx=ctx, target=patient,
+                 metadata={"op": "account_activated"})
+    return user, link
+
+
+@transaction.atomic
+def link_guardian(*, ctx, patient: Patient, guardian_health_number: str, relationship: str,
+                  valid_until=None, request=None):
+    """Verified in person at the facility: the guardian's own patient file (with an app
+    account) is linked to the ward. Valid until the given date (e.g. the 18th birthday)."""
+    from .models import PatientGuardian
+
+    guardian_patient = find_by_health_number(guardian_health_number)
+    if guardian_patient is None or guardian_patient.pk == patient.pk:
+        raise DomainError(_("لم يتم العثور على ملف الوصي بهذا الرقم."), code="guardian_not_found",
+                          status_code=404)
+    if not guardian_patient.user_id:
+        raise DomainError(_("يجب تفعيل حساب للوصي في التطبيق أولاً."), code="guardian_no_account")
+    if valid_until is None and patient.birth_date and patient.is_minor():
+        b = patient.birth_date
+        valid_until = b.replace(year=b.year + 18) if not (b.month == 2 and b.day == 29) \
+            else b.replace(year=b.year + 18, day=28)
+    guardianship, _created = PatientGuardian.objects.update_or_create(
+        guardian=guardian_patient.user, patient=patient,
+        defaults={"relationship": relationship, "valid_until": valid_until,
+                  "verified_by": ctx.user, "revoked_at": None},
+    )
+    audit.record(audit.Action.PATIENT_UPDATE, request=request, ctx=ctx, target=patient,
+                 metadata={"op": "guardian_linked", "relationship": relationship})
+    return guardianship

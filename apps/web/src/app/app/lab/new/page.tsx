@@ -10,7 +10,7 @@ import { ResultWorkspace } from "@/components/lab/result-workspace";
 import { type PatientIdentity, PatientBriefCard } from "@/components/lab/shared";
 import { Button } from "@/components/ui/button";
 import { ChoiceChips, Field, Input } from "@/components/ui/field";
-import { Card, CardBody, CardHeader, EmptyState } from "@/components/ui/surface";
+import { Card, CardBody, CardHeader, EmptyState, SkeletonList } from "@/components/ui/surface";
 import { api, errorMessage, type Schemas, unwrap } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
@@ -24,10 +24,13 @@ export default function WalkInResultPage() {
   const [identified, setIdentified] = React.useState<Identified | null>(null);
   const [busy, setBusy] = React.useState<"identify" | "register" | null>(null);
   const [error, setError] = React.useState<string | null>(null);
-  const [kind, setKind] = React.useState<"lab" | "imaging">(canLab ? "lab" : "imaging");
+  const [chosenKind, setKind] = React.useState<"lab" | "imaging">("lab");
+  // Roles arrive after the session loads, so derive instead of fixing the initial value.
+  const kind: "lab" | "imaging" = canLab && canImaging ? chosenKind : canLab ? "lab" : "imaging";
   const [done, setDone] = React.useState(false);
   const [round, setRound] = React.useState(0);
 
+  if (!membership) return <SkeletonList rows={5} />;
   if (!canLab && !canImaging) {
     return (
       <>
