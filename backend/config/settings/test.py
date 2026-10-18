@@ -24,3 +24,8 @@ REST_FRAMEWORK = {
         "public_verify": "1000/min",
     },
 }
+
+# Parallel test runs (several developers/agents on one machine) each get their own DB.
+from .base import env  # noqa: E402
+
+DATABASES["default"]["TEST"] = {"NAME": f"test_hayat_{env('HAYAT_TEST_DB', default='main')}"}  # noqa: F405
