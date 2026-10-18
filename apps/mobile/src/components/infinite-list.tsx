@@ -2,6 +2,7 @@ import { type ReactElement, type ReactNode } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
 import type { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 
+import { OfflineBanner } from "@/components/offline-banner";
 import { RowSeparator } from "@/components/records";
 import { AppText, Card, EmptyState, ErrorState, SkeletonList } from "@/components/ui";
 import { ar } from "@/i18n/ar";
@@ -23,12 +24,21 @@ export function InfiniteList<P, T>({
 }) {
   const t = useTheme();
   const wrap = { padding: space.lg, width: "100%" as const, maxWidth: 720, alignSelf: "center" as const };
-  if (query.isPending) return <View style={wrap}>{header}<SkeletonList rows={5} /></View>;
-  if (query.isError) return <View style={wrap}>{header}<Card><ErrorState message={errorMessage(query.error)} onRetry={() => query.refetch()} /></Card></View>;
+  if (query.isPending) {
+    return (
+      <View style={{ flex: 1 }}>
+        <OfflineBanner />
+        <View style={wrap}>{header}{query.fetchStatus === "paused" ? <Card><EmptyState title={ar.offline.actionDisabled} /></Card> : <SkeletonList rows={5} />}</View>
+      </View>
+    );
+  }
+  if (query.isError) return <View style={{ flex: 1 }}><OfflineBanner /><View style={wrap}>{header}<Card><ErrorState message={errorMessage(query.error)} onRetry={() => query.refetch()} /></Card></View></View>;
 
   const items = query.data.pages.flatMap(select);
   const last = items.length - 1;
   return (
+    <View style={{ flex: 1 }}>
+    <OfflineBanner />
     <FlatList
       testID={testID}
       style={{ flex: 1, backgroundColor: t.bg }}
@@ -61,5 +71,6 @@ export function InfiniteList<P, T>({
         items.length > 0 && !query.hasNextPage ? <AppText variant="caption" tone="subtle" center style={{ marginTop: space.lg }}>{ar.common.noMore}</AppText> : undefined
       }
     />
+    </View>
   );
 }

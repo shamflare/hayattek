@@ -16,6 +16,7 @@ import {
 import { ar } from "@/i18n/ar";
 import { isApiError } from "@/lib/api";
 import { ClinicianProvider } from "@/lib/clinician";
+import { wireOnlineManager } from "@/lib/network";
 import { SessionProvider, useSession } from "@/lib/session";
 import { fonts, useTheme } from "@/theme";
 
@@ -30,6 +31,8 @@ if (Platform.OS !== "web") {
 }
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+// Queries pause while offline (cached data stays visible) and resume on reconnect.
+wireOnlineManager();
 
 function makeQueryClient() {
   return new QueryClient({
@@ -103,11 +106,14 @@ function RootNavigator({ ready }: { ready: boolean }) {
           <Stack.Screen name="labs" options={{ title: ar.lists.labs }} />
           <Stack.Screen name="documents" options={{ title: ar.lists.documents }} />
           <Stack.Screen name="notifications" options={{ title: ar.notifications.title }} />
+          <Stack.Screen name="wallet" options={{ title: ar.wallet.title }} />
           <Stack.Protected guard={mode === "clinician"}>
             <Stack.Screen name="clinician/index" options={{ title: ar.clinician.title }} />
             <Stack.Screen name="clinician/patient" options={{ title: ar.clinician.patient }} />
             <Stack.Screen name="clinician/visit" options={{ title: ar.clinician.visitTitle }} />
             <Stack.Screen name="clinician/prescribe" options={{ title: ar.clinician.rxTitle }} />
+            <Stack.Screen name="clinician/scribe" options={{ title: ar.scribe.title }} />
+            <Stack.Screen name="clinician/scribe-review" options={{ title: ar.scribe.reviewTitle }} />
           </Stack.Protected>
         </Stack.Protected>
       </Stack>

@@ -3,15 +3,18 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HeartPulse, Lock, ShieldCheck } from "lucide-react-native";
 
+import { OfflineBanner } from "@/components/offline-banner";
 import { AppText, Button, Notice, Row, TextField } from "@/components/ui";
 import { ar } from "@/i18n/ar";
 import { errorMessage, isApiError } from "@/lib/api";
+import { useIsOffline } from "@/lib/network";
 import { useSession } from "@/lib/session";
 import { tokenIsPersistent } from "@/lib/token-store";
 import { radius, space, useTheme } from "@/theme";
 
 export default function LoginScreen() {
   const t = useTheme();
+  const offline = useIsOffline();
   const { login } = useSession();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +53,7 @@ export default function LoginScreen() {
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          {offline ? <SafeAreaView edges={["top"]} style={{ backgroundColor: t.warningSoft }}><OfflineBanner /></SafeAreaView> : null}
           <View style={{ backgroundColor: t.cardHero, paddingBottom: 56, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
             <SafeAreaView edges={["top"]}>
               <View style={{ alignItems: "center", paddingTop: space.xxl, gap: space.sm }}>
@@ -92,7 +96,7 @@ export default function LoginScreen() {
                   returnKeyType="go"
                   onSubmitEditing={submit}
                 />
-                <Button testID="login-submit" title={busy ? ar.auth.loggingIn : ar.auth.login} onPress={submit} loading={busy} />
+                <Button testID="login-submit" title={busy ? ar.auth.loggingIn : ar.auth.login} onPress={submit} loading={busy} disabled={offline} />
               </>
             ) : (
               <>

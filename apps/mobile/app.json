@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.hayattek.app",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "يستخدم تطبيق حياة الميكروفون لتسجيل الزيارة الطبية في HayatTek AI فقط بعد ضغط الطبيب على «بدء» وبموافقة المريض. لا يُسجَّل أي صوت في الخلفية.",
+        "NSCameraUsageDescription": "يحتاج تطبيق حياة إلى الكاميرا لمسح رمز البطاقة الصحية."
+      }
     },
     "android": {
       "package": "com.hayattek.app",
@@ -19,7 +23,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "single",
@@ -51,7 +59,17 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "يستخدم تطبيق حياة الميكروفون لتسجيل الزيارة الطبية في HayatTek AI فقط بعد ضغط الطبيب على «بدء» وبموافقة المريض. لا يُسجَّل أي صوت في الخلفية.",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

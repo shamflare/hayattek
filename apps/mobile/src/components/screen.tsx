@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { RefreshControl, ScrollView, View, type StyleProp, type ViewStyle } from "react-native";
 
+import { OfflineBanner } from "@/components/offline-banner";
 import { space, useTheme } from "@/theme";
 
 /** Scrollable screen body with pull-to-refresh and a centred max width on tablets/web. */
@@ -15,6 +16,8 @@ export function Screen({
 }) {
   const t = useTheme();
   return (
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
+    <OfflineBanner />
     <ScrollView
       testID={testID}
       style={{ flex: 1, backgroundColor: t.bg }}
@@ -26,5 +29,6 @@ export function Screen({
     >
       <View style={[{ padding: space.lg, width: "100%", maxWidth: 720, alignSelf: "center" }, contentStyle]}>{children}</View>
     </ScrollView>
+    </View>
   );
 }

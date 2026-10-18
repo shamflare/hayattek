@@ -1,5 +1,6 @@
 import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
 
+import { OfflineBanner } from "@/components/offline-banner";
 import { RowSeparator, TimelineRow } from "@/components/records";
 import { AppText, Card, EmptyState, ErrorState, SkeletonList } from "@/components/ui";
 import { ar } from "@/i18n/ar";
@@ -21,6 +22,8 @@ export default function TimelineScreen() {
   if (q.isError) return <View style={wrap}><Card><ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} /></Card></View>;
 
   return (
+    <View style={{ flex: 1 }}>
+    <OfflineBanner />
     <FlatList
       testID="timeline-list"
       style={{ flex: 1, backgroundColor: t.bg }}
@@ -61,5 +64,6 @@ export default function TimelineScreen() {
         ) : undefined
       }
     />
+    </View>
   );
 }

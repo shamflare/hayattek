@@ -168,6 +168,7 @@ export function Button({
       testID={testID}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
+      disabled={!!isDisabled}
       onPress={isDisabled ? undefined : onPress}
       style={({ pressed }) => [
         {

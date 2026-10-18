@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import Constants from "expo-constants";
-import { Bell, Check, FileText, FlaskConical, LogOut, Pill, ScanLine, Stethoscope, UserRound, Users } from "lucide-react-native";
+import { Bell, Check, FileText, FlaskConical, LogOut, Pill, ScanLine, Stethoscope, UserRound, Users, Wallet } from "lucide-react-native";
 
 import { RowSeparator } from "@/components/records";
 import { Screen } from "@/components/screen";
@@ -103,6 +103,17 @@ export default function MoreScreen() {
               ))}
             </Card>
           )}
+          {me?.practitioner ? (
+            <Card padded={false} style={{ marginTop: space.md }}>
+              <ListRow
+                testID="open-wallet"
+                title={ar.clinician.wallet}
+                subtitle={ar.clinician.walletHint}
+                leading={<IconBubble tone="success"><Wallet size={22} color={t.success} /></IconBubble>}
+                onPress={() => router.push("/wallet")}
+              />
+            </Card>
+          ) : null}
         </>
       ) : null}
 

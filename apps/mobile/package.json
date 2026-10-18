@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web --port 8081",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "export:web": "expo export --platform web",
     "lint": "expo lint"
   },
@@ -17,6 +18,8 @@
     "@hayat/api-client": "workspace:*",
     "@tanstack/react-query": "^5.104.4",
     "expo": "~58.0.14",
+    "expo-asset": "~58.0.16",
+    "expo-audio": "~58.0.9",
     "expo-camera": "~58.0.10",
     "expo-constants": "~58.0.12",
     "expo-device": "~58.0.5",
@@ -24,6 +27,7 @@
     "expo-font": "~58.0.8",
     "expo-linking": "~58.0.13",
     "expo-localization": "~58.0.4",
+    "expo-network": "~58.0.3",
     "expo-router": "~58.0.23",
     "expo-secure-store": "~58.0.2",
     "expo-sharing": "~58.0.19",
@@ -45,6 +49,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
   }
 }

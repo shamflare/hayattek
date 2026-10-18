@@ -3,14 +3,15 @@ import { Modal, Platform, View } from "react-native";
 import { router, Stack } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Building2, Keyboard, LogOut, ScanLine, X } from "lucide-react-native";
+import { Building2, Keyboard, LogOut, ScanLine, Wallet, X } from "lucide-react-native";
 
 import { Screen } from "@/components/screen";
-import { AppText, Button, Card, IconBubble, Notice, Row, SectionTitle, TextField } from "@/components/ui";
+import { AppText, Button, Card, IconBubble, ListRow, Notice, Row, SectionTitle, TextField } from "@/components/ui";
 import { ar } from "@/i18n/ar";
 import { errorMessage } from "@/lib/api";
 import { extractCardToken, parseHealthNumber } from "@/lib/card-token";
 import { identify, useClinician, type IdentifiedState } from "@/lib/clinician";
+import { useCanRun } from "@/lib/network";
 import { useSession } from "@/lib/session";
 import { radius, space, useTheme } from "@/theme";
 
@@ -22,6 +23,7 @@ export default function ClinicianHome() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const canRun = useCanRun();
 
   async function resolve(identifier: IdentifiedState["identifier"]) {
     setError(null);
@@ -76,7 +78,7 @@ export default function ClinicianHome() {
           {Platform.OS === "web" ? ar.clinician.cameraUnavailable : ar.clinician.scanHint}
         </AppText>
         {Platform.OS !== "web" ? (
-          <Button title={ar.clinician.scan} icon={<ScanLine size={20} color="#fff" />} onPress={() => setScanning(true)} style={{ alignSelf: "stretch" }} />
+          <Button title={ar.clinician.scan} icon={<ScanLine size={20} color="#fff" />} onPress={() => setScanning(true)} disabled={!canRun()} style={{ alignSelf: "stretch" }} />
         ) : null}
       </Card>
 
@@ -92,7 +94,17 @@ export default function ClinicianHome() {
           autoCorrect={false}
           onSubmitEditing={submitManual}
         />
-        <Button testID="clinician-identify" title={busy ? ar.clinician.identifying : ar.clinician.identify} icon={<Keyboard size={18} color="#fff" />} onPress={submitManual} loading={busy} disabled={!manual.trim()} />
+        <Button testID="clinician-identify" title={busy ? ar.clinician.identifying : ar.clinician.identify} icon={<Keyboard size={18} color="#fff" />} onPress={submitManual} loading={busy} disabled={!canRun(!manual.trim())} />
+      </Card>
+
+      <Card padded={false} style={{ marginTop: space.lg }}>
+        <ListRow
+          testID="clinician-wallet"
+          title={ar.clinician.wallet}
+          subtitle={ar.clinician.walletHint}
+          leading={<IconBubble tone="success"><Wallet size={22} color={t.success} /></IconBubble>}
+          onPress={() => router.push("/wallet")}
+        />
       </Card>
 
       <Button title={ar.more.patientMode} variant="ghost" icon={<LogOut size={18} color={t.primary} />} onPress={exit} style={{ marginTop: space.xl }} />
