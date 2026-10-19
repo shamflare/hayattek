@@ -1,0 +1,43 @@
+# SMALL-SERVER PILOT (1 vCPU / 1 GB + swap), layered on infra/docker-compose.prod.yml.
+# Synthetic data only. Images are built elsewhere and loaded (no builds on the server).
+#   cd /srv/hayat/app/infra && docker compose -f docker-compose.prod.yml -f pilot/docker-compose.pilot.yml up -d --no-build
+#
+# Not started here (memory): clamav, ocr, orthanc. Uploads therefore stay quarantined
+# (`pending`, fail-closed: nothing is ever released unscanned); OCR and DICOM are off.
+# After a rescale (≥ 8 GB) start them with `--profile full` and point the env at them.
+services:
+  api:
+    image: hayattek/backend:pilot
+    command: ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60 --max-requests 500 --max-requests-jitter 50"]
+  worker:
+    image: hayattek/backend:pilot
+    command: ["celery", "-A", "config", "worker", "--loglevel=INFO", "--concurrency=1", "--max-tasks-per-child=100"]
+  beat:
+    image: hayattek/backend:pilot
+    command: ["celery", "-A", "config", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+  web:
+    image: hayattek/web:pilot
+  backup:
+    image: hayattek/backup:pilot
+  postgres:
+    command: ["postgres", "-c", "shared_buffers=96MB", "-c", "max_connections=40"]
+  redis:
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
+  clamav:
+    profiles: [full]
+  ocr:
+    profiles: [full]
+  orthanc:
+    profiles: [full]
+  # Private S3 on the same host for the pilot (move to separate object storage later).
+  s3:
+    image: chrislusf/seaweedfs:latest
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json -master.volumeSizeLimitMB=512 -volume.max=0
+    volumes:
+      - s3data:/data
+      - ${HAYAT_ENV_DIR:-/srv/hayat}/s3.json:/etc/seaweedfs/s3.json:ro
+    restart: unless-stopped
+    networks: [internal]
+
+volumes:
+  s3data:

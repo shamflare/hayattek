@@ -26,6 +26,7 @@ services:
     volumes:
       - ./nginx/hayattek.conf:/etc/nginx/conf.d/default.conf:ro
       - ${HAYAT_CERT_DIR:-/etc/letsencrypt}:/etc/letsencrypt:ro
+      - acme:/var/www/certbot:ro
     depends_on: [web, api]
     restart: unless-stopped
     networks: [internal]
@@ -114,7 +115,18 @@ services:
       - ${HAYAT_ENV_DIR:-/srv/hayat}/backup_passphrase:/run/secrets/backup_passphrase:ro
     networks: [internal]
 
+  # TLS renewal (cron, e.g. twice a day): `docker compose ... run --rm certbot` then reload nginx.
+  # First issuance is done once with `certbot certonly --standalone` before nginx starts.
+  certbot:
+    image: certbot/certbot:v3.1.0
+    profiles: [ops]
+    command: ["renew", "--webroot", "-w", "/var/www/certbot", "--quiet"]
+    volumes:
+      - ${HAYAT_CERT_DIR:-/etc/letsencrypt}:/etc/letsencrypt
+      - acme:/var/www/certbot
+
 volumes:
+  acme:
   pgdata:
   redisdata:
   clamdb:
