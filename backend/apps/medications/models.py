@@ -114,6 +114,25 @@ class Medication(BaseModel):
     def __str__(self) -> str:
         return " ".join(p for p in [self.name, self.strength] if p)
 
+    @staticmethod
+    def visible_to(practitioner) -> models.Q:
+        """Isolation: a medicine a practitioner adds is private to that practitioner until the
+        platform administrator publishes it ("keep" in review). Everything else is shared."""
+        shared = ~models.Q(source=CatalogSource.PRACTITIONER) | models.Q(
+            review_status=ReviewStatus.ACCEPTED)
+        if practitioner is None:
+            return shared
+        return shared | models.Q(added_by_practitioner=practitioner)
+
+    @property
+    def is_private(self) -> bool:
+        return self.source == CatalogSource.PRACTITIONER and \
+            self.review_status != ReviewStatus.ACCEPTED
+
+    def usable_by(self, practitioner) -> bool:
+        return not self.is_private or (
+            practitioner is not None and self.added_by_practitioner_id == practitioner.pk)
+
     def save(self, *args, **kwargs):
         from .catalog import dedupe_key
 

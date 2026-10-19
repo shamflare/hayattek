@@ -337,7 +337,7 @@ export const ar = {
   } as Record<string, string>,
   medicationReview: {
     pending: "بانتظار المراجعة",
-    accepted: "أُبقي في الكتالوج",
+    accepted: "معتمد للجميع",
     merged: "دُمج في صنف موجود",
   } as Record<string, string>,
   ocrStatus: {

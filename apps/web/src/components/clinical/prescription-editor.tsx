@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, GripVertical, LayoutTemplate, Pill, Plus, Search, Star, Trash2 } from "lucide-react";
+import { ChevronDown, GripVertical, LayoutTemplate, Lock, Pill, Plus, Search, Star, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/cn";
 import { useDebounced } from "@/lib/hooks";
 import { label, m } from "@/lib/i18n";
 
+import { PrivateMedicationDialog } from "./private-medication-dialog";
 import { renderSig } from "./sig";
 
 export interface RxItem {
@@ -121,6 +122,7 @@ export function MedicationPicker({ onPick, onApplyTemplate }: {
   onApplyTemplate: (items: Record<string, unknown>[]) => void;
 }) {
   const [q, setQ] = React.useState("");
+  const [privateOpen, setPrivateOpen] = React.useState(false);
   const query = useDebounced(q.trim(), 250);
   const favorites = useQuery({
     queryKey: ["favorites"],
@@ -150,25 +152,38 @@ export function MedicationPicker({ onPick, onApplyTemplate }: {
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start hover:bg-sunken">
               <Pill className="size-4 text-accent" />
               <span className="flex-1 font-medium">{med.name} <span className="num text-sm font-normal text-muted">{med.strength}</span></span>
+              {med.is_private && <Badge><Lock className="size-3" /> خاص بي</Badge>}
               <span className="text-xs text-subtle">{label("dosageForms", med.dosage_form)}</span>
             </button>
           ))}
           {search.data && !search.data.results.length && (
-            <button type="button" onClick={() => { onPick({ id: "", name: q.trim() } as Schemas["Medication"]); setQ(""); }}
-              className="w-full rounded-xl border border-dashed border-line-strong px-3 py-3 text-sm text-muted hover:border-brand-400">
-              غير موجود في الكتالوج — أضف «{q.trim()}» كنص حر
-            </button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button type="button" onClick={() => setPrivateOpen(true)}
+                className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-brand-400 px-3 py-3 text-sm font-medium text-brand-600 hover:bg-brand-50">
+                <Lock className="size-4" /> احفظ «{q.trim()}» في أدويتي الخاصة
+              </button>
+              <button type="button" onClick={() => { onPick({ id: "", name: q.trim() } as Schemas["Medication"]); setQ(""); }}
+                className="rounded-xl border border-dashed border-line-strong px-3 py-3 text-sm text-muted hover:border-brand-400">
+                أضفه لهذه الوصفة فقط (نص حر)
+              </button>
+            </div>
           )}
         </div>
       ) : (
         <div className="mt-4 space-y-4">
           <div>
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted"><Star className="size-3.5" /> أدويتي المفضلة</div>
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted">
+              <Star className="size-3.5" /> أدويتي المفضلة
+              <button type="button" onClick={() => setPrivateOpen(true)} className="ms-auto flex items-center gap-1 font-semibold text-brand-600 hover:underline">
+                <Plus className="size-3.5" /> دواء خاص
+              </button>
+            </div>
             {favorites.data?.length ? (
               <div className="flex flex-wrap gap-2">
                 {favorites.data.map((f) => (
                   <button key={f.id} type="button" onClick={() => onPick(f.medication, f.preset as Record<string, unknown>)}
                     className="rounded-full border border-line bg-elevated px-3.5 py-2 text-sm transition hover:border-brand-400 hover:bg-brand-50">
+                    {f.medication.is_private && <Lock className="me-1 inline size-3 text-subtle" />}
                     {f.medication.name} <span className="num text-xs text-muted">{f.medication.strength}</span>
                   </button>
                 ))}
@@ -190,6 +205,8 @@ export function MedicationPicker({ onPick, onApplyTemplate }: {
           )}
         </div>
       )}
+      <PrivateMedicationDialog open={privateOpen} onOpenChange={setPrivateOpen} initialName={q.trim()}
+        onCreated={(med) => { onPick(med); setQ(""); }} />
     </Card>
   );
 }

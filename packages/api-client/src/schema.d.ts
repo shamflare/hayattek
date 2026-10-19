@@ -4424,6 +4424,7 @@ export interface components {
             readonly source: components["schemas"]["Source0c8Enum"];
             manufacturer?: string;
             readonly is_synthetic: boolean;
+            readonly is_private: boolean;
         };
         MedicationRequest: {
             /** @description Display/trade name as prescribed. */

@@ -328,7 +328,7 @@ export function ReviewPanel() {
         params: { path: { id: med.id } }, body: { decision, target: target ?? null },
       })),
     onSuccess: (m) => {
-      toast.success(m.review_status === "merged" ? `دُمج في ${m.merged_into_name}` : "أُبقي الصنف في الكتالوج");
+      toast.success(m.review_status === "merged" ? `دُمج في ${m.merged_into_name}` : "اعتُمد الدواء وصار متاحاً لكل الأطباء");
       setMerging(null);
       queryClient.invalidateQueries({ queryKey: ["admin", "catalog"] });
     },
@@ -336,7 +336,7 @@ export function ReviewPanel() {
   });
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted">أصناف كتبها أطباء لعدم وجودها في الكتالوج. تبقى صالحة للاستخدام؛ ادمجها في صنف معتمد إن كانت مكررة، أو أبقها.</p>
+      <p className="text-sm text-muted">أدوية خاصة أضافها أطباء لعدم وجودها في الكتالوج. كل دواء يظهر لصاحبه فقط حتى تعتمده للجميع؛ وإن كان مكرراً فادمجه في صنف معتمد.</p>
       {pending.isLoading ? <Card className="p-5"><SkeletonList rows={3} /></Card>
         : pending.isError ? <ErrorState message={errorMessage(pending.error)} onRetry={() => pending.refetch()} />
         : !pending.data?.results.length ? <Card><EmptyState icon={<PackageCheck className="size-6" />} title="لا توجد أدوية بانتظار المراجعة" /></Card>
@@ -348,7 +348,7 @@ export function ReviewPanel() {
                   <MedicationLine med={med} />
                   <div className="flex shrink-0 gap-2 sm:ms-auto">
                     <Button size="sm" variant="outline" loading={review.isPending && review.variables?.med.id === med.id && review.variables.decision === "keep"}
-                      onClick={() => review.mutate({ med, decision: "keep" })}>إبقاء</Button>
+                      onClick={() => review.mutate({ med, decision: "keep" })}>اعتماد للجميع</Button>
                     <Button size="sm" onClick={() => setMerging(med)}><GitMerge className="size-4" /> دمج في صنف…</Button>
                   </div>
                 </li>

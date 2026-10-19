@@ -10003,10 +10003,14 @@ components:
         is_synthetic:
           type: boolean
           readOnly: true
+        is_private:
+          type: boolean
+          readOnly: true
       required:
       - dosage_form
       - id
       - is_active
+      - is_private
       - is_synthetic
       - name
       - source

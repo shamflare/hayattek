@@ -145,6 +145,34 @@ def test_synthetic_hidden_from_search_when_disabled(platform_admin, doctor, sett
     assert doctor.get("/api/v1/medications/catalog?q=خافض").data["results"] == []
 
 
+def test_practitioner_medication_is_private_until_published(platform_admin, doctor,
+                                                           other_doctor, make_actor, clinic):
+    colleague = make_actor(clinic, ["physician"])  # same clinic, still isolated
+    own = doctor.post("/api/v1/medications/catalog", {"name": "دواء خاص بالطبيب",
+                                                      "strength": "10 mg",
+                                                      "dosage_form": "tablet"})
+    assert own.status_code == 201 and own.data["is_private"] is True
+    med_id = own.data["id"]
+
+    def found(actor):
+        return med_id in {m["id"] for m in
+                          actor.get("/api/v1/medications/catalog?q=خاص بالطبيب").data["results"]}
+
+    assert found(doctor)
+    assert not found(other_doctor) and not found(colleague)
+    # Not usable by id either: favorites, templates, prescriptions.
+    assert other_doctor.post("/api/v1/medications/favorites",
+                             {"medication_id": med_id}).status_code == 404
+    item = {"medication": med_id, "schedule_type": "custom", "instructions": "حسب الحاجة"}
+    assert colleague.post("/api/v1/medications/templates",
+                          {"name": "قالب", "items": [item]}).status_code == 400
+    assert doctor.post("/api/v1/medications/templates",
+                       {"name": "قالب", "items": [item]}).status_code == 201
+    # Published by the platform administrator → shared with everyone.
+    platform_admin.post(f"/api/v1/admin/catalog/medications/{med_id}/review", {"decision": "keep"})
+    assert found(other_doctor) and found(colleague)
+
+
 def test_unknown_medication_review_keep_and_merge_with_favorites(platform_admin, doctor):
     catalog_entry = Medication.objects.create(name="صنف معتمد", strength="5 mg",
                                               dosage_form="tablet", source=CatalogSource.IMPORTED)

@@ -50,7 +50,8 @@ class MedicationViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
         return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = Medication.objects.filter(is_active=True)
+        practitioner = require_practice_context(self.request).practitioner
+        qs = Medication.objects.filter(Medication.visible_to(practitioner), is_active=True)
         if not settings.HAYAT.get("CATALOG_INCLUDE_SYNTHETIC", True):
             qs = qs.filter(is_synthetic=False)  # production: never offer test medicines
         q = normalize_arabic(self.request.query_params.get("q", ""))
@@ -62,7 +63,8 @@ class MedicationViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets
 
     def perform_create(self, serializer):
         ctx = require_practice_context(self.request)
-        # "Unknown medication": usable at once, queued for platform review (§11).
+        # "Unknown medication": usable at once by its author only; other practitioners see it
+        # only if the platform administrator publishes it from the review queue (§11).
         from .catalog import normalize_strength
 
         serializer.save(source=CatalogSource.PRACTITIONER, review_status=ReviewStatus.PENDING,
@@ -86,9 +88,11 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         practitioner = require_practice_context(self.request).practitioner
+        medication = serializer.validated_data["medication"]
+        if not medication.usable_by(practitioner):
+            raise DomainError(_("الدواء غير متاح."), code="not_found", status_code=404)
         if MedicationFavorite.objects.filter(practitioner=practitioner,
-                                             medication=serializer.validated_data["medication"]
-                                             ).exists():
+                                             medication=medication).exists():
             raise DomainError(_("الدواء موجود في المفضلة."), code="duplicate", status_code=409)
         last = self.get_queryset().order_by("-position").first()
         serializer.save(practitioner=practitioner, position=(last.position + 1) if last else 0)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, LayoutTemplate, Pill, Plus, Search, Star, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, LayoutTemplate, Lock, Pill, Plus, Search, Star, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -9,14 +9,15 @@ import { PageHeader } from "@/components/app/page-header";
 import {
   blankItem, EmptyItems, fromApiItem, ItemCard, MedicationPicker, type RxItem, sigOf, toApiItem,
 } from "@/components/clinical/prescription-editor";
+import { PrivateMedicationDialog } from "@/components/clinical/private-medication-dialog";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog, Dialog, DialogContent } from "@/components/ui/dialog";
-import { Field, Input, Select } from "@/components/ui/field";
-import { Card, EmptyState, SkeletonList } from "@/components/ui/surface";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { Field, Input } from "@/components/ui/field";
+import { Badge, Card, EmptyState, SkeletonList } from "@/components/ui/surface";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, errorMessage, type Schemas, unwrap } from "@/lib/api";
 import { useDebounced } from "@/lib/hooks";
-import { label, m } from "@/lib/i18n";
+import { label } from "@/lib/i18n";
 
 export default function MedicationsPage() {
   return (
@@ -79,7 +80,7 @@ function Favorites() {
                 <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent"><Pill className="size-5" /></div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-medium">{f.medication.name} <span className="num text-sm text-muted">{f.medication.strength}</span></div>
-                  <div className="text-xs text-muted">{label("dosageForms", f.medication.dosage_form)} · استُخدم <span className="num">{f.use_count}</span> مرة</div>
+                  <div className="text-xs text-muted">{label("dosageForms", f.medication.dosage_form)} · استُخدم <span className="num">{f.use_count}</span> مرة{f.medication.is_private && " · خاص بي"}</div>
                 </div>
                 <Button variant="ghost" size="icon" disabled={i === 0} onClick={() => move(i, -1)} aria-label="أعلى"><ArrowUp className="size-4" /></Button>
                 <Button variant="ghost" size="icon" disabled={i === list.length - 1} onClick={() => move(i, 1)} aria-label="أسفل"><ArrowDown className="size-4" /></Button>
@@ -101,6 +102,7 @@ function Favorites() {
             return (
               <li key={med.id} className="flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-sunken">
                 <span className="flex-1 text-sm">{med.name} <span className="num text-muted">{med.strength}</span></span>
+                {med.is_private && <Badge><Lock className="size-3" /> خاص بي</Badge>}
                 <Button size="sm" variant={exists ? "ghost" : "secondary"} disabled={exists} onClick={() => add.mutate(med.id)}>
                   {exists ? "مضاف" : <><Plus className="size-4" /> إضافة</>}
                 </Button>
@@ -108,45 +110,13 @@ function Favorites() {
             );
           })}
         </ul>
-        <p className="mt-4 text-xs leading-6 text-subtle">
-          الكتالوج يضم الأدوية الأساسية بأسمائها العلمية. دواء تجاري أو غير موجود؟{" "}
-          <button className="font-semibold text-brand-600" onClick={() => setCustomOpen(true)}>أضفه إلى الكتالوج</button>
-        </p>
-      </Card>
-      <CustomMedicationDialog open={customOpen} onOpenChange={setCustomOpen} onCreated={(id) => add.mutate(id)} />
-    </div>
-  );
-}
-
-function CustomMedicationDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: (id: string) => void }) {
-  const [f, setF] = React.useState({ name: "", brand_name: "", strength: "", dosage_form: "tablet", unit: "", default_route: "oral" });
-  const create = useMutation({
-    mutationFn: () => unwrap(api.POST("/api/v1/medications/catalog", { body: f as never })),
-    onSuccess: (med) => { onCreated(med.id); onOpenChange(false); },
-    onError: (e) => toast.error(errorMessage(e)),
-  });
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="إضافة دواء إلى الكتالوج" description="يُسجّل كمصدر «أضافه طبيب». لا تكتب مادة فعالة غير مؤكدة."
-        footer={<><Button variant="ghost" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button loading={create.isPending} disabled={!f.name.trim()} onClick={() => create.mutate()}>إضافة</Button></>}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="الاسم كما يُكتب في الوصفة" className="sm:col-span-2"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
-          <Field label="التركيز" optional><Input dir="ltr" className="text-start" value={f.strength} onChange={(e) => setF({ ...f, strength: e.target.value })} placeholder="500 mg" /></Field>
-          <Field label="وحدة الجرعة" optional><Input value={f.unit} onChange={(e) => setF({ ...f, unit: e.target.value })} placeholder="حبة" /></Field>
-          <Field label="الشكل">
-            <Select value={f.dosage_form} onChange={(e) => setF({ ...f, dosage_form: e.target.value })}>
-              {Object.entries(m.dosageForms).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </Select>
-          </Field>
-          <Field label="طريق الإعطاء">
-            <Select value={f.default_route} onChange={(e) => setF({ ...f, default_route: e.target.value })}>
-              {Object.entries(m.routes).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </Select>
-          </Field>
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="mb-3 text-xs leading-6 text-subtle">الكتالوج يضم الأدوية الأساسية بأسمائها العلمية. دواء تجاري أو غير موجود؟ احفظه لك وحدك.</p>
+          <Button variant="secondary" className="w-full" onClick={() => setCustomOpen(true)}><Lock className="size-4" /> إضافة دواء خاص</Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </Card>
+      <PrivateMedicationDialog open={customOpen} onOpenChange={setCustomOpen} initialName={q.trim()} />
+    </div>
   );
 }
 

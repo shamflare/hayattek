@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.access.context import resolve_practice_context
 from apps.clinical.api import RecordMetaSerializer
 
 from .models import (
@@ -18,8 +19,8 @@ class MedicationSerializer(serializers.ModelSerializer):
         model = Medication
         fields = ("id", "name", "brand_name", "active_ingredient", "strength", "dosage_form",
                   "unit", "default_route", "is_active", "source", "manufacturer",
-                  "is_synthetic")
-        read_only_fields = ("is_active", "source", "is_synthetic")
+                  "is_synthetic", "is_private")
+        read_only_fields = ("is_active", "source", "is_synthetic", "is_private")
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -53,10 +54,18 @@ class PrescriptionItemSerializer(serializers.ModelSerializer):
     def get_sig(self, obj) -> str:
         return render_sig(obj)
 
+    def _practitioner(self):
+        ctx = self.context.get("ctx")
+        if ctx is None and self.context.get("request") is not None:
+            ctx = resolve_practice_context(self.context["request"])
+        return getattr(ctx, "practitioner", None)
+
     def validate(self, attrs):
         med = attrs.get("medication")
         if not med and not attrs.get("medication_name"):
             raise serializers.ValidationError({"medication_name": "اختر الدواء أو اكتب اسمه."})
+        if med is not None and not med.usable_by(self._practitioner()):
+            raise serializers.ValidationError({"medication": "الدواء غير متاح."})
         schedule = attrs.get("schedule_type")
         required = {
             ScheduleType.TIMES_OF_DAY: ("times_of_day", "اختر وقتاً واحداً على الأقل."),
