@@ -109,7 +109,7 @@ function Favorites() {
           })}
         </ul>
         <p className="mt-4 text-xs leading-6 text-subtle">
-          الكتالوج الحالي بيانات اختبار اصطناعية. دواء غير موجود؟{" "}
+          الكتالوج يضم الأدوية الأساسية بأسمائها العلمية. دواء تجاري أو غير موجود؟{" "}
           <button className="font-semibold text-brand-600" onClick={() => setCustomOpen(true)}>أضفه إلى الكتالوج</button>
         </p>
       </Card>
