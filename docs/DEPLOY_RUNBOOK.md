@@ -11,9 +11,10 @@
 | الكود: `/srv/hayat/app` (git clone من GitHub) | ✅ |
 | الصور: تُبنى على جهاز التطوير وتُنقل (`docker save \| ssh docker load`) — الخادم صغير لا يبني | ✅ |
 | الخدمات: postgres, redis, s3, api, worker, beat, web | ✅ تعمل |
-| DNS (Cloudflare، DNS only) ← شهادة Let's Encrypt ← nginx | ⏳ |
-| حساب مدير المنصة الحقيقي + MFA | ⏳ |
-| النسخ الاحتياطي اليومي + نسخة خارج الخادم | ⏳ |
+| DNS (Cloudflare، DNS only) ← شهادة Let's Encrypt (حتى 2027-01-17، تجديد تلقائي) ← nginx | ✅ https://hayattek.com |
+| حساب مدير المنصة الحقيقي (بلا كلمة مرور، رابط تعيين لمرة واحدة) | ✅ أُنشئ — المالك يعيّن كلمة المرور ثم MFA |
+| نسخ احتياطي مشفّر ليلي (`/etc/cron.d/hayattek`، 23:30 UTC) | ✅ جُرّب يدوياً |
+| نسخة خارج الخادم | ⏳ |
 | البريد SMTP | ⏳ قرار المالك |
 
 ## حدود الخادم الصغير (CPX02: 1 vCPU / 1 GB)
@@ -36,6 +37,7 @@ $C exec api python manage.py check_restore
 1. على جهاز التطوير: بناء الصور ووسمها `hayattek/backend:pilot`، `hayattek/web:pilot`، `hayattek/backup:pilot`.
 2. `docker save hayattek/<img>:pilot | gzip -1 | ssh root@188.245.161.73 'gunzip | docker load'`
 3. على الخادم: `cd /srv/hayat/app && git pull` ثم `$C up -d --no-build` (الترحيلات تُطبَّق تلقائياً عند إقلاع api).
+4. إن تغيّر `infra/nginx/hayattek.conf`: `docker restart hayat-nginx-1` (لا يكفي `reload`، فالملف مركّب كملف واحد ويتغير عند `git pull`).
 
 ## ملاحظات
 - `s3.json` يجب أن يملكه uid 1000 (مستخدم SeaweedFS)؛ `generate.py` يضبط ذلك عند التشغيل كـ root.
