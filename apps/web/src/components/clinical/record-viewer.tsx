@@ -156,7 +156,8 @@ function Attachments({ docs }: { docs?: { id: string; title: string; mime_type: 
 function DocumentBody({ doc }: { doc: Schemas["Document"] }) {
   const [url, setUrl] = React.useState<string | null>(null);
   const [failed, setFailed] = React.useState(false);
-  const viewable = ["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(doc.mime_type);
+  const ready = doc.scan_status === "clean";
+  const viewable = ready && ["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(doc.mime_type);
   const isDicom = doc.mime_type === "application/dicom" || doc.mime_type === "application/zip";
   React.useEffect(() => {
     if (!viewable) return;
@@ -177,6 +178,7 @@ function DocumentBody({ doc }: { doc: Schemas["Document"] }) {
           // eslint-disable-next-line @next/next/no-img-element
           : <img src={url} alt={doc.title} className="max-h-[60vh] w-full rounded-2xl border border-line object-contain" />
       ) : <Skeleton className="h-64" />)}
+      {!ready ? <ScanNotice status={doc.scan_status} /> : <>
       {isDicom && <p className="text-sm text-muted">دراسة DICOM: تُعرض في عارض المراجعة (غير معتمد للتشخيص السريري).</p>}
       {!viewable && !isDicom && <p className="text-sm text-muted">لا يمكن معاينة هذا النوع داخل المتصفح. نزّله وافتحه بالعارض المناسب.</p>}
       <div className="flex flex-wrap gap-2">
@@ -196,7 +198,19 @@ function DocumentBody({ doc }: { doc: Schemas["Document"] }) {
           </Button>
         )}
       </div>
+      </>}
     </div>
+  );
+}
+
+/** Uploaded files open only after the malware scan passes (fail-closed quarantine). */
+export function ScanNotice({ status }: { status: string }) {
+  return status === "rejected" ? (
+    <p className="rounded-xl border border-danger/30 bg-danger-soft p-3 text-sm text-danger">رُفض هذا الملف في الفحص الأمني ولا يمكن فتحه أو تنزيله.</p>
+  ) : (
+    <p className="rounded-xl border border-warning/30 bg-warning-soft p-3 text-sm text-warning">
+      الملف محفوظ لكنه <b>قيد الفحص الأمني</b>، ولا يمكن فتحه أو تنزيله أو قراءته آلياً قبل اجتياز الفحص. هذا يحمي النظام من الملفات الضارة.
+    </p>
   );
 }
 

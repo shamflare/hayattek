@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/app/page-header";
 import { LabResultEditor, TestPicker } from "@/components/lab/lab-result-editor";
 import { LabReportView } from "@/components/lab/report-view";
+import { ScanNotice } from "@/components/clinical/record-viewer";
 import type { LabReport } from "@/components/lab/shared";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -188,7 +189,9 @@ export default function DocumentReviewPage() {
               <CardBody>
                 <EmptyState icon={<ScanText className="size-7" />} title="لم تُشغَّل القراءة الآلية لهذا المستند"
                   description="يقرأ المحرك المحلي النص ويقترح القيم، ثم تراجعها أنت قبل إنشاء أي سجل."
-                  action={<Button loading={run.isPending} onClick={() => run.mutate()}><FileSearch className="size-4" /> قراءة المستند آلياً</Button>} />
+                  action={doc.data.scan_status === "clean"
+                    ? <Button loading={run.isPending} onClick={() => run.mutate()}><FileSearch className="size-4" /> قراءة المستند آلياً</Button>
+                    : <ScanNotice status={doc.data.scan_status} />} />
               </CardBody>
             </Card>
           ) : result.status === "queued" ? (
@@ -217,7 +220,7 @@ function OriginalViewer({ doc }: { doc: Schemas["Document"] }) {
   const [failed, setFailed] = React.useState(false);
   const [zoom, setZoom] = React.useState(1);
   const isPdf = doc.mime_type === "application/pdf";
-  const viewable = isPdf || ["image/jpeg", "image/png", "image/webp"].includes(doc.mime_type);
+  const viewable = doc.scan_status === "clean" && (isPdf || ["image/jpeg", "image/png", "image/webp"].includes(doc.mime_type));
   React.useEffect(() => {
     if (!viewable) return;
     let objectUrl: string | null = null;
@@ -237,7 +240,9 @@ function OriginalViewer({ doc }: { doc: Schemas["Document"] }) {
           </div>
         )}
       </div>
-      {!viewable ? (
+      {doc.scan_status !== "clean" ? (
+        <div className="p-4"><ScanNotice status={doc.scan_status} /></div>
+      ) : !viewable ? (
         <p className="p-4 text-sm text-muted">لا يمكن معاينة هذا النوع داخل المتصفح.</p>
       ) : failed ? (
         <div className="p-4"><ErrorState message="تعذر تحميل الملف (قد يكون قيد الفحص الأمني)." /></div>
