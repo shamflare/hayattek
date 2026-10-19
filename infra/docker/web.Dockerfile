@@ -6,13 +6,18 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY packages/ packages/
 COPY apps/web/ apps/web/
 RUN pnpm install --frozen-lockfile --filter @hayat/web...
+# Next.js bakes rewrites() into the build, so the API origin must be known here.
+ARG HAYAT_API_ORIGIN=http://api:8000
+ENV HAYAT_API_ORIGIN=$HAYAT_API_ORIGIN NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter @hayat/web build
 
 FROM node:22-slim
-RUN corepack enable && useradd --system --uid 10001 hayat
+RUN useradd --system --create-home --uid 10001 hayat
 WORKDIR /repo
 COPY --from=build --chown=hayat /repo ./
 USER hayat
-ENV NODE_ENV=production HAYAT_API_ORIGIN=http://api:8000
+# Run Next directly: no package manager (and no download) needed at runtime.
+WORKDIR /repo/apps/web
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HAYAT_API_ORIGIN=http://api:8000
 EXPOSE 3100
-CMD ["pnpm", "--filter", "@hayat/web", "start"]
+CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3100", "-H", "0.0.0.0"]

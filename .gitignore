@@ -28,3 +28,5 @@ test-results/
 playwright-report/
 .dev-*.log
 apps/web/scripts/*.png
+# local production rehearsal (throwaway secrets)
+infra/prodcheck/.local/

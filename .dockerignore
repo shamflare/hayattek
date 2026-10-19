@@ -1,0 +1,22 @@
+# Keep host artefacts and secrets out of production images (infra/docker/*.Dockerfile).
+**/node_modules
+**/.venv
+**/.next
+**/.expo
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/test-results
+**/playwright-report
+**/*.log
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+infra/prodcheck/.local
+backend/media
+backend/staticfiles
+apps/mobile
+docs

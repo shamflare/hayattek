@@ -194,7 +194,7 @@ export function SetupLinkDialog({ result, onClose }: { result: CreateResult | nu
             <KeyRound className="mt-0.5 size-5 shrink-0 text-brand-600" />
             <p className="leading-7 text-muted">
               هذا <b className="text-fg">رابط لمرة واحدة</b> لتعيين كلمة المرور. سلّمه للعضو بطريقة آمنة.
-              في بيئة الإنتاج يُرسل تلقائياً إلى بريده الإلكتروني ولا يظهر هنا.
+              يُرسل أيضاً إلى بريده الإلكتروني متى كان إرسال البريد مفعّلاً في المنصة.
               <b className="text-fg"> لن يُعرض الرابط مرة أخرى.</b>
             </p>
           </div>

@@ -1,0 +1,13 @@
+# LOCAL production rehearsal only — layered on top of infra/docker-compose.prod.yml.
+# Adds a private S3 (SeaweedFS) and binds nginx to loopback. See README.md here.
+services:
+  s3:
+    image: chrislusf/seaweedfs:latest
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json -master.volumeSizeLimitMB=1024
+    volumes:
+      - s3data:/data
+      - ./prodcheck/.local/s3.json:/etc/seaweedfs/s3.json:ro
+    networks: [internal]
+
+volumes:
+  s3data:

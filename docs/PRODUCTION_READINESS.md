@@ -50,14 +50,28 @@
   3. قاعدة بيانات إنتاج **جديدة** (لا تُنسخ قاعدة التطوير).
   4. إنشاء حساب Super Admin حقيقي مع MFA.
 
-## 4. النشر (§41) — جاهز كقوالب، لم يُنشر
+## 4. النشر (§41) — مُختبر محلياً كاملاً، لم يُنشر بعد
+
+**تمرين الإنتاج المحلي (2026-10-19)** — `infra/prodcheck/README.md`: نفس صور وحاويات الإنتاج على جهاز التطوير بأسرار مؤقتة وشهادة موقّعة ذاتياً:
+| الفحص | النتيجة |
+|---|---|
+| بناء كل الصور (api, worker, beat, web, ocr, backup) | ✅ |
+| تشغيل 11 حاوية (nginx, web, api, worker, beat, postgres, redis, clamav, ocr, orthanc, s3) | ✅ كلها healthy |
+| HTTPS + تحويل HTTP→HTTPS + HSTS + ترويسات الأمان | ✅ |
+| مسار انضمام الطبيب عبر المتصفح (`apps/web/e2e-pilot/pilot-onboarding.spec.ts`): مدير جديد ← MFA إلزامي ← منشأة ← طبيب برابط لمرة واحدة ← اعتماد الترخيص ← الطبيب يعيّن كلمة مروره ← MFA ← مريض ← زيارة معتمدة ← وصفة بدواء نص حر ← طباعة | ✅ نجح |
+| S3 خاص (كتابة/قراءة)، ClamAV (PONG)، OCR، Orthanc، Celery worker + beat | ✅ |
+| البريد غير المُعد: الرسالة تُسجَّل `not_configured` بلا ادعاء إرسال | ✅ |
+| نسخ احتياطي مشفّر ← تحقق SHA256 ← استعادة لقاعدة فارغة ← `check_restore` | ✅ integrity OK |
+
+**أعطال اكتُشفت وأُصلحت في التمرين** (كانت ستُعطّل النشر الحقيقي): عنوان الـAPI كان يُثبَّت عند البناء على `127.0.0.1`؛ غياب `.dockerignore` (كان سينسخ بيئة Python الخاصة بـWindows فوق بيئة الحاوية و`.env`)؛ حاوية الويب كانت تحاول تنزيل pnpm عند الإقلاع؛ فحص صحة الـAPI كان مرفوضاً بسبب ALLOWED_HOSTS؛ nginx كان يتوقف إن تأخرت خدمة؛ ترويسة Host بلا منفذ؛ ترويسة تمنع الميكروفون؛ أدوات النسخ الاحتياطي غير موجودة على الخادم (أصبحت صورة `backup`).
+
 | العنصر | الملف |
 |---|---|
 | إعدادات إنتاج منفصلة | `backend/config/settings/prod.py` |
 | Docker | `infra/docker/*.Dockerfile`, `infra/docker-compose.prod.yml` |
 | Reverse proxy + HTTPS + HSTS | `infra/nginx/hayattek.conf` |
 | تخزين ملفات خاص | S3 متوافق (أي مزود) — حاوية خاصة |
-| النسخ الاحتياطي والاستعادة | `infra/backup/backup.sh`, `restore.sh`, `manage.py check_restore` |
+| النسخ الاحتياطي والاستعادة | صورة `backup` (`docker compose --profile ops run --rm backup`)، `infra/backup/restore.sh`، `manage.py check_restore` |
 | المراقبة والسجلات | سجلات JSON بلا PHI، `/api/health` و`/api/health/ready`؛ أداة تتبع أخطاء (مثل Sentry مستضاف ذاتياً) قرار لاحق |
 | العمليات الخلفية | worker + beat (فحص الملفات المعلقة، إرسال الرسائل، حذف التسجيلات المنتهية) |
 
