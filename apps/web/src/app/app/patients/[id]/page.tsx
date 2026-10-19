@@ -30,7 +30,8 @@ function ChartInner() {
   const { id } = useParams<{ id: string }>();
   const params = useSearchParams();
   const router = useRouter();
-  const { isClinician, has } = useSession();
+  const { isClinician, has, me } = useSession();
+  const pendingDoctor = has("physician") && Boolean(me?.practitioner) && !isClinician;
   const patientQuery = usePatient(id);
   const access = patientQuery.data?.access;
   const canSeeClinical = Boolean(access?.can_view_clinical) || has("lab_staff", "imaging_staff");
@@ -149,7 +150,11 @@ function ChartInner() {
             <Info label="العنوان" value={patient.address} />
             <Info label="جهة الطوارئ" value={[patient.emergency_contact_name, patient.emergency_contact_relation].filter(Boolean).join(" — ")} />
           </dl>
-          <p className="mt-6 rounded-xl bg-sunken p-3 text-xs text-muted">لا تظهر المعلومات الطبية لدورك في المنشأة. هذا مقصود لحماية خصوصية المريض.</p>
+          {pendingDoctor ? (
+            <p className="mt-6 rounded-xl border border-warning/30 bg-warning-soft p-3 text-sm text-warning">هويتك المهنية بانتظار التحقق من إدارة المنصة. بعد الاعتماد تظهر هنا: زيارة جديدة، الوصفات، الأمراض والحساسية، التحاليل والتصوير، والسجل الطبي الكامل.</p>
+          ) : (
+            <p className="mt-6 rounded-xl bg-sunken p-3 text-xs text-muted">لا تظهر المعلومات الطبية لدورك في المنشأة. هذا مقصود لحماية خصوصية المريض.</p>
+          )}
         </Card>
       ) : null}
 
