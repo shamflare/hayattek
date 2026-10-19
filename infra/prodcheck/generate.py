@@ -10,12 +10,14 @@ Refuses to overwrite an existing prod.env (that would orphan the database and au
 import argparse
 import base64
 import json
+import os
 import secrets
 import subprocess
 from pathlib import Path
 
 DEFAULT_OUT = Path(__file__).resolve().parent / ".local"
 HOST = "hayattek.com"
+SEAWEEDFS_UID = 1000
 
 
 def token(n: int = 32) -> str:
@@ -68,6 +70,9 @@ def main() -> None:
     for f in out.iterdir():
         if f.is_file():
             f.chmod(0o600)
+    # SeaweedFS drops to its own user (uid 1000) and must read its credentials file.
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        os.chown(out / "s3.json", SEAWEEDFS_UID, SEAWEEDFS_UID)
     if args.no_cert:
         print(f"Secrets written to {out}")
         return
