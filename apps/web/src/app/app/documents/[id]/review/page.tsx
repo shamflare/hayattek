@@ -463,7 +463,7 @@ function ReviewRow({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-        <TestPicker onPick={(t) => onChange({ test: t.id, testLabel: t.name_ar || t.name_en, name: row.name || t.name_ar || t.name_en })} />
+        <TestPicker onPick={(t) => onChange({ test: t.id, testLabel: t.short_name || t.name_en, name: row.name || t.name_en })} />
         {row.test && (
           <Badge tone="brand">{row.testLabel}
             <button type="button" aria-label="إزالة الربط بالدليل" className="ms-1" onClick={() => onChange({ test: null, testLabel: "" })}>×</button>

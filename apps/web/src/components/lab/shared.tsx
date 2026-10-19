@@ -44,7 +44,8 @@ export function PatientBriefCard({ patient, className, action }: {
 }
 
 export function requestItemLabel(item: Schemas["ServiceRequestItem"]): string {
-  if (item.lab_test_name_ar || item.lab_test_name) return item.lab_test_name_ar || item.lab_test_name;
+  // Laboratories work with the English names written on requests (CBC, HbA1c…).
+  if (item.lab_test_short_name || item.lab_test_name) return item.lab_test_short_name || item.lab_test_name || "";
   if (item.modality) {
     return [label("modalities", item.modality), item.body_site].filter(Boolean).join(" — ");
   }

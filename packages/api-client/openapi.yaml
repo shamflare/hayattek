@@ -9779,6 +9779,10 @@ components:
         name_en:
           type: string
           maxLength: 150
+        short_name:
+          type: string
+          description: Name as written on lab requests, e.g. CBC, HbA1c.
+          maxLength: 40
         category:
           type: string
           maxLength: 60
@@ -14254,6 +14258,9 @@ components:
         lab_test_name_ar:
           type: string
           readOnly: true
+        lab_test_short_name:
+          type: string
+          readOnly: true
         modality:
           oneOf:
           - $ref: '#/components/schemas/ModalityEnum'
@@ -14268,6 +14275,7 @@ components:
       - id
       - lab_test_name
       - lab_test_name_ar
+      - lab_test_short_name
     ServiceRequestItemRequest:
       type: object
       properties:

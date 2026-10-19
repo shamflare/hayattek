@@ -195,6 +195,7 @@ function RecordBody({ record, patientId }: { record: Loaded; patientId: string }
               {s.items.map((i) => (
                 <li key={i.id}>
                   <bdi>{i.lab_test_name_ar || i.lab_test_name || (i.modality ? label("modalities", i.modality) : "")}</bdi>
+                  {i.lab_test_name_ar && (i.lab_test_short_name || i.lab_test_name) && <span className="text-muted" dir="ltr"> ({i.lab_test_short_name || i.lab_test_name})</span>}
                   {i.body_site && <span className="text-muted"> — {i.body_site}</span>}
                   {i.description && <span className="text-muted"> — {i.description}</span>}
                 </li>

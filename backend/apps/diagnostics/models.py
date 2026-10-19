@@ -11,6 +11,8 @@ class LabTestType(BaseModel):
     code = models.CharField(max_length=30, unique=True)
     name_ar = models.CharField(max_length=150)
     name_en = models.CharField(max_length=150)
+    short_name = models.CharField(max_length=40, blank=True,
+                                  help_text="Name as written on lab requests, e.g. CBC, HbA1c.")
     category = models.CharField(max_length=60, blank=True)
     specimen = models.CharField(max_length=60, blank=True)
     is_active = models.BooleanField(default=True)

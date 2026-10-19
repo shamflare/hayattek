@@ -17,18 +17,20 @@ from .models import (
 class LabTestTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabTestType
-        fields = ("id", "code", "name_ar", "name_en", "category", "specimen")
+        fields = ("id", "code", "name_ar", "name_en", "short_name", "category", "specimen")
 
 
 class ServiceRequestItemSerializer(serializers.ModelSerializer):
     lab_test_name = serializers.CharField(source="lab_test.name_en", read_only=True, default=None)
     lab_test_name_ar = serializers.CharField(source="lab_test.name_ar", read_only=True,
                                              default=None)
+    lab_test_short_name = serializers.CharField(source="lab_test.short_name", read_only=True,
+                                                default=None)
 
     class Meta:
         model = ServiceRequestItem
-        fields = ("id", "lab_test", "lab_test_name", "lab_test_name_ar", "modality", "body_site",
-                  "description")
+        fields = ("id", "lab_test", "lab_test_name", "lab_test_name_ar", "lab_test_short_name",
+                  "modality", "body_site", "description")
         read_only_fields = ("id",)
 
 

@@ -1,4 +1,5 @@
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -53,8 +54,8 @@ class LabTestTypeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         qs = LabTestType.objects.filter(is_active=True)
         q = self.request.query_params.get("q")
         if q:
-            qs = qs.filter(name_ar__icontains=q) | qs.filter(name_en__icontains=q) | qs.filter(
-                code__icontains=q)
+            qs = qs.filter(Q(name_ar__icontains=q) | Q(name_en__icontains=q)
+                           | Q(short_name__icontains=q) | Q(code__icontains=q))
         return qs[:500]
 
 

@@ -166,7 +166,7 @@ export function OrderDialog({ open, onOpenChange, patientId, encounterId, kind }
               </div>
               <LabTestGrid all={testsQuery.data ?? []} loading={testsQuery.isLoading} filter={q}
                 selected={tests} onToggle={(t) => setTests((all) => all.some((x) => x.id === t.id)
-                  ? all.filter((x) => x.id !== t.id) : [...all, { id: t.id, name: t.name_ar }])} />
+                  ? all.filter((x) => x.id !== t.id) : [...all, { id: t.id, name: labTestLabel(t) }])} />
               <Field label="تحليل غير موجود في القائمة" optional>
                 <Input value={freeText} onChange={(e) => setFreeText(e.target.value)} />
               </Field>
@@ -206,11 +206,21 @@ export function OrderDialog({ open, onOpenChange, patientId, encounterId, kind }
 
 /* ------------------------------------------------------------------ upload */
 
-const LAB_CATEGORY_ORDER = [
-  "دمويات", "سكر", "وظائف كلية", "وظائف كبد", "شحوم", "شوارد ومعادن", "فيتامينات وحديد",
-  "هرمونات الدرق", "هرمونات", "تخثر", "التهابات وروماتيزم", "مصليات وأمراض معدية",
-  "واسمات قلبية", "واسمات ورمية", "بول", "براز", "زروع ومسحات",
+// Category order and the English heading shown beside the Arabic one.
+const LAB_CATEGORIES: [string, string][] = [
+  ["دمويات", "Hematology"], ["سكر", "Glucose"], ["وظائف كلية", "Kidney function"],
+  ["وظائف كبد", "Liver function"], ["شحوم", "Lipids"], ["شوارد ومعادن", "Electrolytes & minerals"],
+  ["فيتامينات وحديد", "Vitamins & iron"], ["هرمونات الدرق", "Thyroid"], ["هرمونات", "Hormones"],
+  ["تخثر", "Coagulation"], ["التهابات وروماتيزم", "Inflammation & rheumatology"],
+  ["مصليات وأمراض معدية", "Serology & infectious"], ["واسمات قلبية", "Cardiac markers"],
+  ["واسمات ورمية", "Tumor markers"], ["بول", "Urine"], ["براز", "Stool"],
+  ["زروع ومسحات", "Cultures & swabs"],
 ];
+const LAB_CATEGORY_ORDER = LAB_CATEGORIES.map(([ar]) => ar);
+const LAB_CATEGORY_EN = Object.fromEntries(LAB_CATEGORIES);
+
+/** How physicians and laboratories name a test: the short English name used on requests. */
+export const labTestLabel = (t: { short_name?: string | null; name_en: string }) => t.short_name || t.name_en;
 
 const fold = (s: string) => s.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
 
@@ -224,7 +234,7 @@ function LabTestGrid({ all, loading, filter, selected, onToggle }: {
   onToggle: (t: Schemas["LabTestType"]) => void;
 }) {
   const f = fold(filter.trim());
-  const shown = f ? all.filter((t) => fold(`${t.name_ar} ${t.name_en} ${t.code}`).includes(f)) : all;
+  const shown = f ? all.filter((t) => fold(`${t.short_name} ${t.name_ar} ${t.name_en} ${t.code}`).includes(f)) : all;
   const groups = new Map<string, Schemas["LabTestType"][]>();
   for (const t of shown) groups.set(t.category || "أخرى", [...(groups.get(t.category || "أخرى") ?? []), t]);
   const rank = (c: string) => { const i = LAB_CATEGORY_ORDER.indexOf(c); return i === -1 ? 999 : i; };
@@ -238,16 +248,18 @@ function LabTestGrid({ all, loading, filter, selected, onToggle }: {
     <div className="max-h-[22rem] space-y-4 overflow-y-auto rounded-xl border border-line p-3">
       {ordered.map(([category, items]) => (
         <section key={category}>
-          <h3 className="mb-2 text-xs font-semibold text-muted">{category}</h3>
+          <h3 className="mb-2 text-xs font-semibold text-muted">
+            {category}{LAB_CATEGORY_EN[category] && <><span className="mx-1.5 font-normal text-subtle">·</span><bdi className="font-normal text-subtle" dir="ltr">{LAB_CATEGORY_EN[category]}</bdi></>}
+          </h3>
           <div className="flex flex-wrap gap-2">
             {items.map((t) => {
               const on = selected.some((x) => x.id === t.id);
               return (
-                <button key={t.id} type="button" aria-pressed={on} onClick={() => onToggle(t)} title={t.name_en}
+                <button key={t.id} type="button" aria-pressed={on} onClick={() => onToggle(t)} title={`${t.name_en} — ${t.name_ar}`} dir="ltr"
                   className={on
                     ? "inline-flex items-center gap-1 rounded-full border border-brand-600 bg-brand-600 px-3 py-1.5 text-sm font-medium text-white"
                     : "rounded-full border border-line px-3 py-1.5 text-sm transition hover:border-brand-400 hover:bg-brand-50"}>
-                  {on && <Check className="size-3.5" />}{t.name_ar}
+                  {on && <Check className="size-3.5" />}{labTestLabel(t)}
                 </button>
               );
             })}

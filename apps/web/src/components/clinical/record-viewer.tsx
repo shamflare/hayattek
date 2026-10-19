@@ -74,7 +74,7 @@ export function RecordViewer({ item, onClose }: { item: Item | null; onClose: ()
                   {r.performer_organization_name && <div><span className="text-muted">الجهة:</span> {r.performer_organization_name}</div>}
                   <ul className="list-disc space-y-1 ps-5">
                     {r.items.map((i: Schemas["ServiceRequestItem"]) => (
-                      <li key={i.id}>{i.lab_test_name_ar ?? (i.modality ? label("modalities", i.modality) : "")} {i.body_site} {i.description}</li>
+                      <li key={i.id}><bdi>{i.lab_test_short_name || i.lab_test_name || (i.modality ? label("modalities", i.modality) : "")}</bdi> {i.body_site} {i.description}</li>
                     ))}
                   </ul>
                   {r.clinical_notes && <Block title="ملاحظات" text={r.clinical_notes} />}

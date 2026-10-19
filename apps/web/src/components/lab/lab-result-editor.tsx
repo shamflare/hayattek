@@ -64,7 +64,7 @@ function rowsFromReport(report: LabReport): Row[] {
 function rowsFromRequest(request?: ServiceRequest | null): Row[] {
   const items = request?.items ?? [];
   if (!items.length) return [emptyRow()];
-  return items.map((it) => emptyRow({ test: it.lab_test ?? null, name: requestItemLabel(it) }));
+  return items.map((it) => emptyRow({ test: it.lab_test ?? null, name: it.lab_test_name || requestItemLabel(it) }));
 }
 
 /** "12.5000" → "12.5" (the API returns 4 decimal places). */
@@ -240,7 +240,7 @@ export function LabResultEditor({
             </Button>
             <TestPicker onPick={(t) => { touch(); setRows((rs) => {
               const blank = rs.find((r) => !r.name.trim() && !r.value.trim());
-              const filled = { test: t.id, name: t.name_ar || t.name_en };
+              const filled = { test: t.id, name: t.name_en };
               return blank ? rs.map((r) => (r.key === blank.key ? { ...r, ...filled } : r)) : [...rs, emptyRow(filled)];
             }); }} />
           </div>
@@ -427,10 +427,10 @@ export function TestPicker({ onPick }: { onPick: (t: Schemas["LabTestType"]) => 
                 <button type="button" onClick={() => { onPick(t); setOpen(false); setQ(""); }}
                   className="flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-start text-sm hover:bg-sunken">
                   <span className="min-w-0">
-                    <span className="block truncate font-medium">{t.name_ar}</span>
-                    <span className="block truncate text-xs text-subtle" dir="ltr">{t.name_en}</span>
+                    <span className="block truncate font-medium" dir="ltr">{t.name_en}</span>
+                    <span className="block truncate text-xs text-subtle">{t.name_ar}</span>
                   </span>
-                  <span className="num shrink-0 rounded-md bg-sunken px-1.5 py-0.5 text-xs text-muted">{t.code}</span>
+                  <span className="num shrink-0 rounded-md bg-sunken px-1.5 py-0.5 text-xs text-muted">{t.short_name || t.code}</span>
                 </button>
               </li>
             ))}

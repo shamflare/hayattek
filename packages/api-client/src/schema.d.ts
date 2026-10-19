@@ -4344,6 +4344,8 @@ export interface components {
             code: string;
             name_ar: string;
             name_en: string;
+            /** @description Name as written on lab requests, e.g. CBC, HbA1c. */
+            short_name?: string;
             category?: string;
             specimen?: string;
         };
@@ -6292,6 +6294,7 @@ export interface components {
             lab_test?: string | null;
             readonly lab_test_name: string;
             readonly lab_test_name_ar: string;
+            readonly lab_test_short_name: string;
             modality?: components["schemas"]["ModalityEnum"] | components["schemas"]["BlankEnum"];
             body_site?: string;
             description?: string;

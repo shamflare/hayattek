@@ -103,8 +103,9 @@ export default function LabRequestPage() {
                         <li key={it.id} className="flex items-start gap-2">
                           <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" />
                           <span>
-                            {requestItemLabel(it)}
-                            {it.lab_test_name && it.lab_test_name_ar && <span className="block text-xs text-subtle" dir="ltr">{it.lab_test_name}</span>}
+                            <bdi className="font-medium">{requestItemLabel(it)}</bdi>
+                            {it.lab_test_name && it.lab_test_name !== requestItemLabel(it) && <span className="block text-xs text-subtle" dir="ltr">{it.lab_test_name}</span>}
+                            {it.lab_test_name_ar && <span className="block text-xs text-subtle">{it.lab_test_name_ar}</span>}
                             {it.description && (it.lab_test || it.modality) && <span className="block text-xs text-muted">{it.description}</span>}
                           </span>
                         </li>
