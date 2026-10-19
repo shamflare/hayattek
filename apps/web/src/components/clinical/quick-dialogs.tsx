@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FileUp, Search, X } from "lucide-react";
+import { Check, FileUp, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -9,8 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChoiceChips, Field, Input, Select, Textarea } from "@/components/ui/field";
-import { api, errorMessage, unwrap, uploadDocument } from "@/lib/api";
-import { useDebounced } from "@/lib/hooks";
+import { api, errorMessage, type Schemas, unwrap, uploadDocument } from "@/lib/api";
 import { m } from "@/lib/i18n";
 
 import { useRefreshChart } from "./queries";
@@ -109,12 +108,12 @@ export function OrderDialog({ open, onOpenChange, patientId, encounterId, kind }
   const [priority, setPriority] = React.useState("routine");
   const [notes, setNotes] = React.useState("");
   const [q, setQ] = React.useState("");
-  const query = useDebounced(q, 250);
 
   const testsQuery = useQuery({
-    queryKey: ["lab-tests", query],
-    queryFn: () => unwrap(api.GET("/api/v1/diagnostics/lab-tests", { params: { query: query ? { q: query } : {} } })),
+    queryKey: ["lab-tests"],
+    queryFn: () => unwrap(api.GET("/api/v1/diagnostics/lab-tests", {})),
     enabled: open && kind === "lab",
+    staleTime: 10 * 60_000,
   });
   const performers = useQuery({
     queryKey: ["directory", "orgs", kind],
@@ -154,28 +153,20 @@ export function OrderDialog({ open, onOpenChange, patientId, encounterId, kind }
         <div className="space-y-5">
           {kind === "lab" ? (
             <>
-              {tests.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tests.map((t) => (
-                    <span key={t.id} className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-3 py-1 text-sm text-white">
-                      {t.name}
-                      <button onClick={() => setTests((all) => all.filter((x) => x.id !== t.id))} aria-label="إزالة"><X className="size-3.5" /></button>
-                    </span>
-                  ))}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
+                  <Input value={q} onChange={(e) => setQ(e.target.value)} className="ps-9" placeholder="تصفية: سكر، CBC، كرياتينين…" />
                 </div>
-              )}
-              <div className="relative">
-                <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
-                <Input value={q} onChange={(e) => setQ(e.target.value)} className="ps-9" placeholder="ابحث عن تحليل: سكر، CBC، كرياتينين…" />
-              </div>
-              <div className="flex max-h-44 flex-wrap gap-2 overflow-y-auto">
-                {(testsQuery.data ?? []).filter((t) => !tests.some((x) => x.id === t.id)).map((t) => (
-                  <button key={t.id} type="button" onClick={() => setTests((all) => [...all, { id: t.id, name: t.name_ar }])}
-                    className="rounded-full border border-line px-3 py-1.5 text-sm hover:border-brand-400 hover:text-brand-700">
-                    {t.name_ar} <span className="num text-xs text-subtle">{t.code}</span>
+                {tests.length > 0 && (
+                  <button type="button" onClick={() => setTests([])} className="flex shrink-0 items-center gap-1 text-sm text-muted hover:text-danger">
+                    <span className="num font-semibold text-brand-600">{tests.length}</span> مختار — مسح <X className="size-3.5" />
                   </button>
-                ))}
+                )}
               </div>
+              <LabTestGrid all={testsQuery.data ?? []} loading={testsQuery.isLoading} filter={q}
+                selected={tests} onToggle={(t) => setTests((all) => all.some((x) => x.id === t.id)
+                  ? all.filter((x) => x.id !== t.id) : [...all, { id: t.id, name: t.name_ar }])} />
               <Field label="تحليل غير موجود في القائمة" optional>
                 <Input value={freeText} onChange={(e) => setFreeText(e.target.value)} />
               </Field>
@@ -214,6 +205,58 @@ export function OrderDialog({ open, onOpenChange, patientId, encounterId, kind }
 }
 
 /* ------------------------------------------------------------------ upload */
+
+const LAB_CATEGORY_ORDER = [
+  "دمويات", "سكر", "وظائف كلية", "وظائف كبد", "شحوم", "شوارد ومعادن", "فيتامينات وحديد",
+  "هرمونات الدرق", "هرمونات", "تخثر", "التهابات وروماتيزم", "مصليات وأمراض معدية",
+  "واسمات قلبية", "واسمات ورمية", "بول", "براز", "زروع ومسحات",
+];
+
+const fold = (s: string) => s.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+
+/** Every orderable test, grouped by category; tapping a test toggles it (highlighted when
+ *  selected). The filter box only narrows the list. */
+function LabTestGrid({ all, loading, filter, selected, onToggle }: {
+  all: Schemas["LabTestType"][];
+  loading: boolean;
+  filter: string;
+  selected: { id: string }[];
+  onToggle: (t: Schemas["LabTestType"]) => void;
+}) {
+  const f = fold(filter.trim());
+  const shown = f ? all.filter((t) => fold(`${t.name_ar} ${t.name_en} ${t.code}`).includes(f)) : all;
+  const groups = new Map<string, Schemas["LabTestType"][]>();
+  for (const t of shown) groups.set(t.category || "أخرى", [...(groups.get(t.category || "أخرى") ?? []), t]);
+  const rank = (c: string) => { const i = LAB_CATEGORY_ORDER.indexOf(c); return i === -1 ? 999 : i; };
+  const ordered = [...groups.entries()].sort(([a], [b]) => rank(a) - rank(b));
+
+  if (loading) return <div className="h-40 animate-pulse rounded-xl bg-sunken" />;
+  if (!ordered.length) {
+    return <p className="rounded-xl bg-sunken p-3 text-sm text-muted">{f ? "لا يوجد تحليل بهذا الاسم — اكتبه في خانة «تحليل غير موجود في القائمة»." : "لا توجد تحاليل في القائمة بعد."}</p>;
+  }
+  return (
+    <div className="max-h-[22rem] space-y-4 overflow-y-auto rounded-xl border border-line p-3">
+      {ordered.map(([category, items]) => (
+        <section key={category}>
+          <h3 className="mb-2 text-xs font-semibold text-muted">{category}</h3>
+          <div className="flex flex-wrap gap-2">
+            {items.map((t) => {
+              const on = selected.some((x) => x.id === t.id);
+              return (
+                <button key={t.id} type="button" aria-pressed={on} onClick={() => onToggle(t)} title={t.name_en}
+                  className={on
+                    ? "inline-flex items-center gap-1 rounded-full border border-brand-600 bg-brand-600 px-3 py-1.5 text-sm font-medium text-white"
+                    : "rounded-full border border-line px-3 py-1.5 text-sm transition hover:border-brand-400 hover:bg-brand-50"}>
+                  {on && <Check className="size-3.5" />}{t.name_ar}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
 
 export function UploadDialog({ open, onOpenChange, patientId, encounterId }: DialogProps) {
   const refresh = useRefreshChart(patientId);

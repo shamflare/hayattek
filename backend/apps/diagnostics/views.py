@@ -55,7 +55,7 @@ class LabTestTypeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if q:
             qs = qs.filter(name_ar__icontains=q) | qs.filter(name_en__icontains=q) | qs.filter(
                 code__icontains=q)
-        return qs[:200]
+        return qs[:500]
 
 
 def _staff_of(organization, role):
